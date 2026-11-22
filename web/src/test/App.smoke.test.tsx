@@ -12,7 +12,7 @@ function renderAt(initialEntry: string) {
   );
 }
 
-describe('AlgoMiri Sprint 1 smoke tests', () => {
+describe('AlgoMiri smoke tests', () => {
   it('renders the Landing page hero and handles unsupported pasted problems honestly', async () => {
     const user = userEvent.setup();
     renderAt('/');
@@ -44,7 +44,7 @@ describe('AlgoMiri Sprint 1 smoke tests', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches strategies and steps through the Two Sum preview in Studio', async () => {
+  it('switches strategies and steps through the Two Sum trace in Studio', async () => {
     const user = userEvent.setup();
     renderAt('/studio');
 

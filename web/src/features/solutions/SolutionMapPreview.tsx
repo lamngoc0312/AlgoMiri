@@ -4,14 +4,17 @@ import { Badge } from '../../components/ui/Badge';
 
 interface SolutionMapPreviewProps {
   graph: SolutionGraph;
-  activeStepIndex: number;
+  activeGoalIndex: number;
 }
 
 export function SolutionMapPreview({
   graph,
-  activeStepIndex,
+  activeGoalIndex,
 }: SolutionMapPreviewProps) {
-  const activeNodeIndex = Math.min(activeStepIndex, graph.nodes.length - 1);
+  const clampedGoalIndex = Math.max(
+    0,
+    Math.min(activeGoalIndex, graph.nodes.length - 1),
+  );
 
   return (
     <section
@@ -30,11 +33,11 @@ export function SolutionMapPreview({
 
       <ol className="grid gap-3 sm:grid-cols-3">
         {graph.nodes.map((node, index) => {
-          const isCurrent = index === activeNodeIndex;
+          const isCurrent = index === clampedGoalIndex;
           return (
             <li
               key={node.id}
-              className={`relative rounded-xl border p-3 transition-colors ${
+              className={`relative rounded-xl border p-3 transition-colors duration-200 ${
                 isCurrent
                   ? 'border-[#645BE8] bg-white shadow-xs'
                   : 'border-[#E3E7F2] bg-white/75'
