@@ -4,22 +4,22 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { AppRoutes } from '../app/App';
 
-function renderStudio() {
+function renderExploreStudio() {
   return render(
-    <MemoryRouter initialEntries={['/studio']}>
+    <MemoryRouter initialEntries={['/studio?mode=explore']}>
       <AppRoutes />
     </MemoryRouter>,
   );
 }
 
-describe('Learning Studio interactive controls', () => {
+describe('Learning Studio interactive controls & Sprint 2 regressions', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
 
   it('applies valid custom input and reaches terminal found state', async () => {
     const user = userEvent.setup();
-    renderStudio();
+    renderExploreStudio();
 
     const numsInput = screen.getByLabelText(/array \(nums\)/i);
     const targetInput = screen.getByLabelText(/^target$/i);
@@ -39,7 +39,7 @@ describe('Learning Studio interactive controls', () => {
 
   it('shows validation error for invalid custom input without breaking current trace', async () => {
     const user = userEvent.setup();
-    renderStudio();
+    renderExploreStudio();
 
     const numsInput = screen.getByLabelText(/array \(nums\)/i);
     await user.clear(numsInput);
@@ -53,7 +53,7 @@ describe('Learning Studio interactive controls', () => {
 
   it('handles no-solution and empty-array presets cleanly', async () => {
     const user = userEvent.setup();
-    renderStudio();
+    renderExploreStudio();
 
     await user.click(screen.getByRole('button', { name: /no match \[1, 2, 3\]/i }));
     const slider = screen.getByLabelText(/trace step timeline/i) as HTMLInputElement;
@@ -67,7 +67,7 @@ describe('Learning Studio interactive controls', () => {
 
   it('supports Prev, Next, Reset, Speed, and Strategy switching reset', async () => {
     const user = userEvent.setup();
-    renderStudio();
+    renderExploreStudio();
 
     expect(screen.getByText(/step 1 of 4/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /next step/i }));
@@ -93,9 +93,53 @@ describe('Learning Studio interactive controls', () => {
     expect(screen.queryByLabelText(/seen hash map visualization/i)).not.toBeInTheDocument();
   });
 
+  it('resets playback to Step 1 when applying the exact same input again (regression)', async () => {
+    const user = userEvent.setup();
+    renderExploreStudio();
+
+    await user.click(screen.getByRole('button', { name: /next step/i }));
+    await user.click(screen.getByRole('button', { name: /next step/i }));
+    expect(screen.getByText(/step 3 of 4/i)).toBeInTheDocument();
+
+    // Re-apply identical default input without editing fields
+    await user.click(screen.getByRole('button', { name: /apply/i }));
+    expect(screen.getByText(/step 1 of 4/i)).toBeInTheDocument();
+  });
+
+  it('stops playback and clears timers when changing input or switching strategy mid-playback (regression)', () => {
+    vi.useFakeTimers();
+    const { unmount } = renderExploreStudio();
+
+    fireEvent.click(screen.getByRole('button', { name: /play trace/i }));
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText(/step 2 of 4/i)).toBeInTheDocument();
+
+    // Change input mid-playback via preset
+    fireEvent.click(screen.getByRole('button', { name: /negatives \[-3, 4, 3, 90\]/i }));
+    expect(screen.getByText(/step 1 of/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /play trace/i })).toBeInTheDocument();
+    expect(vi.getTimerCount()).toBe(0);
+
+    // Start playing again, then switch strategy mid-playback
+    fireEvent.click(screen.getByRole('button', { name: /play trace/i }));
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText(/step 2 of/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('radio', { name: /brute force pair check/i }));
+    expect(screen.getByText(/step 1 of/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /play trace/i })).toBeInTheDocument();
+    expect(vi.getTimerCount()).toBe(0);
+
+    unmount();
+  });
+
   it('auto-plays steps when Play is clicked and stops cleanly on Pause or unmount', () => {
     vi.useFakeTimers();
-    const { unmount } = renderStudio();
+    const { unmount } = renderExploreStudio();
 
     expect(screen.getByText(/step 1 of 4/i)).toBeInTheDocument();
 

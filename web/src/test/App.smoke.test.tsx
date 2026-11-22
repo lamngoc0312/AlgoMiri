@@ -44,9 +44,9 @@ describe('AlgoMiri smoke tests', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches strategies and steps through the Two Sum trace in Studio', async () => {
+  it('switches to Free Exploration and steps through both Two Sum strategies in Studio', async () => {
     const user = userEvent.setup();
-    renderAt('/studio');
+    renderAt('/studio?mode=explore');
 
     expect(screen.getByText(/step 1 of 4/i)).toBeInTheDocument();
 
