@@ -1,13 +1,15 @@
-import { CheckCircle2, Eye, Hash, SearchX } from 'lucide-react';
+import { CheckCircle2, Eye, Hash, SearchX, Sparkles } from 'lucide-react';
 import type { SolutionGraph, SolutionStrategy } from '../../domain/problems/types';
 import type {
   ExecutionStep,
   HighlightRole,
   TwoSumInput,
 } from '../../domain/traces/types';
+import type { PredictionPrompt } from '../../domain/learning/predictions';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { SolutionMapPreview } from '../solutions/SolutionMapPreview';
+import { PredictNextStepCard } from '../guided/PredictNextStepCard';
 import { CustomInputBar } from './CustomInputBar';
 import { PlaybackControls } from './PlaybackControls';
 
@@ -20,6 +22,10 @@ interface VisualCanvasProps {
   isPlaying: boolean;
   speed: number;
   solutionGraph: SolutionGraph;
+  predictModeEnabled: boolean;
+  predictionPrompt: PredictionPrompt | null;
+  onTogglePredictMode: () => void;
+  onRecordPredictionAttempt: (isCorrect: boolean) => void;
   onApplyInput: (input: TwoSumInput) => void;
   onPrev: () => void;
   onNext: () => void;
@@ -60,6 +66,10 @@ export function VisualCanvas({
   isPlaying,
   speed,
   solutionGraph,
+  predictModeEnabled,
+  predictionPrompt,
+  onTogglePredictMode,
+  onRecordPredictionAttempt,
   onApplyInput,
   onPrev,
   onNext,
@@ -84,7 +94,20 @@ export function VisualCanvas({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="indigo">{strategy.shortLabel}</Badge>
-              <Badge variant="mint">Deterministic Engine</Badge>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={predictModeEnabled}
+                onClick={onTogglePredictMode}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                  predictModeEnabled
+                    ? 'bg-[#645BE8] text-white'
+                    : 'border border-[#D7DCEB] bg-[#F7F8FC] text-[#555D7A] hover:text-[#20253B]'
+                }`}
+              >
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                Predict Next Step: {predictModeEnabled ? 'On' : 'Off'}
+              </button>
             </div>
           </div>
           <p className="text-xs text-[#555D7A]">
@@ -311,6 +334,15 @@ export function VisualCanvas({
             onSpeedChange={onSpeedChange}
             onSeek={onSeek}
           />
+
+          {/* Interactive Predict the Next Step Card */}
+          {predictModeEnabled && (
+            <PredictNextStepCard
+              prompt={predictionPrompt}
+              onRecordAttempt={onRecordPredictionAttempt}
+              onRevealAndAdvance={onNext}
+            />
+          )}
 
           {/* Compact Synchronized Narrative on Mobile so users don't have to switch tabs */}
           <div
