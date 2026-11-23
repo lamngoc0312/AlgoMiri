@@ -28,7 +28,7 @@ describe('AlgoMiri smoke tests', () => {
     await user.click(screen.getByRole('button', { name: /open in studio/i }));
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      /not supported in sprint 1 demo/i,
+      /not supported in current demo/i,
     );
   });
 
@@ -44,7 +44,7 @@ describe('AlgoMiri smoke tests', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches to Free Exploration and steps through both Two Sum strategies in Studio', async () => {
+  it('redirects legacy /studio?mode=explore and steps through both Two Sum strategies', async () => {
     const user = userEvent.setup();
     renderAt('/studio?mode=explore');
 

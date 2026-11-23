@@ -1,16 +1,30 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { LandingPage } from '../pages/LandingPage';
+import { ProblemsPage } from '../pages/ProblemsPage';
 import { StudioPage } from '../pages/StudioPage';
 import { RoadmapPage } from '../pages/RoadmapPage';
 import { ProgressPage } from '../pages/ProgressPage';
+
+function LegacyStudioRedirect() {
+  const location = useLocation();
+  return <Navigate to={`/studio/two-sum${location.search}`} replace />;
+}
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/studio" element={<StudioPage />} />
+        <Route path="/problems" element={<ProblemsPage />} />
+        <Route path="/studio" element={<LegacyStudioRedirect />} />
+        <Route path="/studio/:problemId" element={<StudioPage />} />
         <Route path="/roadmap" element={<RoadmapPage />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

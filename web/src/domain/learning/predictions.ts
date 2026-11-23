@@ -18,6 +18,7 @@ export function generatePredictionPrompt(
   steps: ExecutionStep[],
   currentStepIndex: number,
   strategyId: TwoSumStrategyId,
+  traceContextId = 'default',
 ): PredictionPrompt | null {
   const current = steps[currentStepIndex];
   const next = steps[currentStepIndex + 1];
@@ -27,13 +28,14 @@ export function generatePredictionPrompt(
   }
 
   const { nums, target } = current.visualState;
+  const questionId = `${traceContextId}:step-${current.stepIndex}:${current.action}`;
 
   if (strategyId === 'brute-force') {
     if (current.action === 'select-anchor') {
       const i = current.visualState.pointers.i ?? 0;
       const nextJ = next.visualState.pointers.j ?? i + 1;
       return {
-        id: `pred-bf-${current.stepIndex}`,
+        id: questionId,
         stepIndex: current.stepIndex,
         question: `Anchor i is at index ${i} (value ${nums[i]}). Which index will partner j inspect next?`,
         options: [
@@ -69,7 +71,7 @@ export function generatePredictionPrompt(
 
       if (next.action === 'found') {
         return {
-          id: `pred-bf-${current.stepIndex}`,
+          id: questionId,
           stepIndex: current.stepIndex,
           question: `We just computed nums[${i}] + nums[${j}] = ${nums[i]} + ${nums[j]} = ${sum} (target is ${target}). What happens next?`,
           options: [
@@ -98,7 +100,7 @@ export function generatePredictionPrompt(
       if (next.action === 'compare-pair') {
         const nextJ = next.visualState.pointers.j ?? j + 1;
         return {
-          id: `pred-bf-${current.stepIndex}`,
+          id: questionId,
           stepIndex: current.stepIndex,
           question: `${nums[i]} + ${nums[j]} = ${sum} ≠ ${target}. What pointer moves next?`,
           options: [
@@ -127,7 +129,7 @@ export function generatePredictionPrompt(
       if (next.action === 'select-anchor') {
         const nextI = next.visualState.pointers.i ?? i + 1;
         return {
-          id: `pred-bf-${current.stepIndex}`,
+          id: questionId,
           stepIndex: current.stepIndex,
           question: `${nums[i]} + ${nums[j]} = ${sum} ≠ ${target}, and j reached the end of the array. What happens next?`,
           options: [
@@ -155,7 +157,7 @@ export function generatePredictionPrompt(
 
       if (next.action === 'not-found') {
         return {
-          id: `pred-bf-${current.stepIndex}`,
+          id: questionId,
           stepIndex: current.stepIndex,
           question: `${nums[i]} + ${nums[j]} = ${sum} ≠ ${target}, and this was the final distinct pair. What happens next?`,
           options: [
@@ -190,7 +192,7 @@ export function generatePredictionPrompt(
       const val = nums[i];
       const complement = current.visualState.complement ?? target - val;
       return {
-        id: `pred-hm-${current.stepIndex}`,
+        id: questionId,
         stepIndex: current.stepIndex,
         question: `Complement ${complement} was NOT in the Seen Map. What does the algorithm do next?`,
         options: [
@@ -219,7 +221,7 @@ export function generatePredictionPrompt(
     if (current.action === 'store-value') {
       if (next.action === 'not-found') {
         return {
-          id: `pred-hm-${current.stepIndex}`,
+          id: questionId,
           stepIndex: current.stepIndex,
           question: `We stored the last element in the array. What happens next?`,
           options: [
@@ -251,7 +253,7 @@ export function generatePredictionPrompt(
       const willHit = next.action === 'lookup-hit';
 
       return {
-        id: `pred-hm-${current.stepIndex}`,
+        id: questionId,
         stepIndex: current.stepIndex,
         question: `Next we advance to i = ${nextI} (nums[${nextI}] = ${nextVal}), so we need complement ${target} - ${nextVal} = ${nextComp}. Will the Seen Map find ${nextComp}?`,
         options: [
@@ -279,7 +281,7 @@ export function generatePredictionPrompt(
       const pair = next.visualState.foundPair ?? [0, 1];
       const [firstIdx, secondIdx] = pair;
       return {
-        id: `pred-hm-${current.stepIndex}`,
+        id: questionId,
         stepIndex: current.stepIndex,
         question: `Complement lookup succeeded! Which pair of distinct indices will be returned next?`,
         options: [

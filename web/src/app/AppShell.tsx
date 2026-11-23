@@ -4,6 +4,7 @@ import {
   BookOpen,
   Compass,
   Layers,
+  Library,
   Menu,
   Sparkles,
   TrendingUp,
@@ -14,6 +15,7 @@ import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home', icon: Sparkles, end: true },
+  { to: '/problems', label: 'Problems', icon: Library, end: false },
   { to: '/studio', label: 'Learning Studio', icon: Layers, end: false },
   { to: '/roadmap', label: 'Roadmap', icon: Compass, end: false },
   { to: '/progress', label: 'Progress', icon: TrendingUp, end: false },
@@ -52,7 +54,7 @@ export function AppShell() {
               </span>
             </Link>
             <Badge variant="demo" className="hidden sm:inline-flex">
-              v0.1 Demo
+              v0.2 Demo
             </Badge>
           </div>
 
@@ -79,10 +81,10 @@ export function AppShell() {
 
           <div className="hidden md:flex items-center">
             <Link
-              to="/studio"
+              to="/problems"
               className="inline-flex h-9 items-center justify-center rounded-xl bg-[#645BE8] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#4F46D8]"
             >
-              Try Two Sum
+              Browse Problems
             </Link>
           </div>
 
@@ -143,7 +145,7 @@ export function AppShell() {
             <span className="font-semibold text-[#20253B]">AlgoMiri</span> — Understand first. Code second.
           </p>
           <p>
-            Sprint 1 frontend demo · No backend, login, or external AI API connected.
+            Frontend visual learning studio · No backend, login, or external AI API connected.
           </p>
         </div>
       </footer>

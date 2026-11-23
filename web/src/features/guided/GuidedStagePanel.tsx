@@ -5,42 +5,46 @@ import {
   CheckCircle2,
   Code2,
   Eye,
+  FastForward,
   GraduationCap,
   HelpCircle,
 } from 'lucide-react';
-import {
-  TWO_SUM_GUIDED_STAGES,
-  TWO_SUM_PSEUDOCODE_BLOCKS,
-  type GuidedStage,
-  type GuidedStageId,
-} from '../../domain/learning/twoSumLesson';
-import { STAGE_HINTS } from '../../domain/learning/hints';
+import type {
+  GuidedStage,
+  ProblemLesson,
+} from '../../domain/core/types';
+import type { StageStatus } from '../../domain/learning/session';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { HintPanel } from './HintPanel';
 
 interface GuidedStagePanelProps {
+  lesson: ProblemLesson;
   stage: GuidedStage;
-  isCompleted: boolean;
+  stageStatus: StageStatus;
   revealedHintsCount: number;
   onRevealNextHint: () => void;
-  onCompleteStage: (stageId: GuidedStageId) => void;
-  onNavigateStage: (stageId: GuidedStageId) => void;
-  onOpenSummary: () => void;
+  onAnswerStage: (stageId: string, isCorrect: boolean) => void;
+  onNavigateStage: (stageId: string) => void;
+  onSkipOrContinue: (
+    currentStageId: string,
+    destination: string | 'summary',
+  ) => void;
 }
 
 export function GuidedStagePanel({
+  lesson,
   stage,
-  isCompleted,
+  stageStatus,
   revealedHintsCount,
   onRevealNextHint,
-  onCompleteStage,
+  onAnswerStage,
   onNavigateStage,
-  onOpenSummary,
+  onSkipOrContinue,
 }: GuidedStagePanelProps) {
   const [selectedOptionByStage, setSelectedOptionByStage] = useState<
-    Partial<Record<GuidedStageId, string>>
+    Record<string, string>
   >({});
   const [revealedPseudoCount, setRevealedPseudoCount] = useState(0);
 
@@ -49,24 +53,23 @@ export function GuidedStagePanel({
     (opt) => opt.id === selectedOptionId,
   );
 
-  const stageIdx = TWO_SUM_GUIDED_STAGES.findIndex((s) => s.id === stage.id);
-  const prevStage = stageIdx > 0 ? TWO_SUM_GUIDED_STAGES[stageIdx - 1] : null;
+  const stageIdx = lesson.stages.findIndex((s) => s.id === stage.id);
+  const prevStage = stageIdx > 0 ? lesson.stages[stageIdx - 1] : null;
   const nextStage =
-    stageIdx < TWO_SUM_GUIDED_STAGES.length - 1
-      ? TWO_SUM_GUIDED_STAGES[stageIdx + 1]
-      : null;
+    stageIdx < lesson.stages.length - 1 ? lesson.stages[stageIdx + 1] : null;
+
+  const isCompleted = stageStatus === 'completed';
 
   const handleSelectOption = (optionId: string, isCorrect: boolean) => {
     setSelectedOptionByStage((prev) => ({
       ...prev,
       [stage.id]: optionId,
     }));
-    if (isCorrect) {
-      onCompleteStage(stage.id);
-    }
+    onAnswerStage(stage.id, isCorrect);
   };
 
-  const hints = STAGE_HINTS[stage.id];
+  const hints = lesson.hintsByStage[stage.id] ?? [];
+  const showPseudocode = stage.id === lesson.pseudocodeStageId;
 
   return (
     <Card className="border-[#645BE8]/35">
@@ -77,13 +80,30 @@ export function GuidedStagePanel({
               className="h-4 w-4 text-[#645BE8]"
               aria-hidden="true"
             />
-            <Badge variant="indigo">Stage {stage.stageNumber} of 4</Badge>
+            <Badge variant="indigo">
+              Stage {stage.stageNumber} of {lesson.stages.length}
+            </Badge>
           </div>
           {isCompleted && (
             <Badge variant="mint">
               <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
               Completed
             </Badge>
+          )}
+          {stageStatus === 'skipped' && (
+            <Badge variant="amber">
+              <FastForward className="h-3 w-3" aria-hidden="true" />
+              Skipped
+            </Badge>
+          )}
+          {stageStatus === 'skipped-after-attempt' && (
+            <Badge variant="amber">
+              <FastForward className="h-3 w-3" aria-hidden="true" />
+              Skipped After Attempt
+            </Badge>
+          )}
+          {stageStatus === 'attempted' && (
+            <Badge variant="neutral">Attempted</Badge>
           )}
         </div>
         <CardTitle className="text-lg mt-1">{stage.title}</CardTitle>
@@ -155,8 +175,8 @@ export function GuidedStagePanel({
           )}
         </div>
 
-        {/* Stage 4: Progressive Pseudocode Reveal (hidden until requested) */}
-        {stage.id === 'build-solution' && (
+        {/* Progressive Pseudocode Reveal (hidden until requested) */}
+        {showPseudocode && lesson.pseudocodeBlocks.length > 0 && (
           <div
             aria-label="Progressive pseudocode reveal"
             className="rounded-2xl border border-[#D8DCFF] bg-[#EEF0FF]/40 p-3.5 space-y-3"
@@ -167,7 +187,7 @@ export function GuidedStagePanel({
                 Progressive Pseudocode
               </div>
               <Badge variant="indigo">
-                {revealedPseudoCount} / {TWO_SUM_PSEUDOCODE_BLOCKS.length} steps
+                {revealedPseudoCount} / {lesson.pseudocodeBlocks.length} steps
               </Badge>
             </div>
 
@@ -177,8 +197,9 @@ export function GuidedStagePanel({
               </p>
             ) : (
               <div className="space-y-2.5">
-                {TWO_SUM_PSEUDOCODE_BLOCKS.slice(0, revealedPseudoCount).map(
-                  (block) => (
+                {lesson.pseudocodeBlocks
+                  .slice(0, revealedPseudoCount)
+                  .map((block) => (
                     <div
                       key={block.id}
                       className="rounded-xl border border-[#E3E7F2] bg-white p-3 space-y-1.5"
@@ -193,19 +214,18 @@ export function GuidedStagePanel({
                         {block.lines.join('\n')}
                       </pre>
                     </div>
-                  ),
-                )}
+                  ))}
               </div>
             )}
 
             <div className="flex flex-wrap items-center gap-2">
-              {revealedPseudoCount < TWO_SUM_PSEUDOCODE_BLOCKS.length && (
+              {revealedPseudoCount < lesson.pseudocodeBlocks.length && (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() =>
                     setRevealedPseudoCount((count) =>
-                      Math.min(count + 1, TWO_SUM_PSEUDOCODE_BLOCKS.length),
+                      Math.min(count + 1, lesson.pseudocodeBlocks.length),
                     )
                   }
                 >
@@ -227,11 +247,13 @@ export function GuidedStagePanel({
         )}
 
         {/* Progressive 3-Level Hint Panel */}
-        <HintPanel
-          hints={hints}
-          revealedCount={revealedHintsCount}
-          onRevealNextHint={onRevealNextHint}
-        />
+        {hints.length > 0 && (
+          <HintPanel
+            hints={hints}
+            revealedCount={revealedHintsCount}
+            onRevealNextHint={onRevealNextHint}
+          />
+        )}
 
         {/* Stage Navigation Footer */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E3E7F2] pt-3">
@@ -250,26 +272,22 @@ export function GuidedStagePanel({
 
           {nextStage ? (
             <Button
-              variant="primary"
+              variant={isCompleted ? 'primary' : 'outline'}
               size="sm"
-              onClick={() => {
-                onCompleteStage(stage.id);
-                onNavigateStage(nextStage.id);
-              }}
+              onClick={() => onSkipOrContinue(stage.id, nextStage.id)}
             >
-              Continue to Stage {nextStage.stageNumber}
+              {isCompleted
+                ? `Continue to Stage ${nextStage.stageNumber}`
+                : `Skip to Stage ${nextStage.stageNumber}`}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           ) : (
             <Button
-              variant="mint"
+              variant={isCompleted ? 'mint' : 'outline'}
               size="sm"
-              onClick={() => {
-                onCompleteStage(stage.id);
-                onOpenSummary();
-              }}
+              onClick={() => onSkipOrContinue(stage.id, 'summary')}
             >
-              Finish &amp; View Summary
+              {isCompleted ? 'Finish & View Summary' : 'Skip & View Summary'}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           )}

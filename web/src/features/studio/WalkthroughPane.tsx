@@ -1,12 +1,12 @@
 import { Clock, Database, MessageSquareText } from 'lucide-react';
 import type { SolutionStrategy } from '../../domain/problems/types';
-import type { ExecutionStep } from '../../domain/traces/types';
+import type { GenericExecutionStep } from '../../domain/core/types';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
 interface WalkthroughPaneProps {
   strategy: SolutionStrategy;
-  step: ExecutionStep;
+  step: GenericExecutionStep;
   stepIndex: number;
   totalSteps: number;
 }
@@ -19,10 +19,13 @@ export function WalkthroughPane({
 }: WalkthroughPaneProps) {
   const statusBadge =
     step.visualState.status === 'found'
-      ? { variant: 'mint' as const, label: 'Completed · Found' }
+      ? { variant: 'mint' as const, label: 'Completed · Valid' }
       : step.visualState.status === 'not-found'
-        ? { variant: 'amber' as const, label: 'Completed · Not Found' }
-        : { variant: 'indigo' as const, label: `Step ${stepIndex + 1} / ${totalSteps}` };
+        ? { variant: 'amber' as const, label: 'Completed · Stopped' }
+        : {
+            variant: 'indigo' as const,
+            label: `Step ${stepIndex + 1} / ${totalSteps}`,
+          };
 
   return (
     <div className="flex flex-col gap-4">

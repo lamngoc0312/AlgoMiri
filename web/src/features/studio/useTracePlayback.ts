@@ -16,17 +16,19 @@ export const PLAYBACK_SPEEDS: PlaybackSpeedOption[] = [
 interface UseTracePlaybackOptions {
   totalSteps: number;
   resetKey: string;
+  shouldPauseAtStep?: (stepIndex: number) => boolean;
 }
 
 export function useTracePlayback({
   totalSteps,
   resetKey,
+  shouldPauseAtStep,
 }: UseTracePlaybackOptions) {
   const [stepIndex, setStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
 
-  // Reset playback state deterministically whenever strategy or input changes
+  // Reset playback state deterministically whenever strategy, input, or session changes
   useEffect(() => {
     setStepIndex(0);
     setIsPlaying(false);
@@ -34,11 +36,12 @@ export function useTracePlayback({
 
   const maxIndex = Math.max(0, totalSteps - 1);
   const safeStepIndex = Math.min(stepIndex, maxIndex);
+  const isPausedAtCheckpoint = Boolean(shouldPauseAtStep?.(safeStepIndex));
 
   useEffect(() => {
     if (!isPlaying) return undefined;
 
-    if (safeStepIndex >= maxIndex) {
+    if (isPausedAtCheckpoint || safeStepIndex >= maxIndex) {
       setIsPlaying(false);
       return undefined;
     }
@@ -49,7 +52,7 @@ export function useTracePlayback({
     const timerId = window.setTimeout(() => {
       setStepIndex((prev) => {
         const next = Math.min(prev + 1, maxIndex);
-        if (next >= maxIndex) {
+        if (next >= maxIndex || shouldPauseAtStep?.(next)) {
           setIsPlaying(false);
         }
         return next;
@@ -59,7 +62,7 @@ export function useTracePlayback({
     return () => {
       window.clearTimeout(timerId);
     };
-  }, [isPlaying, safeStepIndex, maxIndex, speed]);
+  }, [isPlaying, isPausedAtCheckpoint, safeStepIndex, maxIndex, speed, shouldPauseAtStep]);
 
   const prev = useCallback(() => {
     setIsPlaying(false);
@@ -77,9 +80,13 @@ export function useTracePlayback({
 
   const play = useCallback(() => {
     if (totalSteps <= 1) return;
+    if (isPausedAtCheckpoint && safeStepIndex < maxIndex) {
+      setIsPlaying(false);
+      return;
+    }
     setStepIndex((curr) => (curr >= maxIndex ? 0 : curr));
     setIsPlaying(true);
-  }, [maxIndex, totalSteps]);
+  }, [isPausedAtCheckpoint, maxIndex, safeStepIndex, totalSteps]);
 
   const togglePlay = useCallback(() => {
     if (isPlaying) {

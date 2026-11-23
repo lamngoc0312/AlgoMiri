@@ -16,6 +16,7 @@ interface PlaybackControlsProps {
   isPlaying: boolean;
   speed: number;
   status: TraceStatus;
+  checkpointPaused?: boolean;
   onPrev: () => void;
   onNext: () => void;
   onTogglePlay: () => void;
@@ -30,6 +31,7 @@ export function PlaybackControls({
   isPlaying,
   speed,
   status,
+  checkpointPaused = false,
   onPrev,
   onNext,
   onTogglePlay,
@@ -41,7 +43,17 @@ export function PlaybackControls({
   const isFirst = stepIndex === 0;
   const isLast = stepIndex >= maxIndex;
   const canPlay = totalSteps > 1;
-  const progressPercent = maxIndex === 0 ? 100 : Math.round((stepIndex / maxIndex) * 100);
+  const isForwardBlocked = checkpointPaused && !isLast;
+  const progressPercent =
+    maxIndex === 0 ? 100 : Math.round((stepIndex / maxIndex) * 100);
+
+  const handleSliderChange = (nextValue: number) => {
+    // Prevent timeline from bypassing an unanswered guided prediction checkpoint
+    if (isForwardBlocked && nextValue > stepIndex) {
+      return;
+    }
+    onSeek(nextValue);
+  };
 
   return (
     <div
@@ -55,8 +67,10 @@ export function PlaybackControls({
             Step {stepIndex + 1} of {totalSteps}
           </span>
           <div className="flex items-center gap-2">
-            {status === 'found' && <Badge variant="mint">Match Found</Badge>}
-            {status === 'not-found' && <Badge variant="amber">No Solution</Badge>}
+            {status === 'found' && <Badge variant="mint">Completed · Valid</Badge>}
+            {status === 'not-found' && (
+              <Badge variant="amber">Completed · Not Found / Invalid</Badge>
+            )}
             {status === 'running' && (
               <span className="font-mono text-[11px] text-[#555D7A]">
                 {progressPercent}%
@@ -71,7 +85,7 @@ export function PlaybackControls({
           max={maxIndex}
           value={stepIndex}
           disabled={maxIndex === 0}
-          onChange={(e) => onSeek(Number(e.target.value))}
+          onChange={(e) => handleSliderChange(Number(e.target.value))}
           aria-label="Trace step timeline"
           aria-valuetext={`Step ${stepIndex + 1} of ${totalSteps}`}
           className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#DCE1F0] accent-[#645BE8] disabled:cursor-not-allowed disabled:opacity-60"
@@ -100,9 +114,14 @@ export function PlaybackControls({
             variant="primary"
             size="sm"
             onClick={onTogglePlay}
-            disabled={!canPlay}
+            disabled={!canPlay || isForwardBlocked}
             aria-label={isPlaying ? 'Pause trace' : 'Play trace'}
             aria-pressed={isPlaying}
+            title={
+              isForwardBlocked
+                ? 'Answer or click Skip & Reveal below to continue playback'
+                : undefined
+            }
           >
             {isPlaying ? (
               <>
@@ -121,8 +140,13 @@ export function PlaybackControls({
             variant="outline"
             size="sm"
             onClick={onNext}
-            disabled={isLast}
+            disabled={isLast || isForwardBlocked}
             aria-label="Next step"
+            title={
+              isForwardBlocked
+                ? 'Answer or click Skip & Reveal below to advance past this checkpoint'
+                : undefined
+            }
           >
             <span className="hidden sm:inline">Next</span>
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -162,6 +186,12 @@ export function PlaybackControls({
           </select>
         </div>
       </div>
+
+      {isForwardBlocked && (
+        <p className="text-[11px] font-medium text-[#9A630A]">
+          Checkpoint active — answer the prediction below or click Skip &amp; Reveal Next Step to advance.
+        </p>
+      )}
     </div>
   );
 }

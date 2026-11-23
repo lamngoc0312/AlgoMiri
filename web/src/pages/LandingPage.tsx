@@ -34,7 +34,7 @@ const LEARNING_STEPS = [
     step: '03',
     title: 'Trace Step-by-Step',
     description:
-      'Watch deterministic visuals update pointers, comparisons, and data structures.',
+      'Watch deterministic visuals update pointers, stacks, comparisons, and data structures.',
     icon: Eye,
   },
   {
@@ -46,14 +46,25 @@ const LEARNING_STEPS = [
   },
 ];
 
-function isTwoSumQuery(text: string): boolean {
+function matchSupportedProblemRoute(text: string): string | null {
   const normalized = text.trim().toLowerCase();
-  return (
+  if (
     normalized.includes('two sum') ||
     normalized.includes('twosum') ||
     normalized.includes('two-sum') ||
     (normalized.includes('target') && normalized.includes('nums'))
-  );
+  ) {
+    return '/studio/two-sum';
+  }
+  if (
+    normalized.includes('valid parentheses') ||
+    normalized.includes('valid-parentheses') ||
+    normalized.includes('balanced brackets') ||
+    normalized.includes('parentheses')
+  ) {
+    return '/studio/valid-parentheses';
+  }
+  return null;
 }
 
 export function LandingPage() {
@@ -73,27 +84,35 @@ export function LandingPage() {
       setFeedback({
         type: 'empty',
         message:
-          'Paste a problem statement first, or click "Load Two Sum sample" below to jump straight into the Studio.',
+          'Paste a problem statement first, or load a supported sample below to jump straight into the Studio.',
       });
       return;
     }
 
-    if (isTwoSumQuery(trimmed)) {
+    const matchedRoute = matchSupportedProblemRoute(trimmed);
+    if (matchedRoute) {
       setFeedback(null);
-      navigate('/studio');
+      navigate(matchedRoute);
       return;
     }
 
     setFeedback({
       type: 'unsupported',
       message:
-        'Sprint 1 Demo Scope: Arbitrary problem statements and external URLs are not parsed yet, and no AI API is connected. Right now, only the verified Two Sum demo is available in Learning Studio.',
+        'Demo Scope: Arbitrary problem statements and external URLs are not parsed yet, and no AI API is connected. Right now, Two Sum and Valid Parentheses are supported with verified deterministic traces.',
     });
   };
 
   const handleFillTwoSum = () => {
     setProblemInput(
       'Two Sum: Given an array of integers nums and an integer target, find two distinct indices whose values add up to target.',
+    );
+    setFeedback(null);
+  };
+
+  const handleFillValidParentheses = () => {
+    setProblemInput(
+      'Valid Parentheses: Given a string containing (), [], and {}, determine if the brackets are balanced in proper nested order.',
     );
     setFeedback(null);
   };
@@ -121,18 +140,18 @@ export function LandingPage() {
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
-              to="/studio"
+              to="/problems"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#645BE8] px-6 text-base font-semibold text-white shadow-xs transition-colors hover:bg-[#4F46D8]"
             >
-              Open Two Sum in Studio
+              Browse Problem Library
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
 
             <Link
-              to="/roadmap"
+              to="/studio/two-sum"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D7DCEB] bg-white px-5 text-sm font-semibold text-[#20253B] transition-colors hover:bg-[#F7F8FC]"
             >
-              Explore Roadmap Preview
+              Try Two Sum Studio
             </Link>
           </div>
         </div>
@@ -143,19 +162,15 @@ export function LandingPage() {
             <h2 className="text-base font-bold text-[#20253B]">
               Start with a problem
             </h2>
-            <Badge variant="demo">Two Sum Live Demo</Badge>
+            <Badge variant="mint">2 Live Problems</Badge>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-[#555D7A]">
-            Paste a problem statement below. In Sprint 1, Two Sum opens directly in
-            the Studio; other problems show an honest unsupported-demo notice.
+            Paste a problem statement below. Two Sum and Valid Parentheses open directly in Learning Studio; other problems show an honest unsupported-demo notice.
           </p>
 
           <form onSubmit={handleAnalyzeSubmit} className="mt-4 space-y-3">
             <div>
-              <label
-                htmlFor="problem-input"
-                className="sr-only"
-              >
+              <label htmlFor="problem-input" className="sr-only">
                 Paste a problem statement
               </label>
               <textarea
@@ -166,7 +181,7 @@ export function LandingPage() {
                   setProblemInput(e.target.value);
                   if (feedback) setFeedback(null);
                 }}
-                placeholder="Paste a problem statement (try Two Sum, or paste another problem to see how unsupported inputs are handled honestly)..."
+                placeholder="Paste a problem statement (try Two Sum or Valid Parentheses, or paste another problem to see how unsupported inputs are handled honestly)..."
                 className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-sm text-[#20253B] placeholder:text-[#7E86A3] focus:border-[#645BE8] focus:bg-white focus:outline-none"
               />
             </div>
@@ -183,16 +198,16 @@ export function LandingPage() {
                 <div className="space-y-1.5">
                   <p className="font-semibold text-[#9A630A]">
                     {feedback.type === 'unsupported'
-                      ? 'Not supported in Sprint 1 Demo'
+                      ? 'Not supported in current demo'
                       : 'Add a problem statement'}
                   </p>
                   <p className="text-[#555D7A]">{feedback.message}</p>
                   {feedback.type === 'unsupported' && (
                     <Link
-                      to="/studio"
+                      to="/problems"
                       className="inline-flex items-center gap-1 font-semibold text-[#4F46D8] hover:underline"
                     >
-                      Open the verified Two Sum demo instead
+                      Browse supported interactive problems
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                     </Link>
                   )}
@@ -201,14 +216,24 @@ export function LandingPage() {
             )}
 
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleFillTwoSum}
-              >
-                Load Two Sum sample
-              </Button>
+              <div className="flex flex-wrap items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleFillTwoSum}
+                >
+                  Load Two Sum sample
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleFillValidParentheses}
+                >
+                  Load Valid Parentheses
+                </Button>
+              </div>
               <Button type="submit" variant="primary" size="md">
                 Open in Studio
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -229,14 +254,19 @@ export function LandingPage() {
               Sample Problems
             </h2>
             <p className="mt-1 text-sm text-[#555D7A]">
-              Start with our verified Two Sum visual demo. Additional patterns are planned for future sprints.
+              Explore our verified interactive visual lessons. Additional patterns are planned for future sprints.
             </p>
           </div>
-          <Badge variant="neutral">Original educational examples</Badge>
+          <Link
+            to="/problems"
+            className="text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
+          >
+            View full library &rarr;
+          </Link>
         </div>
 
         <div className="mt-6 grid gap-5 md:grid-cols-3">
-          {SAMPLE_PROBLEMS.map((sample) => {
+          {SAMPLE_PROBLEMS.slice(0, 3).map((sample) => {
             const isLive = sample.status === 'live-demo';
             return (
               <Card
@@ -268,7 +298,7 @@ export function LandingPage() {
                     </span>
                     {isLive ? (
                       <Link
-                        to="/studio"
+                        to={sample.studioPath ?? `/studio/${sample.id}`}
                         className="inline-flex items-center gap-1 text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
                       >
                         Open Studio
@@ -279,7 +309,7 @@ export function LandingPage() {
                         type="button"
                         onClick={() =>
                           setComingSoonNote(
-                            `${sample.title} (${sample.pattern}) is planned for a later sprint. Try Two Sum in Learning Studio today!`,
+                            `${sample.title} (${sample.pattern}) is planned for a later sprint. Try Two Sum or Valid Parentheses in Learning Studio today!`,
                           )
                         }
                         className="text-xs font-semibold text-[#555D7A] hover:text-[#20253B] cursor-pointer"
@@ -301,10 +331,10 @@ export function LandingPage() {
           >
             <span>{comingSoonNote}</span>
             <Link
-              to="/studio"
+              to="/problems"
               className="font-semibold text-[#4F46D8] hover:underline"
             >
-              Go to Two Sum &rarr;
+              Browse supported problems &rarr;
             </Link>
           </div>
         )}

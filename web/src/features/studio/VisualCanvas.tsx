@@ -1,11 +1,12 @@
 import { CheckCircle2, Eye, Hash, SearchX, Sparkles } from 'lucide-react';
 import type { SolutionGraph, SolutionStrategy } from '../../domain/problems/types';
+import type { HighlightRole, TwoSumInput } from '../../domain/traces/types';
 import type {
-  ExecutionStep,
-  HighlightRole,
-  TwoSumInput,
-} from '../../domain/traces/types';
-import type { PredictionPrompt } from '../../domain/learning/predictions';
+  ArrayHashVisualState,
+  GenericExecutionStep,
+  PredictionPrompt,
+} from '../../domain/core/types';
+import type { PredictionRecord } from '../../domain/learning/session';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { SolutionMapPreview } from '../solutions/SolutionMapPreview';
@@ -14,9 +15,10 @@ import { CustomInputBar } from './CustomInputBar';
 import { PlaybackControls } from './PlaybackControls';
 
 interface VisualCanvasProps {
+  sessionId: number;
   strategy: SolutionStrategy;
   currentInput: TwoSumInput;
-  step: ExecutionStep;
+  step: GenericExecutionStep<ArrayHashVisualState>;
   stepIndex: number;
   totalSteps: number;
   isPlaying: boolean;
@@ -24,8 +26,15 @@ interface VisualCanvasProps {
   solutionGraph: SolutionGraph;
   predictModeEnabled: boolean;
   predictionPrompt: PredictionPrompt | null;
+  predictionRecord: PredictionRecord | undefined;
+  checkpointPaused: boolean;
   onTogglePredictMode: () => void;
-  onRecordPredictionAttempt: (isCorrect: boolean) => void;
+  onAnswerPrediction: (
+    questionId: string,
+    optionId: string,
+    isCorrect: boolean,
+  ) => void;
+  onSkipPrediction: (questionId: string) => void;
   onApplyInput: (input: TwoSumInput) => void;
   onPrev: () => void;
   onNext: () => void;
@@ -58,6 +67,7 @@ const ROLE_STYLES: Record<
 };
 
 export function VisualCanvas({
+  sessionId,
   strategy,
   currentInput,
   step,
@@ -68,8 +78,11 @@ export function VisualCanvas({
   solutionGraph,
   predictModeEnabled,
   predictionPrompt,
+  predictionRecord,
+  checkpointPaused,
   onTogglePredictMode,
-  onRecordPredictionAttempt,
+  onAnswerPrediction,
+  onSkipPrediction,
   onApplyInput,
   onPrev,
   onNext,
@@ -116,8 +129,9 @@ export function VisualCanvas({
         </CardHeader>
 
         <CardContent className="space-y-5 pt-5">
-          {/* Custom Input Controls */}
+          {/* Custom Input Controls (keyed by sessionId so Restart resets input fields cleanly) */}
           <CustomInputBar
+            key={sessionId}
             currentInput={currentInput}
             onApplyInput={onApplyInput}
           />
@@ -327,6 +341,7 @@ export function VisualCanvas({
             isPlaying={isPlaying}
             speed={speed}
             status={visualState.status}
+            checkpointPaused={checkpointPaused}
             onPrev={onPrev}
             onNext={onNext}
             onTogglePlay={onTogglePlay}
@@ -339,8 +354,11 @@ export function VisualCanvas({
           {predictModeEnabled && (
             <PredictNextStepCard
               prompt={predictionPrompt}
-              onRecordAttempt={onRecordPredictionAttempt}
-              onRevealAndAdvance={onNext}
+              record={predictionRecord}
+              isCheckpointPaused={checkpointPaused}
+              onAnswer={onAnswerPrediction}
+              onSkipAndReveal={onSkipPrediction}
+              onStepForward={onNext}
             />
           )}
 

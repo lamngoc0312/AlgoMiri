@@ -9,42 +9,49 @@ import {
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
-import type { TwoSumStrategyId } from '../../domain/traces/types';
-import {
-  TWO_SUM_GUIDED_STAGES,
-  type GuidedStageId,
-} from '../../domain/learning/twoSumLesson';
+import type { ProblemSpec } from '../../domain/problems/types';
+import type { ProblemLesson } from '../../domain/core/types';
+import type {
+  PredictionSummaryStats,
+  StageStatusMap,
+} from '../../domain/learning/session';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
 interface SessionSummaryCardProps {
-  strategiesExplored: Set<TwoSumStrategyId>;
-  completedStages: Set<GuidedStageId>;
-  predictionAttempts: number;
-  predictionCorrect: number;
+  problem: ProblemSpec;
+  lesson: ProblemLesson;
+  strategiesExplored: Set<string>;
+  stageStatuses: StageStatusMap;
+  predictionStats: PredictionSummaryStats;
   hintsUsed: number;
   onSwitchToExplore: () => void;
   onRestartLesson: () => void;
 }
 
-const STRATEGY_LABELS: Record<TwoSumStrategyId, string> = {
-  'brute-force': 'Brute Force Pair Check · O(n²) time / O(1) space',
-  'hash-map': 'Hash Map Complement Lookup · O(n) time / O(n) space',
-};
-
 export function SessionSummaryCard({
+  problem,
+  lesson,
   strategiesExplored,
-  completedStages,
-  predictionAttempts,
-  predictionCorrect,
+  stageStatuses,
+  predictionStats,
   hintsUsed,
   onSwitchToExplore,
   onRestartLesson,
 }: SessionSummaryCardProps) {
-  const conceptsLearned = TWO_SUM_GUIDED_STAGES.filter((s) =>
-    completedStages.has(s.id),
-  ).map((s) => s.conceptLearned);
+  const verifiedStages = lesson.stages.filter(
+    (s) => stageStatuses[s.id] === 'completed',
+  );
+  const skippedStages = lesson.stages.filter(
+    (s) => stageStatuses[s.id] === 'skipped',
+  );
+  const skippedAfterAttemptStages = lesson.stages.filter(
+    (s) => stageStatuses[s.id] === 'skipped-after-attempt',
+  );
+  const exploredStrategyObjects = problem.supportedStrategies.filter((s) =>
+    strategiesExplored.has(s.id),
+  );
 
   return (
     <Card className="border-[#16B89D]/50">
@@ -52,12 +59,14 @@ export function SessionSummaryCard({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-[#16B89D]" aria-hidden="true" />
-            <CardTitle className="text-lg">Local Session Summary</CardTitle>
+            <CardTitle className="text-lg">
+              Local Session Summary · {problem.title}
+            </CardTitle>
           </div>
           <Badge variant="demo">Local Session Only</Badge>
         </div>
         <p className="text-xs leading-relaxed text-[#555D7A]">
-          Here is what you explored during this browser session for Two Sum.
+          Verified activity from this browser session. Skipped stages and repeated clicks are never counted as completed.
         </p>
       </CardHeader>
 
@@ -69,20 +78,29 @@ export function SessionSummaryCard({
               Strategies Explored
             </p>
             <p className="mt-1 font-mono text-xl font-extrabold text-[#20253B]">
-              {strategiesExplored.size} / 2
+              {exploredStrategyObjects.length} / {problem.supportedStrategies.length}
             </p>
           </div>
 
           <div className="rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5">
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#555D7A]">
-              Prediction Attempts
+              Predictions Attempted
             </p>
-            <p className="mt-1 font-mono text-xl font-extrabold text-[#20253B]">
-              {predictionAttempts}
-              {predictionAttempts > 0 && (
-                <span className="ml-1.5 text-xs font-sans font-semibold text-[#0D7D6A]">
-                  ({predictionCorrect} correct)
-                </span>
+            <p
+              data-testid="summary-predictions-attempted"
+              className="mt-1 font-mono text-xl font-extrabold text-[#20253B]"
+            >
+              {predictionStats.questionsAttempted}
+            </p>
+            <p className="mt-1 text-[11px] text-[#555D7A]">
+              <span className="font-semibold text-[#0D7D6A]">
+                {predictionStats.firstTryCorrect} first-try
+              </span>
+              {predictionStats.solvedAfterRetry > 0 && (
+                <> · {predictionStats.solvedAfterRetry} after retry</>
+              )}
+              {predictionStats.skippedCount > 0 && (
+                <> · {predictionStats.skippedCount} skipped</>
               )}
             </p>
           </div>
@@ -91,7 +109,10 @@ export function SessionSummaryCard({
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#555D7A]">
               Hints Used
             </p>
-            <p className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[#20253B]">
+            <p
+              data-testid="summary-hints-used"
+              className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[#20253B]"
+            >
               <Lightbulb
                 className="h-4 w-4 text-[#F1B34C]"
                 aria-hidden="true"
@@ -107,37 +128,51 @@ export function SessionSummaryCard({
             Strategies Explored
           </h3>
           <ul className="mt-2 space-y-1.5">
-            {Array.from(strategiesExplored).map((strategyId) => (
+            {exploredStrategyObjects.map((strat) => (
               <li
-                key={strategyId}
+                key={strat.id}
                 className="flex items-center gap-2 text-xs font-medium text-[#20253B]"
               >
                 <CheckCircle2
                   className="h-4 w-4 shrink-0 text-[#16B89D]"
                   aria-hidden="true"
                 />
-                {STRATEGY_LABELS[strategyId]}
+                {strat.name} · {strat.timeComplexity} time /{' '}
+                {strat.spaceComplexity} space
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Concepts Covered */}
+        {/* Verified Concepts Completed */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
-            Concepts Covered ({conceptsLearned.length} / {TWO_SUM_GUIDED_STAGES.length})
+            Verified Concepts Completed ({verifiedStages.length} /{' '}
+            {lesson.stages.length})
           </h3>
-          {conceptsLearned.length > 0 ? (
+          {verifiedStages.length > 0 ? (
             <ul className="mt-2 flex flex-wrap gap-2">
-              {conceptsLearned.map((concept) => (
-                <li key={concept}>
-                  <Badge variant="indigo">{concept}</Badge>
+              {verifiedStages.map((stage) => (
+                <li key={stage.id}>
+                  <Badge variant="mint">{stage.conceptLearned}</Badge>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="mt-1.5 text-xs text-[#555D7A]">
-              Complete any guided stage check to record concepts covered in this session.
+              No guided stage checks completed yet. Answer a stage check correctly to record it here.
+            </p>
+          )}
+          {skippedStages.length > 0 && (
+            <p className="mt-2 text-xs text-[#9A630A]">
+              Skipped stages ({skippedStages.length}):{' '}
+              {skippedStages.map((s) => s.shortTitle).join(', ')} — revisit anytime to complete them.
+            </p>
+          )}
+          {skippedAfterAttemptStages.length > 0 && (
+            <p className="mt-1 text-xs text-[#9A630A]">
+              Skipped after attempt ({skippedAfterAttemptStages.length}):{' '}
+              {skippedAfterAttemptStages.map((s) => s.shortTitle).join(', ')} — retry anytime for verified completion.
             </p>
           )}
         </div>
@@ -149,11 +184,7 @@ export function SessionSummaryCard({
             Suggested Next Learning Activity
           </div>
           <p className="text-xs leading-relaxed text-[#555D7A]">
-            Switch to <strong>Free Exploration</strong> and test tricky edge cases like{' '}
-            <code className="font-mono font-semibold text-[#20253B]">[3, 3], target = 6</code>,{' '}
-            <code className="font-mono font-semibold text-[#20253B]">[-3, 4, 3, 90], target = 0</code>, or{' '}
-            <code className="font-mono font-semibold text-[#20253B]">[1, 2, 3], target = 100</code>{' '}
-            with Predict Mode enabled — then try implementing Two Sum in your own editor without peeking!
+            {lesson.suggestedNextActivity}
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <Button variant="primary" size="sm" onClick={onSwitchToExplore}>
@@ -165,11 +196,11 @@ export function SessionSummaryCard({
               Restart Guided Lesson
             </Button>
             <Link
-              to="/roadmap"
+              to="/problems"
               className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[#4F46D8] hover:bg-[#EEF0FF]"
             >
               <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              View Roadmap Preview
+              Try Another Problem
             </Link>
           </div>
         </div>

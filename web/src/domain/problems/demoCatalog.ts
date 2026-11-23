@@ -6,6 +6,7 @@ export interface SampleProblemCard {
   status: 'live-demo' | 'coming-soon';
   summary: string;
   strategiesCount: number;
+  studioPath?: string;
 }
 
 export const SAMPLE_PROBLEMS: SampleProblemCard[] = [
@@ -18,16 +19,18 @@ export const SAMPLE_PROBLEMS: SampleProblemCard[] = [
     summary:
       'Compare Brute Force pair scanning against O(n) Hash Map complement lookups with step-by-step visuals.',
     strategiesCount: 2,
+    studioPath: '/studio/two-sum',
   },
   {
     id: 'valid-parentheses',
     title: 'Valid Parentheses',
-    pattern: 'Stack',
+    pattern: 'Stack (LIFO)',
     difficulty: 'Beginner',
-    status: 'coming-soon',
+    status: 'live-demo',
     summary:
-      'Visualize how a Last-In-First-Out stack tracks opening brackets and catches mismatched pairs.',
+      'Visualize how a Last-In-First-Out stack tracks opening brackets and catches mismatches or unclosed leftovers.',
     strategiesCount: 1,
+    studioPath: '/studio/valid-parentheses',
   },
   {
     id: 'binary-search',
@@ -39,6 +42,16 @@ export const SAMPLE_PROBLEMS: SampleProblemCard[] = [
       'Watch left, mid, and right boundaries shrink a sorted search space in half at each step.',
     strategiesCount: 2,
   },
+  {
+    id: 'sliding-window-budget',
+    title: 'Longest Subarray Under Budget',
+    pattern: 'Sliding Window',
+    difficulty: 'Intermediate',
+    status: 'coming-soon',
+    summary:
+      'Expand and shrink a contiguous window while maintaining a running sum invariant.',
+    strategiesCount: 2,
+  },
 ];
 
 export interface RoadmapMilestone {
@@ -48,6 +61,7 @@ export interface RoadmapMilestone {
   description: string;
   prerequisites: string[];
   sampleProblem: string;
+  studioPath?: string;
   status: 'available-demo' | 'planned';
 }
 
@@ -60,11 +74,23 @@ export const DEMO_ROADMAP_MILESTONES: RoadmapMilestone[] = [
       'Turn repeated scans into instant memory lookups by reformulating what you need to find.',
     prerequisites: ['Basic loops & indexing'],
     sampleProblem: 'Two Sum',
+    studioPath: '/studio/two-sum',
+    status: 'available-demo',
+  },
+  {
+    id: 'stacks-queues',
+    stage: 2,
+    title: 'Stacks & Queues',
+    description:
+      'Model nested structure and level-by-level processing using LIFO and FIFO containers.',
+    prerequisites: ['Arrays & Hash Lookups'],
+    sampleProblem: 'Valid Parentheses',
+    studioPath: '/studio/valid-parentheses',
     status: 'available-demo',
   },
   {
     id: 'two-pointers',
-    stage: 2,
+    stage: 3,
     title: 'Two Pointers',
     description:
       'Coordinate two moving indices on sorted or structured arrays to avoid nested loops without extra memory.',
@@ -74,22 +100,12 @@ export const DEMO_ROADMAP_MILESTONES: RoadmapMilestone[] = [
   },
   {
     id: 'sliding-window',
-    stage: 3,
+    stage: 4,
     title: 'Sliding Window',
     description:
       'Expand and shrink a contiguous range while maintaining a running invariant.',
     prerequisites: ['Two Pointers'],
     sampleProblem: 'Longest Subarray Under Budget',
-    status: 'planned',
-  },
-  {
-    id: 'stacks-queues',
-    stage: 4,
-    title: 'Stacks & Queues',
-    description:
-      'Model nested structure and level-by-level processing using LIFO and FIFO containers.',
-    prerequisites: ['Arrays & Hash Lookups'],
-    sampleProblem: 'Valid Parentheses',
     status: 'planned',
   },
   {
@@ -99,7 +115,7 @@ export const DEMO_ROADMAP_MILESTONES: RoadmapMilestone[] = [
     description:
       'Eliminate half the remaining search space whenever a monotonic condition holds.',
     prerequisites: ['Two Pointers'],
-    sampleProblem: 'First Bad Version',
+    sampleProblem: 'Binary Search',
     status: 'planned',
   },
   {
@@ -126,12 +142,12 @@ export const DEMO_PROGRESS_SKILLS: DemoSkillMastery[] = [
     skill: 'Complement Reformulation',
     levelLabel: 'Exploring (Demo)',
     progressPercent: 60,
-    evidenceNote: 'Sample metric — real mastery requires prediction & recall evidence.',
+    evidenceNote: 'Sample metric — real mastery requires persistent multi-session recall evidence.',
   },
   {
-    skill: 'Hash Map Space-Time Tradeoff',
-    levelLabel: 'Introduced (Demo)',
-    progressPercent: 40,
+    skill: 'Stack LIFO Bracket Matching',
+    levelLabel: 'Exploring (Demo)',
+    progressPercent: 50,
     evidenceNote: 'Sample metric — viewing a visualization alone does not count as mastery.',
   },
   {
@@ -145,15 +161,15 @@ export const DEMO_PROGRESS_SKILLS: DemoSkillMastery[] = [
 export const DEMO_RECENT_SESSIONS = [
   {
     id: 'session-1',
-    problem: 'Two Sum',
-    strategy: 'Hash Map Complement Lookup',
+    problem: 'Valid Parentheses',
+    strategy: 'Stack Bracket Matching',
     outcome: 'Preview explored (Demo)',
     dateLabel: 'Sample entry',
   },
   {
     id: 'session-2',
     problem: 'Two Sum',
-    strategy: 'Brute Force Pair Check',
+    strategy: 'Hash Map Complement Lookup',
     outcome: 'Compared tradeoffs (Demo)',
     dateLabel: 'Sample entry',
   },

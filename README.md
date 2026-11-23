@@ -4,17 +4,16 @@
 
 AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners start with a **problem statement**, discover approaches through guided reasoning, predict transitions on deterministic visual traces, and reveal pseudocode only when ready.
 
-## Current Status (Sprint 3 — Beginner-First Guided Learning)
+## Current Status (Sprint 4 — Multi-Problem Architecture & Stack Visualization)
 - **Implemented:** Responsive React + Vite + TypeScript (strict) + Tailwind CSS app in `web/` with:
-  - **Guided Learning Mode (`/studio`)**: 4-stage interactive Two Sum curriculum (*1. Understand the Problem → 2. Discover Brute Force → 3. Discover Optimization → 4. Build the Solution*), progressive pseudocode reveal (hidden until requested), and seamless switching to **Free Exploration** mode.
-  - **Dynamic Predict-the-Next-Step**: Multiple-choice prediction questions dynamically derived from real `ExecutionStep[]` traces for any custom input, with constructive feedback, penalty-free retries, and reveal-and-step-forward.
-  - **3-Level Progressive Hint System**: Conceptual question → specific reasoning guidance → explicit next idea.
-  - **Honest Local Session Summary**: Displays strategies explored, concepts covered, prediction attempts, hints used, and suggested next activities (clearly labeled as local browser session data, not persisted mastery).
-  - **Deterministic Trace Engine (`web/src/domain/traces/`)**: Pure TypeScript Brute Force and Hash Map Two Sum trace generators with custom input validation, presets, `Prev` / `Play` / `Pause` / `Next` / `Reset`, speed (`0.5×`–`2×`), timeline scrubber, and live Hash Map updates.
-  - **Landing (`/`), Roadmap (`/roadmap`), and Progress (`/progress`)**: Responsive brand experience with honest demo-only disclosures.
+  - **Multi-Problem Architecture (`web/src/domain/core/`, `web/src/domain/problems/registry.ts`)**: Discriminated-union `AnyVisualState` (`ArrayHashVisualState | StackVisualState`), typed `ProblemModule`, and `ProblemRegistry` supporting problems with different strategy counts and renderers.
+  - **Problem Library & Routing**: `/problems` (live interactive problems + honestly labeled unavailable upcoming problems), `/studio/two-sum`, `/studio/valid-parentheses`, and backward-compatible `/studio` redirect.
+  - **Two Sum Module (`/studio/two-sum`)**: Pure deterministic Brute Force (`O(n²)`) and Hash Map (`O(n)`) trace generators, array + live Hash Map visualization, 4-stage Guided Learning, progressive hints, dynamic predictions, and custom input validation.
+  - **Valid Parentheses Module (`/studio/valid-parentheses`)**: Pure deterministic Stack (`O(n)`) trace generator supporting `()`, `[]`, `{}` and empty strings, dedicated vertical **Stack Execution Canvas** with explicit `TOP` indicator, push/pop/match/mismatch highlights, 4-stage Guided Learning, progressive hints, and dynamic predictions.
+  - **Enforced Guided Checkpoints & Honest Session Tracking**: In Guided Predict Mode, `Play`, `Next`, and forward timeline seeking pause at unanswered checkpoints until answered or explicitly skipped (`Skip & Reveal`); Free Exploration remains unrestricted. Stage statuses distinguish `unvisited`, `viewed`, `attempted`, `skipped`, `skipped-after-attempt`, and `completed`.
   - **CI Workflow (`.github/workflows/ci.yml`)**: Runs `npm ci`, `npm run lint`, `npm run test`, and `npm run build` in `web/` on pull requests.
 - **Not implemented yet (honest scope):**
-  - Backend (FastAPI), database/accounts, real AI problem analysis, arbitrary LeetCode/Codeforces parsing, additional algorithm engines beyond Two Sum, or code execution sandbox.
+  - Backend (FastAPI), database/accounts, real AI problem analysis, arbitrary LeetCode/Codeforces parsing, or code execution sandbox.
 
 ## Quick Start (Windows / macOS / Linux)
 All frontend code lives in `web/`.
@@ -31,7 +30,7 @@ Open the local URL printed by Vite (typically `http://localhost:5173`).
 - `npm run dev` — Start the Vite development server
 - `npm run build` — Run strict TypeScript check (`tsc -b`) and build production bundle
 - `npm run lint` — Run ESLint across `web/`
-- `npm run test` — Run Vitest unit, guided learning, and UI interaction tests once
+- `npm run test` — Run Vitest unit, multi-problem, guided integrity, and UI interaction tests once
 - `npm run preview` — Preview the production build locally
 
 ## Project Structure
@@ -48,18 +47,19 @@ AlgoMiri/
   web/
     package.json
     src/
-      app/                 # AppShell, routing
-      pages/               # Landing, Studio, Roadmap, Progress
+      app/                 # AppShell, multi-problem routing (/problems, /studio/:problemId)
+      pages/               # Landing, Problems, Studio, Roadmap, Progress
       components/          # Reusable accessible UI primitives & DemoNotice
-      features/studio/     # ProblemPane, VisualCanvas, CustomInputBar, PlaybackControls, WalkthroughPane, useTracePlayback
-      features/guided/     # GuidedLessonBar, GuidedStagePanel, HintPanel, PredictNextStepCard, SessionSummaryCard
+      features/studio/     # ProblemPane, VisualCanvas (array+map), StackVisualCanvas (vertical stack), PlaybackControls, WalkthroughPane, useTracePlayback
+      features/guided/     # Reusable GuidedLessonBar, GuidedStagePanel, HintPanel, PredictNextStepCard, SessionSummaryCard
       features/solutions/  # Conceptual SolutionMapPreview
       domain/
-        problems/          # ProblemSpec, SolutionStrategy, SolutionGraph, Two Sum demo & catalog
-        traces/            # Pure deterministic Brute Force & Hash Map trace generators + input validation
-        learning/          # Two Sum 4-stage lesson, 3-level hints, dynamic prediction generator, future mastery interfaces
+        core/              # Discriminated union VisualState, GenericExecutionStep, ProblemLesson, ProblemModule
+        problems/          # ProblemRegistry, twoSumModule, validParenthesesModule, demoCatalog
+        traces/            # Pure deterministic Two Sum & Valid Parentheses trace generators + validators
+        learning/          # Pure session integrity state, hints, dynamic predictions
       styles/              # Brand theme tokens, focus rings, reduced-motion CSS
-      test/                # Unit tests, guided learning tests, Studio interaction tests, smoke tests
+      test/                # Trace unit tests, Valid Parentheses tests, multi-problem & integrity tests, Studio tests
 ```
 
 ## Product Docs
