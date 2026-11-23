@@ -1,11 +1,11 @@
 import { CheckCircle2, Eye, Hash, SearchX, Sparkles } from 'lucide-react';
 import type { SolutionGraph, SolutionStrategy } from '../../domain/problems/types';
+import type { HighlightRole, TwoSumInput } from '../../domain/traces/types';
 import type {
-  ExecutionStep,
-  HighlightRole,
-  TwoSumInput,
-} from '../../domain/traces/types';
-import type { PredictionPrompt } from '../../domain/learning/predictions';
+  ArrayHashVisualState,
+  GenericExecutionStep,
+  PredictionPrompt,
+} from '../../domain/core/types';
 import type { PredictionRecord } from '../../domain/learning/session';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -18,7 +18,7 @@ interface VisualCanvasProps {
   sessionId: number;
   strategy: SolutionStrategy;
   currentInput: TwoSumInput;
-  step: ExecutionStep;
+  step: GenericExecutionStep<ArrayHashVisualState>;
   stepIndex: number;
   totalSteps: number;
   isPlaying: boolean;

@@ -1,19 +1,18 @@
 import { CheckCircle2, ClipboardCheck, FastForward } from 'lucide-react';
-import {
-  TWO_SUM_GUIDED_STAGES,
-  type GuidedStageId,
-} from '../../domain/learning/twoSumLesson';
+import type { GuidedStage } from '../../domain/core/types';
 import type { StageStatusMap } from '../../domain/learning/session';
 
 interface GuidedLessonBarProps {
-  activeStageId: GuidedStageId;
+  stages: GuidedStage[];
+  activeStageId: string;
   stageStatuses: StageStatusMap;
   showingSummary: boolean;
-  onSelectStage: (stageId: GuidedStageId) => void;
+  onSelectStage: (stageId: string) => void;
   onOpenSummary: () => void;
 }
 
 export function GuidedLessonBar({
+  stages,
   activeStageId,
   stageStatuses,
   showingSummary,
@@ -27,11 +26,12 @@ export function GuidedLessonBar({
     >
       <div className="flex flex-wrap items-center gap-2">
         <ol className="flex flex-1 flex-wrap items-center gap-1.5">
-          {TWO_SUM_GUIDED_STAGES.map((stage) => {
+          {stages.map((stage) => {
             const isActive = !showingSummary && activeStageId === stage.id;
             const status = stageStatuses[stage.id];
             const isCompleted = status === 'completed';
-            const isSkipped = status === 'skipped';
+            const isSkipped =
+              status === 'skipped' || status === 'skipped-after-attempt';
             const isAttempted = status === 'attempted';
 
             return (

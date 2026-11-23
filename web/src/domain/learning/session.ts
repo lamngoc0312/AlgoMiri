@@ -1,13 +1,14 @@
-import type { GuidedStageId } from './twoSumLesson';
+import type { GuidedStage } from '../core/types';
 
 export type StageStatus =
   | 'unvisited'
   | 'viewed'
   | 'attempted'
   | 'skipped'
+  | 'skipped-after-attempt'
   | 'completed';
 
-export type StageStatusMap = Record<GuidedStageId, StageStatus>;
+export type StageStatusMap = Record<string, StageStatus>;
 
 export interface PredictionRecord {
   questionId: string;
@@ -27,27 +28,29 @@ export interface PredictionSummaryStats {
   skippedCount: number;
 }
 
-export function createInitialStageStatuses(): StageStatusMap {
-  return {
-    understand: 'viewed',
-    'discover-brute-force': 'unvisited',
-    'discover-optimization': 'unvisited',
-    'build-solution': 'unvisited',
-  };
+export function createInitialStageStatuses(
+  stages: GuidedStage[],
+): StageStatusMap {
+  const map: StageStatusMap = {};
+  stages.forEach((stage, idx) => {
+    map[stage.id] = idx === 0 ? 'viewed' : 'unvisited';
+  });
+  return map;
 }
 
-export function createInitialHintsByStage(): Record<GuidedStageId, number> {
-  return {
-    understand: 0,
-    'discover-brute-force': 0,
-    'discover-optimization': 0,
-    'build-solution': 0,
-  };
+export function createInitialHintsByStage(
+  stages: GuidedStage[],
+): Record<string, number> {
+  const map: Record<string, number> = {};
+  for (const stage of stages) {
+    map[stage.id] = 0;
+  }
+  return map;
 }
 
 export function markStageViewed(
   statuses: StageStatusMap,
-  stageId: GuidedStageId,
+  stageId: string,
 ): StageStatusMap {
   if (statuses[stageId] !== 'unvisited') {
     return statuses;
@@ -60,7 +63,7 @@ export function markStageViewed(
 
 export function recordStageAnswer(
   statuses: StageStatusMap,
-  stageId: GuidedStageId,
+  stageId: string,
   isCorrect: boolean,
 ): StageStatusMap {
   if (isCorrect) {
@@ -71,8 +74,8 @@ export function recordStageAnswer(
     };
   }
 
-  // Do not downgrade an already completed stage
-  if (statuses[stageId] === 'completed' || statuses[stageId] === 'attempted') {
+  // Never downgrade an already completed stage
+  if (statuses[stageId] === 'completed') {
     return statuses;
   }
 
@@ -84,12 +87,17 @@ export function recordStageAnswer(
 
 export function markStageSkippedIfIncomplete(
   statuses: StageStatusMap,
-  stageId: GuidedStageId,
+  stageId: string,
 ): StageStatusMap {
   const current = statuses[stageId];
-  // Never overwrite a verified completion or an active wrong-answer attempt
-  if (current === 'completed' || current === 'attempted') {
+  if (current === 'completed') {
     return statuses;
+  }
+  if (current === 'attempted' || current === 'skipped-after-attempt') {
+    return {
+      ...statuses,
+      [stageId]: 'skipped-after-attempt',
+    };
   }
   return {
     ...statuses,

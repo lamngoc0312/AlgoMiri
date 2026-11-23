@@ -24,7 +24,7 @@ export function RoadmapPage() {
       <DemoNotice
         badgeText="DEMO DATA"
         title="Roadmap preview only — personalization comes in a later phase"
-        description="Stage 1 (Arrays & Hash Lookups with Two Sum) is available to explore in Learning Studio right now. Stages 2–6 preview the planned prerequisite path."
+        description="Stage 1 (Arrays & Hash Lookups with Two Sum) and Stage 2 (Stacks & Queues with Valid Parentheses) are live in Learning Studio. Stages 3–6 preview the planned prerequisite path."
       />
 
       <ol className="grid gap-4 md:grid-cols-2">
@@ -91,7 +91,7 @@ export function RoadmapPage() {
 
                       {isAvailable ? (
                         <Link
-                          to="/studio"
+                          to={milestone.studioPath ?? '/studio'}
                           className="inline-flex items-center gap-1 font-semibold text-[#645BE8] hover:text-[#4F46D8]"
                         >
                           Open Studio
