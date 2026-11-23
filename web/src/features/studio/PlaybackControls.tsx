@@ -16,6 +16,7 @@ interface PlaybackControlsProps {
   isPlaying: boolean;
   speed: number;
   status: TraceStatus;
+  checkpointPaused?: boolean;
   onPrev: () => void;
   onNext: () => void;
   onTogglePlay: () => void;
@@ -30,6 +31,7 @@ export function PlaybackControls({
   isPlaying,
   speed,
   status,
+  checkpointPaused = false,
   onPrev,
   onNext,
   onTogglePlay,
@@ -100,9 +102,14 @@ export function PlaybackControls({
             variant="primary"
             size="sm"
             onClick={onTogglePlay}
-            disabled={!canPlay}
+            disabled={!canPlay || (checkpointPaused && !isLast)}
             aria-label={isPlaying ? 'Pause trace' : 'Play trace'}
             aria-pressed={isPlaying}
+            title={
+              checkpointPaused && !isLast
+                ? 'Answer or skip the prediction checkpoint below to continue playback'
+                : undefined
+            }
           >
             {isPlaying ? (
               <>
@@ -162,6 +169,12 @@ export function PlaybackControls({
           </select>
         </div>
       </div>
+
+      {checkpointPaused && !isLast && (
+        <p className="text-[11px] font-medium text-[#9A630A]">
+          Autoplay paused at prediction checkpoint — answer below or click Skip &amp; Reveal to advance.
+        </p>
+      )}
     </div>
   );
 }

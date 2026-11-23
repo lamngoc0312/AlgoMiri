@@ -10,19 +10,19 @@ import {
   Sparkles,
 } from 'lucide-react';
 import type { TwoSumStrategyId } from '../../domain/traces/types';
-import {
-  TWO_SUM_GUIDED_STAGES,
-  type GuidedStageId,
-} from '../../domain/learning/twoSumLesson';
+import { TWO_SUM_GUIDED_STAGES } from '../../domain/learning/twoSumLesson';
+import type {
+  PredictionSummaryStats,
+  StageStatusMap,
+} from '../../domain/learning/session';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
 interface SessionSummaryCardProps {
   strategiesExplored: Set<TwoSumStrategyId>;
-  completedStages: Set<GuidedStageId>;
-  predictionAttempts: number;
-  predictionCorrect: number;
+  stageStatuses: StageStatusMap;
+  predictionStats: PredictionSummaryStats;
   hintsUsed: number;
   onSwitchToExplore: () => void;
   onRestartLesson: () => void;
@@ -35,16 +35,18 @@ const STRATEGY_LABELS: Record<TwoSumStrategyId, string> = {
 
 export function SessionSummaryCard({
   strategiesExplored,
-  completedStages,
-  predictionAttempts,
-  predictionCorrect,
+  stageStatuses,
+  predictionStats,
   hintsUsed,
   onSwitchToExplore,
   onRestartLesson,
 }: SessionSummaryCardProps) {
-  const conceptsLearned = TWO_SUM_GUIDED_STAGES.filter((s) =>
-    completedStages.has(s.id),
-  ).map((s) => s.conceptLearned);
+  const verifiedStages = TWO_SUM_GUIDED_STAGES.filter(
+    (s) => stageStatuses[s.id] === 'completed',
+  );
+  const skippedStages = TWO_SUM_GUIDED_STAGES.filter(
+    (s) => stageStatuses[s.id] === 'skipped',
+  );
 
   return (
     <Card className="border-[#16B89D]/50">
@@ -57,7 +59,7 @@ export function SessionSummaryCard({
           <Badge variant="demo">Local Session Only</Badge>
         </div>
         <p className="text-xs leading-relaxed text-[#555D7A]">
-          Here is what you explored during this browser session for Two Sum.
+          Verified activity from this browser session for Two Sum. Skipped stages and repeated clicks are never counted as completed.
         </p>
       </CardHeader>
 
@@ -75,14 +77,23 @@ export function SessionSummaryCard({
 
           <div className="rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5">
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#555D7A]">
-              Prediction Attempts
+              Predictions Attempted
             </p>
-            <p className="mt-1 font-mono text-xl font-extrabold text-[#20253B]">
-              {predictionAttempts}
-              {predictionAttempts > 0 && (
-                <span className="ml-1.5 text-xs font-sans font-semibold text-[#0D7D6A]">
-                  ({predictionCorrect} correct)
-                </span>
+            <p
+              data-testid="summary-predictions-attempted"
+              className="mt-1 font-mono text-xl font-extrabold text-[#20253B]"
+            >
+              {predictionStats.questionsAttempted}
+            </p>
+            <p className="mt-1 text-[11px] text-[#555D7A]">
+              <span className="font-semibold text-[#0D7D6A]">
+                {predictionStats.firstTryCorrect} first-try
+              </span>
+              {predictionStats.solvedAfterRetry > 0 && (
+                <> · {predictionStats.solvedAfterRetry} after retry</>
+              )}
+              {predictionStats.skippedCount > 0 && (
+                <> · {predictionStats.skippedCount} skipped</>
               )}
             </p>
           </div>
@@ -91,7 +102,10 @@ export function SessionSummaryCard({
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#555D7A]">
               Hints Used
             </p>
-            <p className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[#20253B]">
+            <p
+              data-testid="summary-hints-used"
+              className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[#20253B]"
+            >
               <Lightbulb
                 className="h-4 w-4 text-[#F1B34C]"
                 aria-hidden="true"
@@ -122,22 +136,29 @@ export function SessionSummaryCard({
           </ul>
         </div>
 
-        {/* Concepts Covered */}
+        {/* Verified Concepts Completed */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
-            Concepts Covered ({conceptsLearned.length} / {TWO_SUM_GUIDED_STAGES.length})
+            Verified Concepts Completed ({verifiedStages.length} /{' '}
+            {TWO_SUM_GUIDED_STAGES.length})
           </h3>
-          {conceptsLearned.length > 0 ? (
+          {verifiedStages.length > 0 ? (
             <ul className="mt-2 flex flex-wrap gap-2">
-              {conceptsLearned.map((concept) => (
-                <li key={concept}>
-                  <Badge variant="indigo">{concept}</Badge>
+              {verifiedStages.map((stage) => (
+                <li key={stage.id}>
+                  <Badge variant="mint">{stage.conceptLearned}</Badge>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="mt-1.5 text-xs text-[#555D7A]">
-              Complete any guided stage check to record concepts covered in this session.
+              No guided stage checks completed yet. Answer a stage check correctly to record it here.
+            </p>
+          )}
+          {skippedStages.length > 0 && (
+            <p className="mt-2 text-xs text-[#9A630A]">
+              Skipped stages ({skippedStages.length}):{' '}
+              {skippedStages.map((s) => s.shortTitle).join(', ')} — revisit anytime to complete them.
             </p>
           )}
         </div>

@@ -1,12 +1,13 @@
-import { CheckCircle2, ClipboardCheck } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, FastForward } from 'lucide-react';
 import {
   TWO_SUM_GUIDED_STAGES,
   type GuidedStageId,
 } from '../../domain/learning/twoSumLesson';
+import type { StageStatusMap } from '../../domain/learning/session';
 
 interface GuidedLessonBarProps {
   activeStageId: GuidedStageId;
-  completedStages: Set<GuidedStageId>;
+  stageStatuses: StageStatusMap;
   showingSummary: boolean;
   onSelectStage: (stageId: GuidedStageId) => void;
   onOpenSummary: () => void;
@@ -14,7 +15,7 @@ interface GuidedLessonBarProps {
 
 export function GuidedLessonBar({
   activeStageId,
-  completedStages,
+  stageStatuses,
   showingSummary,
   onSelectStage,
   onOpenSummary,
@@ -28,7 +29,10 @@ export function GuidedLessonBar({
         <ol className="flex flex-1 flex-wrap items-center gap-1.5">
           {TWO_SUM_GUIDED_STAGES.map((stage) => {
             const isActive = !showingSummary && activeStageId === stage.id;
-            const isCompleted = completedStages.has(stage.id);
+            const status = stageStatuses[stage.id];
+            const isCompleted = status === 'completed';
+            const isSkipped = status === 'skipped';
+            const isAttempted = status === 'attempted';
 
             return (
               <li key={stage.id} className="flex-1 min-w-[125px]">
@@ -41,12 +45,21 @@ export function GuidedLessonBar({
                       ? 'bg-[#645BE8] text-white shadow-xs'
                       : isCompleted
                         ? 'bg-[#E6F8F4] text-[#0D7D6A] hover:bg-[#D5F3EC]'
-                        : 'bg-[#F7F8FC] text-[#555D7A] hover:bg-[#EEF0FF]/70 hover:text-[#20253B]'
+                        : isSkipped
+                          ? 'bg-[#FEF6E6] text-[#9A630A] hover:bg-[#FDEBC8]'
+                          : isAttempted
+                            ? 'bg-[#EEF0FF]/70 text-[#4F46D8] hover:bg-[#E1E5FF]'
+                            : 'bg-[#F7F8FC] text-[#555D7A] hover:bg-[#EEF0FF]/70 hover:text-[#20253B]'
                   }`}
                 >
                   {isCompleted && !isActive ? (
                     <CheckCircle2
                       className="h-4 w-4 shrink-0 text-[#16B89D]"
+                      aria-hidden="true"
+                    />
+                  ) : isSkipped && !isActive ? (
+                    <FastForward
+                      className="h-3.5 w-3.5 shrink-0 text-[#C28219]"
                       aria-hidden="true"
                     />
                   ) : (
