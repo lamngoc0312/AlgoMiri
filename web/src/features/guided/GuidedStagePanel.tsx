@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Code2,
   Eye,
+  FastForward,
   GraduationCap,
   HelpCircle,
 } from 'lucide-react';
@@ -14,6 +15,7 @@ import {
   type GuidedStage,
   type GuidedStageId,
 } from '../../domain/learning/twoSumLesson';
+import type { StageStatus } from '../../domain/learning/session';
 import { STAGE_HINTS } from '../../domain/learning/hints';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -22,22 +24,25 @@ import { HintPanel } from './HintPanel';
 
 interface GuidedStagePanelProps {
   stage: GuidedStage;
-  isCompleted: boolean;
+  stageStatus: StageStatus;
   revealedHintsCount: number;
   onRevealNextHint: () => void;
-  onCompleteStage: (stageId: GuidedStageId) => void;
+  onAnswerStage: (stageId: GuidedStageId, isCorrect: boolean) => void;
   onNavigateStage: (stageId: GuidedStageId) => void;
-  onOpenSummary: () => void;
+  onSkipOrContinue: (
+    currentStageId: GuidedStageId,
+    destination: GuidedStageId | 'summary',
+  ) => void;
 }
 
 export function GuidedStagePanel({
   stage,
-  isCompleted,
+  stageStatus,
   revealedHintsCount,
   onRevealNextHint,
-  onCompleteStage,
+  onAnswerStage,
   onNavigateStage,
-  onOpenSummary,
+  onSkipOrContinue,
 }: GuidedStagePanelProps) {
   const [selectedOptionByStage, setSelectedOptionByStage] = useState<
     Partial<Record<GuidedStageId, string>>
@@ -56,14 +61,14 @@ export function GuidedStagePanel({
       ? TWO_SUM_GUIDED_STAGES[stageIdx + 1]
       : null;
 
+  const isCompleted = stageStatus === 'completed';
+
   const handleSelectOption = (optionId: string, isCorrect: boolean) => {
     setSelectedOptionByStage((prev) => ({
       ...prev,
       [stage.id]: optionId,
     }));
-    if (isCorrect) {
-      onCompleteStage(stage.id);
-    }
+    onAnswerStage(stage.id, isCorrect);
   };
 
   const hints = STAGE_HINTS[stage.id];
@@ -84,6 +89,15 @@ export function GuidedStagePanel({
               <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
               Completed
             </Badge>
+          )}
+          {stageStatus === 'skipped' && (
+            <Badge variant="amber">
+              <FastForward className="h-3 w-3" aria-hidden="true" />
+              Skipped
+            </Badge>
+          )}
+          {stageStatus === 'attempted' && (
+            <Badge variant="neutral">In Progress</Badge>
           )}
         </div>
         <CardTitle className="text-lg mt-1">{stage.title}</CardTitle>
@@ -250,26 +264,22 @@ export function GuidedStagePanel({
 
           {nextStage ? (
             <Button
-              variant="primary"
+              variant={isCompleted ? 'primary' : 'outline'}
               size="sm"
-              onClick={() => {
-                onCompleteStage(stage.id);
-                onNavigateStage(nextStage.id);
-              }}
+              onClick={() => onSkipOrContinue(stage.id, nextStage.id)}
             >
-              Continue to Stage {nextStage.stageNumber}
+              {isCompleted
+                ? `Continue to Stage ${nextStage.stageNumber}`
+                : `Skip to Stage ${nextStage.stageNumber}`}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           ) : (
             <Button
-              variant="mint"
+              variant={isCompleted ? 'mint' : 'outline'}
               size="sm"
-              onClick={() => {
-                onCompleteStage(stage.id);
-                onOpenSummary();
-              }}
+              onClick={() => onSkipOrContinue(stage.id, 'summary')}
             >
-              Finish &amp; View Summary
+              {isCompleted ? 'Finish & View Summary' : 'Skip & View Summary'}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           )}

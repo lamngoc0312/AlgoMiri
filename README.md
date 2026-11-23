@@ -4,12 +4,12 @@
 
 AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners start with a **problem statement**, discover approaches through guided reasoning, predict transitions on deterministic visual traces, and reveal pseudocode only when ready.
 
-## Current Status (Sprint 3 — Beginner-First Guided Learning)
+## Current Status (Sprint 3.1 — Learning Integrity & Stability)
 - **Implemented:** Responsive React + Vite + TypeScript (strict) + Tailwind CSS app in `web/` with:
-  - **Guided Learning Mode (`/studio`)**: 4-stage interactive Two Sum curriculum (*1. Understand the Problem → 2. Discover Brute Force → 3. Discover Optimization → 4. Build the Solution*), progressive pseudocode reveal (hidden until requested), and seamless switching to **Free Exploration** mode.
-  - **Dynamic Predict-the-Next-Step**: Multiple-choice prediction questions dynamically derived from real `ExecutionStep[]` traces for any custom input, with constructive feedback, penalty-free retries, and reveal-and-step-forward.
+  - **Guided Learning Mode (`/studio`)**: 4-stage interactive Two Sum curriculum (*1. Understand the Problem → 2. Discover Brute Force → 3. Discover Optimization → 4. Build the Solution*) with honest stage status tracking (`unvisited`, `viewed`, `attempted`, `skipped`, `completed`), progressive pseudocode reveal (hidden until requested), full clean lesson restart, and seamless switching to **Free Exploration** mode.
+  - **Dynamic Predict-the-Next-Step & Checkpoints**: Multiple-choice prediction questions dynamically derived from real `ExecutionStep[]` traces with stable trace/session-aware question IDs. In Guided Predict Mode, autoplay pauses cleanly at unanswered checkpoints (with explicit `Skip & Reveal`), while Free Exploration preserves unrestricted playback. First-attempt accuracy is tracked separately from penalty-free retries, and repeated clicks never inflate progress.
   - **3-Level Progressive Hint System**: Conceptual question → specific reasoning guidance → explicit next idea.
-  - **Honest Local Session Summary**: Displays strategies explored, concepts covered, prediction attempts, hints used, and suggested next activities (clearly labeled as local browser session data, not persisted mastery).
+  - **Honest Local Session Summary**: Displays only verified completed concepts, strategies explored, first-try vs. retry prediction metrics, hints used, and suggested next activities (clearly labeled as local browser session data, not persisted mastery).
   - **Deterministic Trace Engine (`web/src/domain/traces/`)**: Pure TypeScript Brute Force and Hash Map Two Sum trace generators with custom input validation, presets, `Prev` / `Play` / `Pause` / `Next` / `Reset`, speed (`0.5×`–`2×`), timeline scrubber, and live Hash Map updates.
   - **Landing (`/`), Roadmap (`/roadmap`), and Progress (`/progress`)**: Responsive brand experience with honest demo-only disclosures.
   - **CI Workflow (`.github/workflows/ci.yml`)**: Runs `npm ci`, `npm run lint`, `npm run test`, and `npm run build` in `web/` on pull requests.
@@ -31,7 +31,7 @@ Open the local URL printed by Vite (typically `http://localhost:5173`).
 - `npm run dev` — Start the Vite development server
 - `npm run build` — Run strict TypeScript check (`tsc -b`) and build production bundle
 - `npm run lint` — Run ESLint across `web/`
-- `npm run test` — Run Vitest unit, guided learning, and UI interaction tests once
+- `npm run test` — Run Vitest unit, guided learning integrity, and UI interaction tests once
 - `npm run preview` — Preview the production build locally
 
 ## Project Structure
@@ -57,9 +57,9 @@ AlgoMiri/
       domain/
         problems/          # ProblemSpec, SolutionStrategy, SolutionGraph, Two Sum demo & catalog
         traces/            # Pure deterministic Brute Force & Hash Map trace generators + input validation
-        learning/          # Two Sum 4-stage lesson, 3-level hints, dynamic prediction generator, future mastery interfaces
+        learning/          # Two Sum 4-stage lesson, 3-level hints, dynamic predictions, pure session integrity state
       styles/              # Brand theme tokens, focus rings, reduced-motion CSS
-      test/                # Unit tests, guided learning tests, Studio interaction tests, smoke tests
+      test/                # Unit tests, guided learning integrity tests, Studio interaction tests, smoke tests
 ```
 
 ## Product Docs

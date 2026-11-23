@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   BookOpen,
@@ -21,6 +21,18 @@ import {
   type GuidedStageId,
 } from '../domain/learning/twoSumLesson';
 import { generatePredictionPrompt } from '../domain/learning/predictions';
+import {
+  createInitialHintsByStage,
+  createInitialStageStatuses,
+  markStageSkippedIfIncomplete,
+  markStageViewed,
+  recordPredictionAnswer,
+  recordPredictionSkip,
+  recordStageAnswer,
+  summarizePredictions,
+  type PredictionRecord,
+  type StageStatusMap,
+} from '../domain/learning/session';
 import { ProblemPane } from '../features/studio/ProblemPane';
 import { VisualCanvas } from '../features/studio/VisualCanvas';
 import { WalkthroughPane } from '../features/studio/WalkthroughPane';
@@ -44,6 +56,7 @@ export function StudioPage() {
   const initialMode: StudioMode =
     searchParams.get('mode') === 'explore' ? 'explore' : 'guided';
 
+  const [sessionId, setSessionId] = useState(1);
   const [mode, setMode] = useState<StudioMode>(initialMode);
   const [activeStageId, setActiveStageId] =
     useState<GuidedStageId>('understand');
@@ -57,30 +70,26 @@ export function StudioPage() {
   const [currentInput, setCurrentInput] = useState<TwoSumInput>(
     DEFAULT_TWO_SUM_INPUT,
   );
-  // Monotonic counter ensures re-applying the exact same input still resets playback
+  // Monotonic counter ensures re-applying the exact same input always resets playback
   const [applyRevision, setApplyRevision] = useState(0);
   const [mobileTab, setMobileTab] = useState<MobileTab>('canvas');
   const [predictModeEnabled, setPredictModeEnabled] = useState(
     initialMode === 'guided',
   );
 
-  // Local session tracking (honest in-browser state, no account persistence)
-  const [completedStages, setCompletedStages] = useState<Set<GuidedStageId>>(
-    () => new Set(),
+  // Verified local session state (honest in-browser tracking, no account persistence)
+  const [stageStatuses, setStageStatuses] = useState<StageStatusMap>(
+    createInitialStageStatuses,
   );
   const [strategiesExplored, setStrategiesExplored] = useState<
     Set<TwoSumStrategyId>
   >(() => new Set([initialMode === 'explore' ? 'hash-map' : 'brute-force']));
   const [hintsByStage, setHintsByStage] = useState<
     Record<GuidedStageId, number>
-  >({
-    understand: 0,
-    'discover-brute-force': 0,
-    'discover-optimization': 0,
-    'build-solution': 0,
-  });
-  const [predictionAttempts, setPredictionAttempts] = useState(0);
-  const [predictionCorrect, setPredictionCorrect] = useState(0);
+  >(createInitialHintsByStage);
+  const [predictionRecords, setPredictionRecords] = useState<
+    Record<string, PredictionRecord>
+  >({});
 
   const activeStage =
     TWO_SUM_GUIDED_STAGES.find((s) => s.id === activeStageId) ??
@@ -95,11 +104,36 @@ export function StudioPage() {
     [selectedStrategyId, currentInput],
   );
 
-  const resetKey = `${selectedStrategyId}:${applyRevision}:${currentInput.nums.join(',')}:${currentInput.target}`;
+  // Stable trace + session identity for both playback resets and prediction IDs
+  const traceContextId = `s${sessionId}:r${applyRevision}:${selectedStrategyId}:${currentInput.nums.join(',')}:${currentInput.target}`;
+
+  const shouldPauseAtStep = useCallback(
+    (stepIdx: number) => {
+      if (mode !== 'guided' || !predictModeEnabled) return false;
+      const prompt = generatePredictionPrompt(
+        trace.steps,
+        stepIdx,
+        selectedStrategyId,
+        traceContextId,
+      );
+      if (!prompt) return false;
+      const record = predictionRecords[prompt.id];
+      return !record?.solved && !record?.skipped;
+    },
+    [
+      mode,
+      predictModeEnabled,
+      trace.steps,
+      selectedStrategyId,
+      traceContextId,
+      predictionRecords,
+    ],
+  );
 
   const playback = useTracePlayback({
     totalSteps: trace.steps.length,
-    resetKey,
+    resetKey: traceContextId,
+    shouldPauseAtStep,
   });
 
   const currentStep = trace.steps[playback.stepIndex] ?? trace.steps[0];
@@ -112,8 +146,20 @@ export function StudioPage() {
         trace.steps,
         playback.stepIndex,
         selectedStrategyId,
+        traceContextId,
       ),
-    [trace.steps, playback.stepIndex, selectedStrategyId],
+    [trace.steps, playback.stepIndex, selectedStrategyId, traceContextId],
+  );
+
+  const currentPredictionRecord = predictionPrompt
+    ? predictionRecords[predictionPrompt.id]
+    : undefined;
+
+  const isPredictionCheckpointActive = shouldPauseAtStep(playback.stepIndex);
+
+  const predictionStats = useMemo(
+    () => summarizePredictions(predictionRecords),
+    [predictionRecords],
   );
 
   const totalHintsUsed = Object.values(hintsByStage).reduce(
@@ -136,9 +182,10 @@ export function StudioPage() {
     setApplyRevision((rev) => rev + 1);
   };
 
-  const handleSelectStage = (stageId: GuidedStageId) => {
+  const navigateToStage = (stageId: GuidedStageId) => {
     setShowingSummary(false);
     setActiveStageId(stageId);
+    setStageStatuses((prev) => markStageViewed(prev, stageId));
     const targetStage = TWO_SUM_GUIDED_STAGES.find((s) => s.id === stageId);
     if (targetStage) {
       setSelectedStrategyId(targetStage.recommendedStrategy);
@@ -148,8 +195,22 @@ export function StudioPage() {
     }
   };
 
-  const handleCompleteStage = (stageId: GuidedStageId) => {
-    setCompletedStages((prev) => new Set(prev).add(stageId));
+  const handleAnswerStage = (stageId: GuidedStageId, isCorrect: boolean) => {
+    setStageStatuses((prev) => recordStageAnswer(prev, stageId, isCorrect));
+  };
+
+  const handleSkipOrContinue = (
+    currentStageId: GuidedStageId,
+    destination: GuidedStageId | 'summary',
+  ) => {
+    setStageStatuses((prev) =>
+      markStageSkippedIfIncomplete(prev, currentStageId),
+    );
+    if (destination === 'summary') {
+      setShowingSummary(true);
+    } else {
+      navigateToStage(destination);
+    }
   };
 
   const handleRevealNextHint = () => {
@@ -159,11 +220,19 @@ export function StudioPage() {
     }));
   };
 
-  const handleRecordPredictionAttempt = (isCorrect: boolean) => {
-    setPredictionAttempts((count) => count + 1);
-    if (isCorrect) {
-      setPredictionCorrect((count) => count + 1);
-    }
+  const handleAnswerPrediction = (
+    questionId: string,
+    optionId: string,
+    isCorrect: boolean,
+  ) => {
+    setPredictionRecords((prev) =>
+      recordPredictionAnswer(prev, questionId, optionId, isCorrect),
+    );
+  };
+
+  const handleSkipPrediction = (questionId: string) => {
+    setPredictionRecords((prev) => recordPredictionSkip(prev, questionId));
+    playback.next();
   };
 
   const handleSwitchMode = (nextMode: StudioMode) => {
@@ -177,13 +246,22 @@ export function StudioPage() {
     }
   };
 
+  // Clean full session reset
   const handleRestartLesson = () => {
+    setSessionId((id) => id + 1);
     setShowingSummary(false);
     setActiveStageId('understand');
     setSelectedStrategyId('brute-force');
-    setCurrentInput(DEFAULT_TWO_SUM_INPUT);
+    setCurrentInput({
+      nums: [...DEFAULT_TWO_SUM_INPUT.nums],
+      target: DEFAULT_TWO_SUM_INPUT.target,
+    });
     setApplyRevision((rev) => rev + 1);
     setPredictModeEnabled(true);
+    setStageStatuses(createInitialStageStatuses());
+    setStrategiesExplored(new Set(['brute-force']));
+    setHintsByStage(createInitialHintsByStage());
+    setPredictionRecords({});
   };
 
   const lockedStrategyIds =
@@ -249,9 +327,9 @@ export function StudioPage() {
       {mode === 'guided' && (
         <GuidedLessonBar
           activeStageId={activeStage.id}
-          completedStages={completedStages}
+          stageStatuses={stageStatuses}
           showingSummary={showingSummary}
-          onSelectStage={handleSelectStage}
+          onSelectStage={navigateToStage}
           onOpenSummary={() => setShowingSummary(true)}
         />
       )}
@@ -261,9 +339,8 @@ export function StudioPage() {
         <div className="mx-auto max-w-3xl pt-2">
           <SessionSummaryCard
             strategiesExplored={strategiesExplored}
-            completedStages={completedStages}
-            predictionAttempts={predictionAttempts}
-            predictionCorrect={predictionCorrect}
+            stageStatuses={stageStatuses}
+            predictionStats={predictionStats}
             hintsUsed={totalHintsUsed}
             onSwitchToExplore={() => handleSwitchMode('explore')}
             onRestartLesson={handleRestartLesson}
@@ -309,13 +386,14 @@ export function StudioPage() {
             >
               {mode === 'guided' && (
                 <GuidedStagePanel
+                  key={sessionId}
                   stage={activeStage}
-                  isCompleted={completedStages.has(activeStage.id)}
+                  stageStatus={stageStatuses[activeStage.id]}
                   revealedHintsCount={hintsByStage[activeStage.id]}
                   onRevealNextHint={handleRevealNextHint}
-                  onCompleteStage={handleCompleteStage}
-                  onNavigateStage={handleSelectStage}
-                  onOpenSummary={() => setShowingSummary(true)}
+                  onAnswerStage={handleAnswerStage}
+                  onNavigateStage={navigateToStage}
+                  onSkipOrContinue={handleSkipOrContinue}
                 />
               )}
 
@@ -332,6 +410,7 @@ export function StudioPage() {
               className={mobileTab === 'canvas' ? 'block' : 'hidden lg:block'}
             >
               <VisualCanvas
+                sessionId={sessionId}
                 strategy={strategy}
                 currentInput={currentInput}
                 step={currentStep}
@@ -342,10 +421,13 @@ export function StudioPage() {
                 solutionGraph={solutionGraph}
                 predictModeEnabled={predictModeEnabled}
                 predictionPrompt={predictionPrompt}
+                predictionRecord={currentPredictionRecord}
+                checkpointPaused={isPredictionCheckpointActive}
                 onTogglePredictMode={() =>
                   setPredictModeEnabled((prev) => !prev)
                 }
-                onRecordPredictionAttempt={handleRecordPredictionAttempt}
+                onAnswerPrediction={handleAnswerPrediction}
+                onSkipPrediction={handleSkipPrediction}
                 onApplyInput={handleApplyInput}
                 onPrev={playback.prev}
                 onNext={playback.next}
