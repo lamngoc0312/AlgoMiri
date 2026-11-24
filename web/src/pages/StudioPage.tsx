@@ -608,7 +608,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           </div>
 
           {/* Responsive 2-Column Canvas-First Desktop Grid / Mobile Tabbed Panes */}
-          <div className="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+          <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start">
             <section
               aria-label="Problem and guided lesson panel"
               className={`space-y-4 ${

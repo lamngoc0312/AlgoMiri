@@ -72,8 +72,8 @@ export function GuidedStagePanel({
   const showPseudocode = stage.id === lesson.pseudocodeStageId;
 
   return (
-    <Card className="border-[#645BE8]/35">
-      <CardHeader className="border-b border-[#E3E7F2] bg-[#EEF0FF]/40">
+    <Card>
+      <CardHeader className="border-b border-[#E4E7F1] pb-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <GraduationCap
@@ -86,19 +86,19 @@ export function GuidedStagePanel({
           </div>
           {isCompleted && (
             <Badge variant="mint">
-              <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
               Completed
             </Badge>
           )}
           {stageStatus === 'skipped' && (
             <Badge variant="amber">
-              <FastForward className="h-3 w-3" aria-hidden="true" />
+              <FastForward className="h-3.5 w-3.5" aria-hidden="true" />
               Skipped
             </Badge>
           )}
           {stageStatus === 'skipped-after-attempt' && (
             <Badge variant="amber">
-              <FastForward className="h-3 w-3" aria-hidden="true" />
+              <FastForward className="h-3.5 w-3.5" aria-hidden="true" />
               Skipped After Attempt
             </Badge>
           )}
@@ -106,23 +106,23 @@ export function GuidedStagePanel({
             <Badge variant="neutral">Attempted</Badge>
           )}
         </div>
-        <CardTitle className="text-lg mt-1">{stage.title}</CardTitle>
-        <p className="text-xs leading-relaxed text-[#555D7A]">{stage.goal}</p>
+        <CardTitle className="text-xl mt-2">{stage.title}</CardTitle>
+        <p className="text-sm leading-relaxed text-[#4E5672]">{stage.goal}</p>
       </CardHeader>
 
-      <CardContent className="space-y-4 pt-4">
-        <p className="text-sm leading-relaxed text-[#20253B]">
+      <CardContent className="space-y-5 pt-5">
+        <p className="text-base leading-relaxed text-[#181B2E]">
           {stage.narrative}
         </p>
 
         {/* Interactive Guided Check Question */}
-        <div className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5 space-y-3">
-          <div className="flex items-start gap-2">
+        <div className="rounded-xl bg-[#F8F9FC] border border-[#E4E7F1] p-4 space-y-3.5">
+          <div className="flex items-start gap-2.5">
             <HelpCircle
-              className="h-4 w-4 shrink-0 text-[#645BE8] mt-0.5"
+              className="h-5 w-5 shrink-0 text-[#645BE8] mt-0.5"
               aria-hidden="true"
             />
-            <p className="text-xs font-bold leading-relaxed text-[#20253B]">
+            <p className="text-sm font-bold leading-relaxed text-[#181B2E]">
               {stage.question.prompt}
             </p>
           </div>
@@ -131,7 +131,7 @@ export function GuidedStagePanel({
             {stage.question.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               let optionClass =
-                'border-[#DCE1F0] bg-white text-[#20253B] hover:border-[#645BE8] hover:bg-[#EEF0FF]/40';
+                'border-[#DCE1F0] bg-white text-[#181B2E] hover:border-[#645BE8] hover:bg-[#EEF0FF]/35';
 
               if (isSelected && option.isCorrect) {
                 optionClass =
@@ -148,7 +148,7 @@ export function GuidedStagePanel({
                   role="radio"
                   aria-checked={isSelected}
                   onClick={() => handleSelectOption(option.id, option.isCorrect)}
-                  className={`w-full rounded-xl border px-3 py-2.5 text-left text-xs leading-relaxed transition-colors cursor-pointer ${optionClass}`}
+                  className={`w-full rounded-xl border px-3.5 py-3 text-left text-sm leading-relaxed transition-colors cursor-pointer ${optionClass}`}
                 >
                   {option.label}
                 </button>
@@ -159,7 +159,7 @@ export function GuidedStagePanel({
           {selectedOption && (
             <div
               role="status"
-              className={`rounded-xl border px-3 py-2.5 text-xs leading-relaxed ${
+              className={`rounded-xl border px-3.5 py-3 text-sm leading-relaxed ${
                 selectedOption.isCorrect
                   ? 'border-[#16B89D]/60 bg-[#E6F8F4] text-[#0A594B]'
                   : 'border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A]'
@@ -170,7 +170,7 @@ export function GuidedStagePanel({
                   ? 'Great reasoning!'
                   : 'Not quite — try another option (no penalty):'}
               </p>
-              <p className="mt-0.5">{selectedOption.feedback}</p>
+              <p className="mt-1">{selectedOption.feedback}</p>
             </div>
           )}
         </div>
@@ -179,10 +179,10 @@ export function GuidedStagePanel({
         {showPseudocode && lesson.pseudocodeBlocks.length > 0 && (
           <div
             aria-label="Progressive pseudocode reveal"
-            className="rounded-2xl border border-[#D8DCFF] bg-[#EEF0FF]/40 p-3.5 space-y-3"
+            className="rounded-xl border border-[#D8DCFF] bg-[#F8F9FC] p-4 space-y-3"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F46D8]">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#4F46D8]">
                 <Code2 className="h-4 w-4" aria-hidden="true" />
                 Progressive Pseudocode
               </div>
@@ -192,25 +192,23 @@ export function GuidedStagePanel({
             </div>
 
             {revealedPseudoCount === 0 ? (
-              <p className="text-xs leading-relaxed text-[#555D7A]">
-                Pseudocode stays hidden until you ask for it. Try sketching the steps in your head first, then reveal one logical block at a time.
+              <p className="text-sm leading-relaxed text-[#4E5672]">
+                Pseudocode stays hidden until you ask for it. Sketch the steps in your head first, then reveal one logical block at a time.
               </p>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {lesson.pseudocodeBlocks
                   .slice(0, revealedPseudoCount)
                   .map((block) => (
                     <div
                       key={block.id}
-                      className="rounded-xl border border-[#E3E7F2] bg-white p-3 space-y-1.5"
+                      className="rounded-xl border border-[#E4E7F1] bg-white p-3.5 space-y-1.5"
                     >
-                      <p className="text-xs font-bold text-[#20253B]">
+                      <p className="text-sm font-bold text-[#181B2E]">
                         {block.title}
                       </p>
-                      <p className="text-[11px] text-[#555D7A]">
-                        {block.reason}
-                      </p>
-                      <pre className="overflow-x-auto rounded-lg bg-[#20253B] px-3 py-2 font-mono text-[11px] leading-relaxed text-[#EEF0FF]">
+                      <p className="text-xs text-[#4E5672]">{block.reason}</p>
+                      <pre className="overflow-x-auto rounded-lg bg-[#181B2E] px-3.5 py-2.5 font-mono text-xs leading-relaxed text-[#EEF0FF]">
                         {block.lines.join('\n')}
                       </pre>
                     </div>
@@ -229,7 +227,7 @@ export function GuidedStagePanel({
                     )
                   }
                 >
-                  <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                  <Eye className="h-4 w-4" aria-hidden="true" />
                   Reveal Next Pseudocode Step
                 </Button>
               )}
@@ -256,14 +254,14 @@ export function GuidedStagePanel({
         )}
 
         {/* Stage Navigation Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E3E7F2] pt-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E4E7F1] pt-4">
           {prevStage ? (
             <Button
               variant="outline"
               size="sm"
               onClick={() => onNavigateStage(prevStage.id)}
             >
-              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               Stage {prevStage.stageNumber}
             </Button>
           ) : (
@@ -279,7 +277,7 @@ export function GuidedStagePanel({
               {isCompleted
                 ? `Continue to Stage ${nextStage.stageNumber}`
                 : `Skip to Stage ${nextStage.stageNumber}`}
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           ) : (
             <Button
@@ -288,7 +286,7 @@ export function GuidedStagePanel({
               onClick={() => onSkipOrContinue(stage.id, 'summary')}
             >
               {isCompleted ? 'Finish & View Summary' : 'Skip & View Summary'}
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
         </div>

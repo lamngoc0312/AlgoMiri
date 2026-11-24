@@ -33,7 +33,7 @@ export function PredictNextStepCard({
 
   if (!prompt) {
     return (
-      <div className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5 text-xs text-[#555D7A]">
+      <div className="rounded-xl border border-[#E4E7F1] bg-[#F8F9FC] p-4 text-sm text-[#4E5672]">
         Reached the final step of this trace. Reset or try a custom input to practice more predictions!
       </div>
     );
@@ -52,10 +52,10 @@ export function PredictNextStepCard({
   return (
     <section
       aria-label="Predict the next step"
-      className="rounded-2xl border border-[#645BE8]/40 bg-[#EEF0FF]/45 p-4 space-y-3"
+      className="rounded-xl border border-[#D8DCFF] border-l-4 border-l-[#645BE8] bg-[#F8F9FC] p-5 space-y-3.5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F46D8]">
+        <div className="flex items-center gap-2 text-sm font-bold text-[#4F46D8]">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           Predict the Next Step
         </div>
@@ -69,7 +69,7 @@ export function PredictNextStepCard({
         </div>
       </div>
 
-      <p className="text-sm font-semibold leading-snug text-[#20253B]">
+      <p className="text-base font-semibold leading-snug text-[#181B2E]">
         {prompt.question}
       </p>
 
@@ -77,7 +77,7 @@ export function PredictNextStepCard({
         {prompt.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
           let style =
-            'border-[#DCE1F0] bg-white text-[#20253B] hover:border-[#645BE8] hover:bg-white';
+            'border-[#DCE1F0] bg-white text-[#181B2E] hover:border-[#645BE8] hover:bg-[#EEF0FF]/35';
 
           if (isSelected && option.isCorrect) {
             style =
@@ -93,7 +93,7 @@ export function PredictNextStepCard({
               role="radio"
               aria-checked={isSelected}
               onClick={() => handleChoose(option.id, option.isCorrect)}
-              className={`w-full rounded-xl border px-3 py-2 text-left text-xs leading-relaxed transition-colors cursor-pointer ${style}`}
+              className={`w-full rounded-xl border px-4 py-2.5 text-left text-sm leading-relaxed transition-colors cursor-pointer ${style}`}
             >
               {option.label}
             </button>
@@ -104,7 +104,7 @@ export function PredictNextStepCard({
       {selectedOption && (
         <div
           role="status"
-          className={`rounded-xl border px-3 py-2.5 text-xs leading-relaxed ${
+          className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${
             selectedOption.isCorrect
               ? 'border-[#16B89D]/60 bg-[#E6F8F4] text-[#0A594B]'
               : 'border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A]'
@@ -112,7 +112,7 @@ export function PredictNextStepCard({
         >
           <div className="flex items-center gap-1.5 font-bold">
             {selectedOption.isCorrect && (
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             )}
             <span>
               {selectedOption.isCorrect
@@ -128,7 +128,7 @@ export function PredictNextStepCard({
         {isSolved ? (
           <Button variant="mint" size="sm" onClick={onStepForward}>
             Step to Verified State
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         ) : (
           <Button
@@ -136,7 +136,7 @@ export function PredictNextStepCard({
             size="sm"
             onClick={() => onSkipAndReveal(prompt.id)}
           >
-            <FastForward className="h-3.5 w-3.5" aria-hidden="true" />
+            <FastForward className="h-4 w-4" aria-hidden="true" />
             Skip &amp; Reveal Next Step
           </Button>
         )}

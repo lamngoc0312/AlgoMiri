@@ -245,24 +245,24 @@ export function LandingPage() {
   const verifiedStudios = getVerifiedLibraryItems();
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 space-y-14">
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 space-y-16">
       {/* Focused Single-Column Hero & Main Problem Input */}
-      <section className="mx-auto max-w-3xl space-y-6 text-center">
-        <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#20253B] sm:text-5xl leading-[1.12]">
+      <section className="mx-auto max-w-3xl space-y-7 text-center">
+        <div className="space-y-3.5">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#181B2E] sm:text-5xl leading-[1.12]">
             Understand the logic{' '}
             <span className="text-[#645BE8]">before you code.</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#555D7A] sm:text-base">
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#4E5672] sm:text-lg">
             Paste any programming problem for a step-by-step conceptual breakdown,
             or practice interactively in a verified visual studio.
           </p>
         </div>
 
-        <Card className="text-left p-5 sm:p-6 shadow-[0_8px_30px_rgba(32,37,59,0.06)]">
-          <form onSubmit={handleOpenInStudioSubmit} className="space-y-3.5">
+        <Card className="text-left p-6 sm:p-7 shadow-[0_8px_30px_rgba(24,27,46,0.05)]">
+          <form onSubmit={handleOpenInStudioSubmit} className="space-y-4">
             {prefillProblem && (
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/50 px-3 py-2 text-xs text-[#20253B]">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/50 px-4 py-2.5 text-sm text-[#181B2E]">
                 <span>
                   Loaded original practice problem:{' '}
                   <strong>{prefillProblem.title}</strong> ({prefillProblem.topic})
@@ -281,7 +281,7 @@ export function LandingPage() {
                 value={problemInput}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder="Paste any algorithm problem statement to analyze its inputs, approach, and intuition..."
-                className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-sm text-[#20253B] placeholder:text-[#555D7A]/80 focus:border-[#645BE8] focus:bg-white focus:outline-none"
+                className="w-full rounded-xl border border-[#D7DCEB] bg-[#F8F9FC] p-4 text-base leading-relaxed text-[#181B2E] placeholder:text-[#4E5672]/75 focus:border-[#645BE8] focus:bg-white focus:outline-none"
               />
             </div>
 
@@ -393,7 +393,7 @@ export function LandingPage() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2
               id="ai-analysis-heading"
-              className="text-xl font-extrabold tracking-tight text-[#20253B]"
+              className="text-2xl font-extrabold tracking-tight text-[#181B2E]"
             >
               Problem Analysis &amp; Beginner Tutor
             </h2>
@@ -410,7 +410,7 @@ export function LandingPage() {
             </Button>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
             <ProblemAnalysisView
               result={analysisResult}
               selectedStrategyName={selectedStrategyName}
@@ -428,16 +428,16 @@ export function LandingPage() {
       )}
 
       {/* Compact Curated Visual Studios Section */}
-      <section aria-labelledby="curated-studios-heading" className="space-y-4">
+      <section aria-labelledby="curated-studios-heading" className="space-y-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2
               id="curated-studios-heading"
-              className="text-xl font-extrabold tracking-tight text-[#20253B]"
+              className="text-2xl font-extrabold tracking-tight text-[#181B2E]"
             >
               Curated Visual Studios
             </h2>
-            <p className="mt-0.5 text-sm text-[#555D7A]">
+            <p className="mt-1 text-base text-[#4E5672]">
               Step through verified, deterministic visualizations before writing code.
             </p>
           </div>
@@ -450,7 +450,7 @@ export function LandingPage() {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3">
           {verifiedStudios.map((studio) => (
             <Card
               key={studio.id}
@@ -459,27 +459,27 @@ export function LandingPage() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-2">
                   <Badge variant="mint">Verified Studio</Badge>
-                  <span className="text-xs font-medium text-[#555D7A]">
+                  <span className="text-xs font-medium text-[#4E5672]">
                     {studio.topic}
                   </span>
                 </div>
-                <CardTitle className="mt-2 text-lg">{studio.title}</CardTitle>
+                <CardTitle className="mt-2.5 text-xl">{studio.title}</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-1 flex-col justify-between gap-4">
-                <p className="text-xs leading-relaxed text-[#555D7A]">
+              <CardContent className="flex flex-1 flex-col justify-between gap-5">
+                <p className="text-sm leading-relaxed text-[#4E5672]">
                   {studio.summary}
                 </p>
-                <div className="flex items-center justify-between border-t border-[#E3E7F2] pt-3">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#555D7A]">
-                    <Layers className="h-3.5 w-3.5 text-[#645BE8]" aria-hidden="true" />
+                <div className="flex items-center justify-between border-t border-[#E4E7F1] pt-3.5">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#4E5672]">
+                    <Layers className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
                     {studio.stagesCount}-stage lesson
                   </span>
                   <Link
                     to={studio.studioPath ?? `/studio/${studio.id}`}
-                    className="inline-flex min-h-[36px] items-center gap-1 text-xs font-semibold text-[#645BE8] hover:text-[#4F46D8]"
+                    className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
                   >
                     Open Studio
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </div>
               </CardContent>
