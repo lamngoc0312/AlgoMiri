@@ -29,37 +29,59 @@ export function generateSplitArrayPrediction(
   const { nums, k, low, high } = current.visualState;
 
   if (next.action === 'bs-select-mid') {
-    const expectedMid = next.visualState.mid ?? low + Math.floor((high - low) / 2);
+    const expectedMid =
+      next.visualState.mid ?? low + Math.floor((high - low) / 2);
+
+    // Ensure every distractor has a strictly different numeric value from expectedMid
+    // (especially when high === low + 1, where floor midpoint equals low).
+    const options =
+      expectedMid === low
+        ? [
+            {
+              id: 'correct-mid',
+              label: `mid = ${expectedMid}`,
+              isCorrect: true,
+              feedback: `Correct! For [${low}, ${high}], floor midpoint is ${low} + floor((${high} - ${low}) / 2) = ${expectedMid}.`,
+            },
+            {
+              id: 'high-bound',
+              label: `mid = ${high} (test high)`,
+              isCorrect: false,
+              feedback: `When low < high, floor midpoint low + floor((high - low) / 2) is strictly less than ${high} (here ${expectedMid}), ensuring the loop always terminates.`,
+            },
+            {
+              id: 'out-of-range',
+              label: `mid = ${high + 1} (above high)`,
+              isCorrect: false,
+              feedback: `Binary Search only tests candidates inside [${low}, ${high}]; ${high + 1} is outside the active search bounds.`,
+            },
+          ]
+        : [
+            {
+              id: 'correct-mid',
+              label: `mid = ${expectedMid}`,
+              isCorrect: true,
+              feedback: `Correct! mid = ${low} + floor((${high} - ${low}) / 2) = ${expectedMid}.`,
+            },
+            {
+              id: 'low-bound',
+              label: `mid = ${low} (just test low directly)`,
+              isCorrect: false,
+              feedback: `Testing low linearly only eliminates 1 value on failure; testing midpoint ${expectedMid} cuts the search range in half!`,
+            },
+            {
+              id: 'high-bound',
+              label: `mid = ${high} (test high)`,
+              isCorrect: false,
+              feedback: `When low < high, floor midpoint low + floor((high - low) / 2) is strictly less than ${high} (here ${expectedMid}), ensuring the loop always makes progress.`,
+            },
+          ];
+
     return {
       id: questionId,
       stepIndex: current.stepIndex,
       question: `Current search bounds are [${low}, ${high}]. Which candidate largest sum mid will Binary Search test next?`,
-      options: [
-        {
-          id: 'correct-mid',
-          label: `mid = ${expectedMid}`,
-          isCorrect: true,
-          feedback: `Correct! mid = ${low} + floor((${high} - ${low}) / 2) = ${expectedMid}.`,
-        },
-        {
-          id: 'low-bound',
-          label: `mid = ${low} (just test low directly)`,
-          isCorrect: expectedMid === low,
-          feedback:
-            expectedMid === low
-              ? `Correct! Floor division lands on ${low} for [${low}, ${high}].`
-              : `Testing low linearly only eliminates 1 value on failure; testing midpoint ${expectedMid} cuts the search range in half!`,
-        },
-        {
-          id: 'high-bound',
-          label: `mid = ${high} (test high)`,
-          isCorrect: false,
-          feedback: `When low < high, floor midpoint low + floor((high - low) / 2) is strictly less than ${high} (here ${expectedMid}), ensuring the loop always makes progress.`,
-        },
-      ].filter((opt, idx, arr) =>
-        // Avoid duplicate labels when expectedMid === low (e.g., [10, 11] -> mid = 10)
-        idx === 0 || opt.label !== arr[0].label,
-      ),
+      options,
     };
   }
 

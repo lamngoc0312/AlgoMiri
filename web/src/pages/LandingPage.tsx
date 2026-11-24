@@ -8,9 +8,18 @@ import {
   Eye,
   GitBranch,
   Layers,
+  Loader2,
+  RotateCcw,
   Sparkles,
 } from 'lucide-react';
 import { SAMPLE_PROBLEMS } from '../domain/problems/demoCatalog';
+import {
+  AiClientError,
+  analyzeProblem,
+  type AnalyzeResponseDto,
+} from '../services/aiClient';
+import { ProblemAnalysisView } from '../features/analyzer/ProblemAnalysisView';
+import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -34,7 +43,7 @@ const LEARNING_STEPS = [
     step: '03',
     title: 'Trace Step-by-Step',
     description:
-      'Watch deterministic visuals update pointers, stacks, comparisons, and data structures.',
+      'Watch deterministic visuals update pointers, stacks, partitions, and data structures.',
     icon: Eye,
   },
   {
@@ -78,12 +87,54 @@ export function LandingPage() {
   const navigate = useNavigate();
   const [problemInput, setProblemInput] = useState('');
   const [feedback, setFeedback] = useState<{
-    type: 'empty' | 'unsupported';
+    type: 'empty' | 'unsupported' | 'error';
     message: string;
+    canRetry?: boolean;
   } | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] =
+    useState<AnalyzeResponseDto | null>(null);
+  const [selectedStrategyName, setSelectedStrategyName] = useState<
+    string | null
+  >(null);
   const [comingSoonNote, setComingSoonNote] = useState<string | null>(null);
 
-  const handleAnalyzeSubmit = (event: FormEvent) => {
+  const runAiAnalysis = async () => {
+    const trimmed = problemInput.trim();
+    if (trimmed.length < 10) {
+      setFeedback({
+        type: 'empty',
+        message:
+          'Please paste at least 10 characters describing a programming problem (or load a sample below).',
+      });
+      return;
+    }
+
+    setAnalyzing(true);
+    setFeedback(null);
+
+    try {
+      const response = await analyzeProblem(trimmed);
+      setAnalysisResult(response);
+      setSelectedStrategyName(
+        response.analysis.candidate_strategies[0]?.name ?? null,
+      );
+    } catch (err) {
+      const message =
+        err instanceof AiClientError
+          ? err.message
+          : 'Could not complete problem analysis. Please retry.';
+      setFeedback({
+        type: 'error',
+        message,
+        canRetry: true,
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleOpenInStudioSubmit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = problemInput.trim();
 
@@ -106,7 +157,7 @@ export function LandingPage() {
     setFeedback({
       type: 'unsupported',
       message:
-        'Demo Scope: Arbitrary problem statements and external URLs are not parsed yet, and no AI API is connected. Right now, Two Sum and Valid Parentheses are supported with verified deterministic traces.',
+        'Not supported in current demo for deterministic trace playback. Click "Analyze Problem (AI)" to get a structured conceptual breakdown and beginner tutoring instead.',
     });
   };
 
@@ -124,10 +175,17 @@ export function LandingPage() {
     setFeedback(null);
   };
 
+  const handleFillSplitArray = () => {
+    setProblemInput(
+      'Split Array Largest Sum: Given an array of nonnegative integers nums and an integer k, split nums into k nonempty contiguous subarrays to minimize the largest subarray sum.',
+    );
+    setFeedback(null);
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       {/* Hero Section */}
-      <section className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+      <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="space-y-6">
           <Badge variant="indigo" className="px-3 py-1 text-xs">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -140,9 +198,9 @@ export function LandingPage() {
           </h1>
 
           <p className="max-w-xl text-base leading-relaxed text-[#555D7A] sm:text-lg">
-            AlgoMiri helps you move from reading a problem statement to choosing a
-            strategy and tracing every step visually — without staring at a blank
-            code editor first.
+            Paste any algorithm problem for a beginner-friendly AI breakdown, or
+            explore verified deterministic visual studios for Two Sum, Valid
+            Parentheses, and Split Array Largest Sum.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -155,27 +213,28 @@ export function LandingPage() {
             </Link>
 
             <Link
-              to="/studio/two-sum"
+              to="/studio/split-array-largest-sum"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D7DCEB] bg-white px-5 text-sm font-semibold text-[#20253B] transition-colors hover:bg-[#F7F8FC]"
             >
-              Try Two Sum Studio
+              Try Composition Studio
             </Link>
           </div>
         </div>
 
-        {/* Paste Problem Card */}
+        {/* Real Problem Analyzer + Quick Studio Card */}
         <Card className="p-6 shadow-[0_8px_30px_rgba(32,37,59,0.06)]">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-bold text-[#20253B]">
-              Start with a problem
+              Analyze a Problem Statement
             </h2>
-            <Badge variant="mint">2 Live Problems</Badge>
+            <Badge variant="mint">3 Verified Studios + AI Analyzer</Badge>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-[#555D7A]">
-            Paste a problem statement below. Two Sum and Valid Parentheses open directly in Learning Studio; other problems show an honest unsupported-demo notice.
+            Paste any programming problem to receive structured conceptual
+            analysis and tutoring, or jump straight into a verified visual studio.
           </p>
 
-          <form onSubmit={handleAnalyzeSubmit} className="mt-4 space-y-3">
+          <form onSubmit={handleOpenInStudioSubmit} className="mt-4 space-y-3">
             <div>
               <label htmlFor="problem-input" className="sr-only">
                 Paste a problem statement
@@ -188,37 +247,53 @@ export function LandingPage() {
                   setProblemInput(e.target.value);
                   if (feedback) setFeedback(null);
                 }}
-                placeholder="Paste a problem statement (try Two Sum or Valid Parentheses, or paste another problem to see how unsupported inputs are handled honestly)..."
+                placeholder="Paste a programming problem statement (e.g., Two Sum, Valid Parentheses, Split Array Largest Sum, or any new problem for conceptual AI analysis)..."
                 className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-sm text-[#20253B] placeholder:text-[#7E86A3] focus:border-[#645BE8] focus:bg-white focus:outline-none"
               />
             </div>
 
+            {analyzing && (
+              <div
+                role="status"
+                className="flex items-center gap-2 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/60 px-3.5 py-3 text-xs font-medium text-[#4F46D8]"
+              >
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Analyzing problem structure, constraints, and candidate strategies...
+              </div>
+            )}
+
             {feedback && (
               <div
                 role="alert"
-                className="flex items-start gap-2.5 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-3.5 text-xs leading-relaxed text-[#20253B]"
+                className="flex items-start justify-between gap-2.5 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-3.5 text-xs leading-relaxed text-[#20253B]"
               >
-                <AlertCircle
-                  className="h-4 w-4 shrink-0 text-[#9A630A] mt-0.5"
-                  aria-hidden="true"
-                />
-                <div className="space-y-1.5">
-                  <p className="font-semibold text-[#9A630A]">
-                    {feedback.type === 'unsupported'
-                      ? 'Not supported in current demo'
-                      : 'Add a problem statement'}
-                  </p>
-                  <p className="text-[#555D7A]">{feedback.message}</p>
-                  {feedback.type === 'unsupported' && (
-                    <Link
-                      to="/problems"
-                      className="inline-flex items-center gap-1 font-semibold text-[#4F46D8] hover:underline"
-                    >
-                      Browse supported interactive problems
-                      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    </Link>
-                  )}
+                <div className="flex items-start gap-2">
+                  <AlertCircle
+                    className="h-4 w-4 shrink-0 text-[#9A630A] mt-0.5"
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-1">
+                    <p className="font-semibold text-[#9A630A]">
+                      {feedback.type === 'unsupported'
+                        ? 'Not supported in current demo'
+                        : feedback.type === 'error'
+                          ? 'Analysis request failed'
+                          : 'Add a problem statement'}
+                    </p>
+                    <p className="text-[#555D7A]">{feedback.message}</p>
+                  </div>
                 </div>
+                {feedback.canRetry && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void runAiAnalysis()}
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                    Retry
+                  </Button>
+                )}
               </div>
             )}
 
@@ -238,17 +313,74 @@ export function LandingPage() {
                   size="sm"
                   onClick={handleFillValidParentheses}
                 >
-                  Load Valid Parentheses
+                  Valid Parentheses
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleFillSplitArray}
+                >
+                  Split Array
                 </Button>
               </div>
-              <Button type="submit" variant="primary" size="md">
-                Open in Studio
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Button>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={analyzing}
+                  onClick={() => void runAiAnalysis()}
+                >
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  Analyze Problem (AI)
+                </Button>
+                <Button type="submit" variant="primary" size="sm">
+                  Open in Studio
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </div>
             </div>
           </form>
         </Card>
       </section>
+
+      {/* Live AI Analysis + Beginner Tutor Section (rendered when analysis completes) */}
+      {analysisResult && (
+        <section
+          className="mt-12 space-y-6"
+          aria-labelledby="ai-analysis-heading"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2
+              id="ai-analysis-heading"
+              className="text-2xl font-extrabold tracking-tight text-[#20253B]"
+            >
+              Problem Analysis &amp; Beginner Tutor
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setAnalysisResult(null)}
+            >
+              Clear Analysis
+            </Button>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+            <ProblemAnalysisView
+              result={analysisResult}
+              selectedStrategyName={selectedStrategyName}
+              onSelectStrategy={setSelectedStrategyName}
+            />
+            <AiTutorPanel
+              problemAnalysis={analysisResult.analysis}
+              selectedStrategy={selectedStrategyName}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Sample Problems Section */}
       <section className="mt-16" aria-labelledby="samples-heading">
@@ -258,10 +390,10 @@ export function LandingPage() {
               id="samples-heading"
               className="text-2xl font-extrabold tracking-tight text-[#20253B]"
             >
-              Sample Problems
+              Verified Interactive Studios
             </h2>
             <p className="mt-1 text-sm text-[#555D7A]">
-              Explore our verified interactive visual lessons. Additional patterns are planned for future sprints.
+              Deterministic visual execution traces backed by unit-tested algorithms.
             </p>
           </div>
           <Link
@@ -285,7 +417,7 @@ export function LandingPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between gap-2">
                     <Badge variant={isLive ? 'mint' : 'neutral'}>
-                      {isLive ? 'Live Demo' : 'Coming Soon'}
+                      {isLive ? 'Verified Studio' : 'Coming Soon'}
                     </Badge>
                     <span className="text-xs font-medium text-[#555D7A]">
                       {sample.pattern}
@@ -316,7 +448,7 @@ export function LandingPage() {
                         type="button"
                         onClick={() =>
                           setComingSoonNote(
-                            `${sample.title} (${sample.pattern}) is planned for a later sprint. Try Two Sum or Valid Parentheses in Learning Studio today!`,
+                            `${sample.title} (${sample.pattern}) is planned for a later sprint.`,
                           )
                         }
                         className="text-xs font-semibold text-[#555D7A] hover:text-[#20253B] cursor-pointer"
@@ -357,7 +489,7 @@ export function LandingPage() {
             Problem first, code last
           </h2>
           <p className="mt-1 text-sm text-[#555D7A]">
-            Every visual step in AlgoMiri comes from tested, deterministic logic — never unverified guesswork.
+            AI explains concepts and hints; verified visual steps always come from deterministic, tested code.
           </p>
         </div>
 

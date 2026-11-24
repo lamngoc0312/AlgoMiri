@@ -48,7 +48,10 @@ import { GuidedLessonBar } from '../features/guided/GuidedLessonBar';
 import { GuidedStagePanel } from '../features/guided/GuidedStagePanel';
 import { SessionSummaryCard } from '../features/guided/SessionSummaryCard';
 import { InteractiveSolutionMap } from '../features/solutions/InteractiveSolutionMap';
+import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
+import { buildProblemAnalysisFromModule } from '../services/aiClient';
 import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 
 type StudioMode = 'guided' | 'explore';
@@ -657,9 +660,9 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
             <section
               aria-label="Step walkthrough and explanation panel"
-              className={
+              className={`space-y-4 ${
                 mobileTab === 'walkthrough' ? 'block' : 'hidden lg:block'
-              }
+              }`}
             >
               <WalkthroughPane
                 strategy={strategy}
@@ -667,9 +670,56 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                 stepIndex={playback.stepIndex}
                 totalSteps={trace.steps.length}
               />
+
+              <StudioTutorDrawer
+                problemModule={problemModule}
+                selectedStrategy={strategy.name}
+                learningStage={mode === 'guided' ? activeStage.title : 'Free Exploration'}
+                executionContext={`Step ${playback.stepIndex + 1} of ${trace.steps.length}: ${currentStep.actionTitle} — ${currentStep.explanation}`}
+              />
             </section>
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+function StudioTutorDrawer({
+  problemModule,
+  selectedStrategy,
+  learningStage,
+  executionContext,
+}: {
+  problemModule: AnyProblemModule;
+  selectedStrategy: string;
+  learningStage: string;
+  executionContext: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const analysis = useMemo(
+    () => buildProblemAnalysisFromModule(problemModule),
+    [problemModule],
+  );
+
+  return (
+    <div className="space-y-2">
+      <Button
+        variant="secondary"
+        size="sm"
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+        className="w-full"
+      >
+        {open ? 'Hide AI Tutor' : 'Ask AI Tutor About This Step'}
+      </Button>
+      {open && (
+        <AiTutorPanel
+          problemAnalysis={analysis}
+          selectedStrategy={selectedStrategy}
+          learningStage={learningStage}
+          executionContext={executionContext}
+        />
       )}
     </div>
   );

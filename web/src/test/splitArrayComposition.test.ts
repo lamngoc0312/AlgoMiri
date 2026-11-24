@@ -209,4 +209,71 @@ describe('Split Array Largest Sum — Binary Search + Greedy Composition Engine'
     ).join(', ');
     expect(parseAndValidateSplitArrayInput(tooLong, '2').ok).toBe(false);
   });
+
+  it('generates exactly ONE correct option with distinct distractors across representative and seeded randomized inputs (Phase A regression)', () => {
+    // Simple deterministic LCG PRNG for reproducible tests
+    let seed = 20261124;
+    const nextRand = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 0x100000000;
+    };
+
+    const testInputs: { nums: number[]; k: number }[] = [
+      // Explicitly hits high === low + 1 (e.g., [1, 1], k = 1 -> [1, 2]; [7, 2, 5, 10, 8], k = 2)
+      { nums: [1, 1], k: 1 },
+      { nums: [2, 1], k: 2 },
+      { nums: [7, 2, 5, 10, 8], k: 2 },
+      { nums: [1, 2, 3, 4, 5], k: 2 },
+      { nums: [1, 4, 4], k: 3 },
+      { nums: [0, 1], k: 1 },
+    ];
+
+    for (let t = 0; t < 25; t += 1) {
+      const len = 1 + Math.floor(nextRand() * 7);
+      const nums = Array.from({ length: len }, () =>
+        Math.floor(nextRand() * 25),
+      );
+      const k = 1 + Math.floor(nextRand() * len);
+      testInputs.push({ nums, k });
+    }
+
+    for (const input of testInputs) {
+      const trace = generateSplitArrayTrace(input);
+      for (let i = 0; i < trace.steps.length - 1; i += 1) {
+        const prompt = splitArrayModule.generatePrediction(
+          trace.steps,
+          i,
+          'bs-greedy-composition',
+          `seed-test:${input.nums.join(',')}:${input.k}`,
+        );
+        expect(prompt).not.toBeNull();
+
+        const correctOptions = prompt!.options.filter((o) => o.isCorrect);
+        expect(
+          correctOptions,
+          `Step ${i} (${trace.steps[i].action}) for [${input.nums}] k=${input.k}`,
+        ).toHaveLength(1);
+
+        // Distractors must be distinct from the correct option and from each other
+        const labels = prompt!.options.map((o) => o.label);
+        expect(new Set(labels).size).toBe(labels.length);
+
+        // For mid-selection questions, all numeric mid values must be strictly distinct
+        if (trace.steps[i + 1].action === 'bs-select-mid') {
+          const midValues = labels.map((l) => l.match(/mid = (\d+)/)?.[1]);
+          expect(new Set(midValues).size).toBe(midValues.length);
+        }
+      }
+
+      // Terminal step has no prediction
+      expect(
+        splitArrayModule.generatePrediction(
+          trace.steps,
+          trace.steps.length - 1,
+          'bs-greedy-composition',
+          'terminal',
+        ),
+      ).toBeNull();
+    }
+  });
 });
