@@ -25,7 +25,23 @@ describe('AlgoMiri smoke tests', () => {
 
     const textarea = screen.getByLabelText(/paste a problem statement/i);
     await user.type(textarea, 'Find the shortest path in a weighted graph using Dijkstra');
-    await user.click(screen.getByRole('button', { name: /open in studio/i }));
+    await user.click(screen.getByRole('button', { name: /open curated studio/i }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /not supported in current demo/i,
+    );
+  });
+
+  it('rejects incompatible variants like 3Sum from direct curated studio routing', async () => {
+    const user = userEvent.setup();
+    renderAt('/');
+
+    const textarea = screen.getByLabelText(/paste a problem statement/i);
+    await user.type(
+      textarea,
+      '3Sum: Given an integer array nums, return all unique triplets of three indices that sum to 0.',
+    );
+    await user.click(screen.getByRole('button', { name: /open curated studio/i }));
 
     expect(screen.getByRole('alert')).toHaveTextContent(
       /not supported in current demo/i,
@@ -37,7 +53,7 @@ describe('AlgoMiri smoke tests', () => {
     renderAt('/');
 
     await user.click(screen.getByRole('button', { name: /load two sum sample/i }));
-    await user.click(screen.getByRole('button', { name: /open in studio/i }));
+    await user.click(screen.getByRole('button', { name: /open curated studio/i }));
 
     expect(
       screen.getByRole('heading', { name: /learning studio/i }),

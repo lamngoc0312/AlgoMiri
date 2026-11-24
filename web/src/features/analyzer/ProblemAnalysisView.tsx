@@ -9,21 +9,27 @@ import {
   GitBranch,
   Info,
   Layers,
+  RotateCcw,
   Sparkles,
 } from 'lucide-react';
 import type { AnalyzeResponseDto } from '../../services/aiClient';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
 interface ProblemAnalysisViewProps {
   result: AnalyzeResponseDto;
   selectedStrategyName: string | null;
+  isStale?: boolean;
+  onReanalyze?: () => void;
   onSelectStrategy: (strategyName: string) => void;
 }
 
 export function ProblemAnalysisView({
   result,
   selectedStrategyName,
+  isStale = false,
+  onReanalyze,
   onSelectStrategy,
 }: ProblemAnalysisViewProps) {
   const { analysis, verified_match: match, mode, notice } = result;
@@ -31,8 +37,32 @@ export function ProblemAnalysisView({
   return (
     <div
       aria-label="Structured AI problem analysis"
-      className="space-y-5"
+      className={`space-y-5 transition-opacity ${isStale ? 'opacity-80' : ''}`}
     >
+      {/* Stale Analysis Warning when user edits problem statement */}
+      {isStale && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#F1B34C] bg-[#FEF6E6] px-4 py-3 text-xs text-[#9A630A]"
+        >
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
+            <div>
+              <p className="font-bold">Outdated Analysis — Problem Statement Changed</p>
+              <p className="mt-0.5 text-[#555D7A]">
+                The results below reflect your previous statement. Re-analyze to update this breakdown and reset the AI Tutor.
+              </p>
+            </div>
+          </div>
+          {onReanalyze && (
+            <Button variant="primary" size="sm" onClick={onReanalyze}>
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              Re-analyze Updated Text
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Honest Mode & Verification Banner */}
       <div
         role="status"
@@ -50,12 +80,15 @@ export function ProblemAnalysisView({
                 ? 'Offline Demo Mode (No Live AI Key)'
                 : 'AI-Generated · Conceptual (Not Verified)'}
             </Badge>
-            <Badge variant="neutral">No Code Executed</Badge>
+            <Badge variant="neutral">No Algorithm Executed</Badge>
           </div>
           <span className="text-xs font-medium text-[#555D7A]">
             {analysis.inferred_problem_type}
           </span>
         </div>
+        <p className="text-[11px] text-[#555D7A]">
+          This explanation is conceptual only and separate from AlgoMiri&apos;s verified deterministic trace engines.
+        </p>
         {notice && (
           <p className="text-xs leading-relaxed text-[#9A630A] font-medium">
             {notice}
@@ -83,7 +116,7 @@ export function ProblemAnalysisView({
                       className="h-4 w-4 text-[#16B89D]"
                       aria-hidden="true"
                     />
-                    <Badge variant="mint">Verified Studio Engine Available</Badge>
+                    <Badge variant="mint">Verified Deterministic Studio Available</Badge>
                   </>
                 )}
                 {match.status === 'ambiguous' && (
@@ -119,7 +152,7 @@ export function ProblemAnalysisView({
               >
                 {match.status === 'verified'
                   ? `Open Verified ${match.matched_problem_title} Studio`
-                  : `Inspect ${match.matched_problem_title} Studio Anyway`}
+                  : `Inspect Curated ${match.matched_problem_title} Studio`}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             )}

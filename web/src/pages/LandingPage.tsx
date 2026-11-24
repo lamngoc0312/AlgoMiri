@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
@@ -55,31 +55,59 @@ const LEARNING_STEPS = [
   },
 ];
 
-function matchSupportedProblemRoute(text: string): string | null {
-  const normalized = text.trim().toLowerCase();
+/**
+ * Strict curated shortcut matcher for the direct "Open Curated Studio" action.
+ * Rejects incompatible variants (3Sum, Two Sum II, counting pairs, Remove Invalid
+ * Parentheses, wildcard '*', negative or unknown-sign Split Array) so arbitrary
+ * pasted problems are analyzed conceptually instead of misrouted.
+ */
+function matchCuratedStudioRoute(text: string): string | null {
+  const raw = text.trim().toLowerCase();
+
+  // Split Array Largest Sum (must explicitly state nonnegative/positive and disallow negatives)
   if (
-    normalized.includes('two sum') ||
-    normalized.includes('twosum') ||
-    normalized.includes('two-sum') ||
-    (normalized.includes('target') && normalized.includes('nums'))
+    /split\s+array\s+largest\s+sum|minimiz\w+\s+the\s+(largest|maximum)\s+(subarray\s+)?sum/.test(
+      raw,
+    )
   ) {
-    return '/studio/two-sum';
+    const allowsNegatives = /negative\s+(numbers?|integers?|values?)|may\s+be\s+negative/.test(
+      raw,
+    );
+    const hasNonNegative = /non[-\s]?negative|positive\s+(integers?|numbers?)|>=\s*0/.test(
+      raw,
+    );
+    if (!allowsNegatives && hasNonNegative) {
+      return '/studio/split-array-largest-sum';
+    }
+    return null;
   }
-  if (
-    normalized.includes('valid parentheses') ||
-    normalized.includes('valid-parentheses') ||
-    normalized.includes('balanced brackets') ||
-    normalized.includes('parentheses')
-  ) {
-    return '/studio/valid-parentheses';
+
+  // Valid Parentheses (reject remove invalid, longest, generate, wildcard)
+  if (/valid\s+parenthes|balanced\s+(brackets?|parenthes)/.test(raw)) {
+    const incompatible =
+      /remove\s+invalid|longest\s+valid|generate|minimum\s+(removals?|insertions?)|wildcard|\*/.test(
+        raw,
+      );
+    if (!incompatible) {
+      return '/studio/valid-parentheses';
+    }
+    return null;
   }
-  if (
-    normalized.includes('split array') ||
-    normalized.includes('largest sum') ||
-    normalized.includes('minimize the largest subarray sum')
-  ) {
-    return '/studio/split-array-largest-sum';
+
+  // Two Sum (must specify two distinct indices and reject 3Sum / Two Sum II / count / subarray)
+  const hasTwoSumPair =
+    /(two|pair).{0,50}(indices|index).{0,60}(sum|add\s+up)\s+to/.test(raw) ||
+    (/\btwo\s*[- ]?sum\b/.test(raw) && /\bindices\b/.test(raw));
+  if (hasTwoSumPair) {
+    const incompatible =
+      /\b(3sum|three\s+sum|4sum|two\s+sum\s+ii|1-indexed|sorted|subarray\s+sum|count|how\s+many|all\s+pairs|triplets)\b/.test(
+        raw,
+      );
+    if (!incompatible) {
+      return '/studio/two-sum';
+    }
   }
+
   return null;
 }
 
@@ -94,10 +122,30 @@ export function LandingPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] =
     useState<AnalyzeResponseDto | null>(null);
+  const [analyzedStatement, setAnalyzedStatement] = useState<string | null>(
+    null,
+  );
+  const [analysisRevision, setAnalysisRevision] = useState(0);
   const [selectedStrategyName, setSelectedStrategyName] = useState<
     string | null
   >(null);
   const [comingSoonNote, setComingSoonNote] = useState<string | null>(null);
+
+  // Sequence + AbortController prevent rapid consecutive requests from racing or overwriting newer results
+  const analyzeSeqRef = useRef(0);
+  const analyzeAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      analyzeAbortRef.current?.abort();
+    };
+  }, []);
+
+  const isAnalysisStale = Boolean(
+    analysisResult &&
+      analyzedStatement !== null &&
+      problemInput.trim() !== analyzedStatement,
+  );
 
   const runAiAnalysis = async () => {
     const trimmed = problemInput.trim();
@@ -110,19 +158,40 @@ export function LandingPage() {
       return;
     }
 
+    analyzeAbortRef.current?.abort();
+    const controller = new AbortController();
+    analyzeAbortRef.current = controller;
+    const requestSeq = analyzeSeqRef.current + 1;
+    analyzeSeqRef.current = requestSeq;
+
     setAnalyzing(true);
     setFeedback(null);
 
     try {
-      const response = await analyzeProblem(trimmed);
+      const response = await analyzeProblem(trimmed, {
+        signal: controller.signal,
+      });
+
+      if (analyzeSeqRef.current !== requestSeq) {
+        return;
+      }
+
       setAnalysisResult(response);
+      setAnalyzedStatement(trimmed);
+      setAnalysisRevision((rev) => rev + 1);
       setSelectedStrategyName(
         response.analysis.candidate_strategies[0]?.name ?? null,
       );
     } catch (err) {
+      if (analyzeSeqRef.current !== requestSeq) {
+        return;
+      }
+      if (err instanceof AiClientError && err.kind === 'aborted') {
+        return;
+      }
       const message =
         err instanceof AiClientError
-          ? err.message
+          ? `${err.message}${err.retryAfterSeconds ? ` (Suggested wait: ~${err.retryAfterSeconds}s)` : ''}`
           : 'Could not complete problem analysis. Please retry.';
       setFeedback({
         type: 'error',
@@ -130,7 +199,9 @@ export function LandingPage() {
         canRetry: true,
       });
     } finally {
-      setAnalyzing(false);
+      if (analyzeSeqRef.current === requestSeq) {
+        setAnalyzing(false);
+      }
     }
   };
 
@@ -142,12 +213,12 @@ export function LandingPage() {
       setFeedback({
         type: 'empty',
         message:
-          'Paste a problem statement first, or load a supported sample below to jump straight into the Studio.',
+          'Paste a problem statement first, or load a curated sample below to open its verified Studio.',
       });
       return;
     }
 
-    const matchedRoute = matchSupportedProblemRoute(trimmed);
+    const matchedRoute = matchCuratedStudioRoute(trimmed);
     if (matchedRoute) {
       setFeedback(null);
       navigate(matchedRoute);
@@ -157,29 +228,36 @@ export function LandingPage() {
     setFeedback({
       type: 'unsupported',
       message:
-        'Not supported in current demo for deterministic trace playback. Click "Analyze Problem (AI)" to get a structured conceptual breakdown and beginner tutoring instead.',
+        'Not supported in current demo for direct deterministic Studio playback (curated Studios only run built-in verified modules, never pasted text directly). Click "Analyze Problem (AI)" to check compatibility and explore a conceptual breakdown.',
     });
   };
 
+  const handleInputChange = (nextText: string) => {
+    setProblemInput(nextText);
+    if (feedback) setFeedback(null);
+    if (nextText.trim() === '' && analysisResult) {
+      setAnalysisResult(null);
+      setAnalyzedStatement(null);
+      setSelectedStrategyName(null);
+    }
+  };
+
   const handleFillTwoSum = () => {
-    setProblemInput(
+    handleInputChange(
       'Two Sum: Given an array of integers nums and an integer target, find two distinct indices whose values add up to target.',
     );
-    setFeedback(null);
   };
 
   const handleFillValidParentheses = () => {
-    setProblemInput(
+    handleInputChange(
       'Valid Parentheses: Given a string containing (), [], and {}, determine if the brackets are balanced in proper nested order.',
     );
-    setFeedback(null);
   };
 
   const handleFillSplitArray = () => {
-    setProblemInput(
+    handleInputChange(
       'Split Array Largest Sum: Given an array of nonnegative integers nums and an integer k, split nums into k nonempty contiguous subarrays to minimize the largest subarray sum.',
     );
-    setFeedback(null);
   };
 
   return (
@@ -221,7 +299,7 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Real Problem Analyzer + Quick Studio Card */}
+        {/* Real Problem Analyzer + Curated Studio Card */}
         <Card className="p-6 shadow-[0_8px_30px_rgba(32,37,59,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-bold text-[#20253B]">
@@ -230,8 +308,9 @@ export function LandingPage() {
             <Badge variant="mint">3 Verified Studios + AI Analyzer</Badge>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-[#555D7A]">
-            Paste any programming problem to receive structured conceptual
-            analysis and tutoring, or jump straight into a verified visual studio.
+            <strong>Analyze Problem (AI)</strong> gives an AI-generated conceptual
+            breakdown (not executed). <strong>Open Curated Studio</strong> opens
+            a built-in deterministic example Studio if your statement strictly matches one.
           </p>
 
           <form onSubmit={handleOpenInStudioSubmit} className="mt-4 space-y-3">
@@ -243,10 +322,7 @@ export function LandingPage() {
                 id="problem-input"
                 rows={4}
                 value={problemInput}
-                onChange={(e) => {
-                  setProblemInput(e.target.value);
-                  if (feedback) setFeedback(null);
-                }}
+                onChange={(e) => handleInputChange(e.target.value)}
                 placeholder="Paste a programming problem statement (e.g., Two Sum, Valid Parentheses, Split Array Largest Sum, or any new problem for conceptual AI analysis)..."
                 className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-sm text-[#20253B] placeholder:text-[#7E86A3] focus:border-[#645BE8] focus:bg-white focus:outline-none"
               />
@@ -328,7 +404,7 @@ export function LandingPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   disabled={analyzing}
                   onClick={() => void runAiAnalysis()}
@@ -336,8 +412,13 @@ export function LandingPage() {
                   <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                   Analyze Problem (AI)
                 </Button>
-                <Button type="submit" variant="primary" size="sm">
-                  Open in Studio
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  title="Opens a built-in curated Studio example (does not execute pasted text)"
+                >
+                  Open Curated Studio
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
@@ -362,7 +443,11 @@ export function LandingPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setAnalysisResult(null)}
+              onClick={() => {
+                setAnalysisResult(null);
+                setAnalyzedStatement(null);
+                setSelectedStrategyName(null);
+              }}
             >
               Clear Analysis
             </Button>
@@ -372,9 +457,12 @@ export function LandingPage() {
             <ProblemAnalysisView
               result={analysisResult}
               selectedStrategyName={selectedStrategyName}
+              isStale={isAnalysisStale}
+              onReanalyze={() => void runAiAnalysis()}
               onSelectStrategy={setSelectedStrategyName}
             />
             <AiTutorPanel
+              contextKey={`landing-analysis-${analysisRevision}`}
               problemAnalysis={analysisResult.analysis}
               selectedStrategy={selectedStrategyName}
             />

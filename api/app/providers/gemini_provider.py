@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import asyncio
 import json
+from typing import Any, Optional
 
 from pydantic import ValidationError
 
 from ..schemas import ProblemAnalysis, TutorPayload, TutorRequest
 from .base import (
     MalformedProviderOutputError,
+    ProviderAuthError,
     ProviderError,
+    ProviderRateLimitError,
     ProviderTimeoutError,
+    ProviderTransientError,
 )
 
 ANALYZE_SYSTEM_INSTRUCTION = """You are AlgoMiri's beginner-friendly algorithm analysis assistant.
@@ -62,30 +66,102 @@ def build_tutor_user_prompt(request: TutorRequest) -> str:
     return "\n\n".join(context_parts)
 
 
+def classify_upstream_exception(exc: Exception) -> ProviderError:
+    """Maps raw SDK/HTTP exceptions into safe, typed provider errors without leaking secrets."""
+    if isinstance(exc, ProviderError):
+        return exc
+
+    if isinstance(exc, (TimeoutError, asyncio.TimeoutError)):
+        return ProviderTimeoutError("Upstream AI provider timed out.")
+
+    status_code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+    exc_name = type(exc).__name__.lower()
+    message_lower = str(exc).lower()
+
+    if "timeout" in exc_name or "timed out" in message_lower:
+        return ProviderTimeoutError("Upstream AI provider timed out.")
+
+    if status_code in (401, 403) or "api key" in message_lower or "permission denied" in message_lower:
+        return ProviderAuthError("Upstream AI provider rejected server credentials.")
+
+    if status_code == 429 or "resource_exhausted" in message_lower or "rate limit" in message_lower:
+        return ProviderRateLimitError(
+            "Upstream AI provider rate limit reached.",
+            retry_after_seconds=15,
+        )
+
+    if (
+        (isinstance(status_code, int) and 500 <= status_code < 600)
+        or "unavailable" in message_lower
+        or "connection" in exc_name
+    ):
+        return ProviderTransientError("Upstream AI provider experienced a temporary error.")
+
+    return ProviderError("Upstream AI provider request failed.")
+
+
 class GeminiProvider:
-    """Official google-genai SDK adapter using structured JSON output."""
+    """
+    Managed official google-genai SDK adapter using async `client.aio` with
+    SDK-enforced HTTP timeout (avoiding orphaned background threads) and bounded retries
+    for transient failures only.
+    """
 
     def __init__(
         self,
         api_key: str,
         model: str = "gemini-2.5-flash",
         timeout_seconds: float = 25.0,
+        max_retries: int = 1,
+        retry_backoff_seconds: float = 0.25,
+        client: Optional[Any] = None,
     ) -> None:
         self._api_key = api_key
         self._model = model
         self._timeout_seconds = timeout_seconds
+        self._max_retries = max(0, min(max_retries, 3))
+        self._retry_backoff_seconds = retry_backoff_seconds
+        self._client: Optional[Any] = client
 
-    def _call_gemini_sync(
+    def _get_client(self) -> Any:
+        if self._client is None:
+            from google import genai
+            from google.genai import types
+
+            timeout_ms = max(1000, int(self._timeout_seconds * 1000))
+            self._client = genai.Client(
+                api_key=self._api_key,
+                http_options=types.HttpOptions(timeout=timeout_ms),
+            )
+        return self._client
+
+    async def aclose(self) -> None:
+        client = self._client
+        self._client = None
+        if client is None:
+            return
+        aio_client = getattr(client, "aio", None)
+        if aio_client is not None and hasattr(aio_client, "aclose"):
+            try:
+                await aio_client.aclose()
+            except Exception:
+                pass
+        if hasattr(client, "close"):
+            try:
+                client.close()
+            except Exception:
+                pass
+
+    async def _call_once(
         self,
         system_instruction: str,
         user_prompt: str,
         schema_cls: type[ProblemAnalysis] | type[TutorPayload],
     ) -> str:
-        from google import genai
         from google.genai import types
 
-        client = genai.Client(api_key=self._api_key)
-        response = client.models.generate_content(
+        client = self._get_client()
+        response = await client.aio.models.generate_content(
             model=self._model,
             contents=user_prompt,
             config=types.GenerateContentConfig(
@@ -106,30 +182,39 @@ class GeminiProvider:
         user_prompt: str,
         schema_cls: type[ProblemAnalysis] | type[TutorPayload],
     ) -> ProblemAnalysis | TutorPayload:
-        try:
-            raw_text = await asyncio.wait_for(
-                asyncio.to_thread(
-                    self._call_gemini_sync,
+        last_error: Optional[ProviderError] = None
+        total_attempts = 1 + self._max_retries
+
+        for attempt in range(total_attempts):
+            try:
+                raw_text = await self._call_once(
                     system_instruction,
                     user_prompt,
                     schema_cls,
-                ),
-                timeout=self._timeout_seconds,
-            )
-        except TimeoutError as exc:
-            raise ProviderTimeoutError("Upstream AI provider timed out.") from exc
-        except MalformedProviderOutputError:
-            raise
-        except Exception as exc:
-            raise ProviderError("Upstream AI provider request failed.") from exc
+                )
+            except Exception as exc:
+                classified = classify_upstream_exception(exc)
+                last_error = classified
+                # Bounded retry ONLY for retryable transient failures
+                if (
+                    isinstance(classified, ProviderTransientError)
+                    and attempt < total_attempts - 1
+                ):
+                    await asyncio.sleep(self._retry_backoff_seconds * (attempt + 1))
+                    continue
+                raise classified from None
 
-        try:
-            parsed = json.loads(raw_text)
-            return schema_cls.model_validate(parsed)
-        except (json.JSONDecodeError, ValidationError, TypeError) as exc:
-            raise MalformedProviderOutputError(
-                "Upstream AI response did not match the required structured schema."
-            ) from exc
+            try:
+                parsed = json.loads(raw_text)
+                return schema_cls.model_validate(parsed)
+            except (json.JSONDecodeError, ValidationError, TypeError) as exc:
+                # Never retry malformed schema outputs blindly
+                raise MalformedProviderOutputError(
+                    "Upstream AI response did not match the required structured schema."
+                ) from exc
+
+        assert last_error is not None
+        raise last_error
 
     async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
         prompt = build_analyze_user_prompt(problem_statement)

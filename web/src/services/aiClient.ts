@@ -93,20 +93,36 @@ export interface TutorResponseDto {
   notice: string | null;
 }
 
+export type AiClientErrorKind =
+  | 'aborted'
+  | 'timeout'
+  | 'rate_limit'
+  | 'network'
+  | 'validation'
+  | 'server';
+
 export class AiClientError extends Error {
-  readonly kind: 'timeout' | 'network' | 'validation' | 'server';
+  readonly kind: AiClientErrorKind;
   readonly status?: number;
+  readonly retryAfterSeconds?: number;
 
   constructor(
-    kind: 'timeout' | 'network' | 'validation' | 'server',
+    kind: AiClientErrorKind,
     message: string,
     status?: number,
+    retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = 'AiClientError';
     this.kind = kind;
     this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
+}
+
+export interface RequestOptions {
+  timeoutMs?: number;
+  signal?: AbortSignal;
 }
 
 const DEFAULT_API_BASE_URL = 'http://localhost:8000';
@@ -123,10 +139,25 @@ export function getApiBaseUrl(): string {
 async function postJson<TResponse>(
   path: string,
   body: unknown,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
+  options?: RequestOptions,
 ): Promise<TResponse> {
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const externalSignal = options?.signal;
   const controller = new AbortController();
-  const timerId = window.setTimeout(() => controller.abort(), timeoutMs);
+  let timedOut = false;
+
+  const onExternalAbort = () => controller.abort();
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      throw new AiClientError('aborted', 'Request was cancelled.');
+    }
+    externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+  }
+
+  const timerId = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
 
   try {
     const response = await fetch(`${getApiBaseUrl()}${path}`, {
@@ -147,10 +178,24 @@ async function postJson<TResponse>(
         // Keep safe fallback message
       }
 
+      const rawRetry = response.headers?.get?.('Retry-After');
+      const retryAfter = rawRetry ? Number.parseInt(rawRetry, 10) : undefined;
+      const validRetry =
+        retryAfter !== undefined && Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter
+          : undefined;
+
+      if (response.status === 429) {
+        throw new AiClientError('rate_limit', detail, response.status, validRetry);
+      }
       if (response.status === 504) {
         throw new AiClientError('timeout', detail, response.status);
       }
-      if (response.status === 413 || response.status === 422 || response.status === 400) {
+      if (
+        response.status === 413 ||
+        response.status === 422 ||
+        response.status === 400
+      ) {
         throw new AiClientError('validation', detail, response.status);
       }
       throw new AiClientError('server', detail, response.status);
@@ -161,11 +206,17 @@ async function postJson<TResponse>(
     if (err instanceof AiClientError) {
       throw err;
     }
-    if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new AiClientError(
-        'timeout',
-        'The request timed out while waiting for the AlgoMiri API. Please retry.',
-      );
+    if (
+      (err instanceof DOMException && err.name === 'AbortError') ||
+      controller.signal.aborted
+    ) {
+      if (timedOut) {
+        throw new AiClientError(
+          'timeout',
+          'The request timed out while waiting for the AlgoMiri API. Please retry.',
+        );
+      }
+      throw new AiClientError('aborted', 'Request was superseded or cancelled.');
     }
     throw new AiClientError(
       'network',
@@ -173,25 +224,28 @@ async function postJson<TResponse>(
     );
   } finally {
     window.clearTimeout(timerId);
+    if (externalSignal) {
+      externalSignal.removeEventListener('abort', onExternalAbort);
+    }
   }
 }
 
 export async function analyzeProblem(
   problemStatement: string,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
+  options?: RequestOptions,
 ): Promise<AnalyzeResponseDto> {
   return postJson<AnalyzeResponseDto>(
     '/api/analyze',
     { problem_statement: problemStatement },
-    timeoutMs,
+    options,
   );
 }
 
 export async function askTutor(
   request: TutorRequestDto,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
+  options?: RequestOptions,
 ): Promise<TutorResponseDto> {
-  return postJson<TutorResponseDto>('/api/tutor', request, timeoutMs);
+  return postJson<TutorResponseDto>('/api/tutor', request, options);
 }
 
 /**

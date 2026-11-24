@@ -19,6 +19,9 @@ OFFLINE_NOTICE = (
 class OfflineDemoProvider:
     """Explicitly labeled offline fallback when no LLM API key is configured."""
 
+    async def aclose(self) -> None:
+        return None
+
     async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
         first_line = problem_statement.strip().splitlines()[0][:80]
         return ProblemAnalysis(

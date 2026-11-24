@@ -715,6 +715,7 @@ function StudioTutorDrawer({
       </Button>
       {open && (
         <AiTutorPanel
+          contextKey={`studio:${problemModule.id}:${selectedStrategy}`}
           problemAnalysis={analysis}
           selectedStrategy={selectedStrategy}
           learningStage={learningStage}

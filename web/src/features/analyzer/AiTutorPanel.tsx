@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   AlertCircle,
   HelpCircle,
@@ -21,6 +21,7 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
 interface AiTutorPanelProps {
+  contextKey: string;
   problemAnalysis: ProblemAnalysisDto;
   selectedStrategy?: string | null;
   learningStage?: string | null;
@@ -37,6 +38,7 @@ const TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
 ];
 
 export function AiTutorPanel({
+  contextKey,
   problemAnalysis,
   selectedStrategy = null,
   learningStage = null,
@@ -49,33 +51,77 @@ export function AiTutorPanel({
   const [requestFullSolution, setRequestFullSolution] = useState(false);
   const [lastAction, setLastAction] = useState<TutorActionType | null>(null);
 
+  const seqRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Reset AI Tutor messages, inputs, errors, and abort any in-flight call when context changes
+  useEffect(() => {
+    seqRef.current += 1;
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setLoading(false);
+    setError(null);
+    setResponse(null);
+    setCustomMessage('');
+    setRequestFullSolution(false);
+    setLastAction(null);
+  }, [contextKey]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
   const runTutorAction = async (
     action: TutorActionType,
     message?: string,
   ) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const requestSeq = seqRef.current + 1;
+    seqRef.current = requestSeq;
+
     setLoading(true);
     setError(null);
     setLastAction(action);
 
     try {
-      const res = await askTutor({
-        problem_analysis: problemAnalysis,
-        action,
-        selected_strategy: selectedStrategy,
-        learning_stage: learningStage,
-        execution_context: executionContext,
-        learner_message: message?.trim() || null,
-        explicitly_request_solution: requestFullSolution,
-      });
+      const res = await askTutor(
+        {
+          problem_analysis: problemAnalysis,
+          action,
+          selected_strategy: selectedStrategy,
+          learning_stage: learningStage,
+          execution_context: executionContext,
+          learner_message: message?.trim() || null,
+          explicitly_request_solution: requestFullSolution,
+        },
+        { signal: controller.signal },
+      );
+
+      if (seqRef.current !== requestSeq) {
+        return;
+      }
       setResponse(res);
     } catch (err) {
+      if (seqRef.current !== requestSeq) {
+        return;
+      }
       if (err instanceof AiClientError) {
-        setError(err.message);
+        if (err.kind === 'aborted') return;
+        const retryHint = err.retryAfterSeconds
+          ? ` (Suggested wait: ~${err.retryAfterSeconds}s)`
+          : '';
+        setError(`${err.message}${retryHint}`);
       } else {
         setError('Could not reach the AI Tutor. Please retry.');
       }
     } finally {
-      setLoading(false);
+      if (seqRef.current === requestSeq) {
+        setLoading(false);
+      }
     }
   };
 
@@ -96,7 +142,7 @@ export function AiTutorPanel({
             />
             <CardTitle>Beginner-First AI Tutor</CardTitle>
           </div>
-          <Badge variant="indigo">Guided Hints · Not Verified</Badge>
+          <Badge variant="indigo">AI-Generated · Not Verified</Badge>
         </div>
         <p className="text-xs text-[#555D7A]">
           Ask for simpler explanations, progressive hints, or assumption checks without spoiling the full solution.
