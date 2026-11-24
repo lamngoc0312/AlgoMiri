@@ -73,8 +73,20 @@ uvicorn app.main:app --reload --port 8000
 > **Configuration precedence:** `api/app/config.py` automatically loads `api/.env` for local development, and real OS environment variables always override values from `api/.env`. Secrets are stored using `SecretStr` and never logged.
 
 ### Verification Commands
-- **Frontend (`web/`):** `npm run lint`, `npm run test`, `npm run build`
+- **Frontend (`web/`):**
+  - `npm run lint` — ESLint checks
+  - `npm run test` — Vitest unit & React Testing Library integration tests
+  - `npm run build` — strict TypeScript check (`tsc -b`) + Vite production bundle
+  - `npm run test:e2e` — full Playwright browser & `axe-core` suite (auto-starts local Vite + FastAPI in `offline-demo` mode)
+  - `npm run test:e2e:smoke` — fast Playwright smoke + accessibility subset (runs in GitHub Actions CI)
+  - `npm run test:e2e:report` — open the generated HTML report (`web/playwright-report/`)
+  - First-time Playwright setup (if not using local Chrome): `npx playwright install chromium`
 - **Backend (`api/`):** `pytest -q` (from `api/` with the virtual environment activated, or `.\.venv\Scripts\pytest -q` on Windows)
+
+### Reproducing Browser QA Failures & CI Artifacts
+- CI runs `playwright-smoke` on every PR and push to `main`, uploading `playwright-report` (HTML report + attached screenshots) and `playwright-test-results` (failure traces/videos) as downloadable artifacts for 7 days.
+- To reproduce locally from `web/`: run `npm run test:e2e` (or `npm run test:e2e:smoke`), then inspect failures with `npm run test:e2e:report` or `npx playwright show-trace test-results/<test-dir>/trace.zip`.
+- **Accessibility note:** Automated `axe-core` checks catch common WCAG 2.0/2.1 issues, but zero automated violations does not guarantee complete WCAG AA compliance. See [`docs/CONTROLLED_BETA_GUIDE.md`](docs/CONTROLLED_BETA_GUIDE.md) for manual screen-reader and keyboard verification steps.
 
 ## Environment Variables
 - `api/.env` (server-side only — never commit real secrets):
@@ -101,6 +113,8 @@ CORS restrictions, prompt delimiters, and in-process rate limits help harden loc
 - [`docs/TEST_CASES.md`](docs/TEST_CASES.md)
 - [`docs/ANTIGRAVITY_PROMPTS.md`](docs/ANTIGRAVITY_PROMPTS.md)
 - [`docs/BETA_USABILITY_PROTOCOL.md`](docs/BETA_USABILITY_PROTOCOL.md)
+- [`docs/CONTROLLED_BETA_GUIDE.md`](docs/CONTROLLED_BETA_GUIDE.md)
+- [`docs/BETA_FEEDBACK_WORKSHEET.md`](docs/BETA_FEEDBACK_WORKSHEET.md)
 - [`docs/RELEASE_READINESS_REPORT.md`](docs/RELEASE_READINESS_REPORT.md)
 - [`docs/BROWSER_QA_REPORT.md`](docs/BROWSER_QA_REPORT.md)
 

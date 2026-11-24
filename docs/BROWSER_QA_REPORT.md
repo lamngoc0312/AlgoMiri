@@ -1,15 +1,13 @@
 # AlgoMiri — Sprint 10.1 Real Browser QA Report
 
 ## 1. Test Environment & Verification Boundary
-- **Browser Engine:** `Google Chrome 158.0.8127.37` driven via `playwright-core` (headless)
-- **Accessibility Engine:** `axe-core` (WCAG 2.0/2.1 Level A & AA rulesets)
-- **Live Local Servers:**
-  - Frontend: Vite production preview (`http://127.0.0.1:5173`)
-  - Backend: FastAPI + Uvicorn (`http://127.0.0.1:8000`, verified via `GET /health` → `200 OK`, `ai_configured: false`, `provider: "offline-demo"`)
+- **Reproducible Committed Suite (Sprint 10.2):** `web/playwright.config.ts`, `web/e2e/responsive-and-a11y.spec.ts`, and `web/e2e/learning-journeys.spec.ts` (run locally via `npm --prefix web run test:e2e` or `npm --prefix web run test:e2e:smoke`, and automatically in GitHub Actions `playwright-smoke` job with HTML reports/traces uploaded as CI artifacts).
+- **Browser Engine:** `Google Chrome` / Chromium driven via `@playwright/test` + `@axe-core/playwright` (WCAG 2.0/2.1 Level A & AA rulesets).
+- **Live Local Servers:** Playwright starts both the local Vite frontend (`http://127.0.0.1:4173`) and local FastAPI backend (`http://127.0.0.1:8000` in deterministic `offline-demo` mode with `GEMINI_API_KEY=''`).
 - **Honest Boundary:**
-  - **Automated real-browser QA (Playwright + Chrome + `axe-core`)** was executed across all 4 viewports, all 7 routes, and all 6 interactive journeys.
-  - **Live Gemini API calls** were **not** executed because no `GEMINI_API_KEY` is configured in `api/.env` or OS environment variables on this machine; offline fallback mode (`offline-demo`) was verified end-to-end instead.
-  - **Human participant usability testing** has **not** occurred yet (see [`docs/BETA_USABILITY_PROTOCOL.md`](./BETA_USABILITY_PROTOCOL.md)).
+  - **Automated real-browser QA (Playwright + `axe-core`)** verifies rendered layouts, overflow, keyboard focus, reflow, and live interactive flows — **zero `axe-core` violations is a helpful baseline and does NOT constitute complete WCAG AA compliance** (manual screen-reader testing instructions live in [`docs/CONTROLLED_BETA_GUIDE.md`](./CONTROLLED_BETA_GUIDE.md)).
+  - **Live Gemini API calls** are intentionally disabled in automated browser tests (`offline-demo` mode) to avoid billable calls and secret exposure.
+  - **Human participant usability testing** has **not** occurred yet (see [`docs/CONTROLLED_BETA_GUIDE.md`](./CONTROLLED_BETA_GUIDE.md) and [`docs/BETA_FEEDBACK_WORKSHEET.md`](./BETA_FEEDBACK_WORKSHEET.md)).
 
 ---
 
