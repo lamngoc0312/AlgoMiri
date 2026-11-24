@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   AlertCircle,
+  ChevronDown,
   HelpCircle,
   Info,
   Lightbulb,
@@ -28,9 +29,12 @@ interface AiTutorPanelProps {
   executionContext?: string | null;
 }
 
-const TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
-  { id: 'simplify', label: 'Explain more simply' },
-  { id: 'hint', label: 'Give a conceptual hint' },
+const ESSENTIAL_TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
+  { id: 'simplify', label: 'Explain simply' },
+  { id: 'hint', label: 'Give a hint' },
+];
+
+const ADVANCED_TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
   { id: 'why_technique', label: 'Why might this technique work?' },
   { id: 'compare_strategies', label: 'Compare two approaches' },
   { id: 'explain_prerequisite', label: 'Explain a prerequisite' },
@@ -132,53 +136,54 @@ export function AiTutorPanel({
   };
 
   return (
-    <Card className="lg:sticky lg:top-20">
+    <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
           <MessageCircle
-            className="h-4 w-4 text-[#645BE8]"
+            className="h-5 w-5 text-[#645BE8]"
             aria-hidden="true"
           />
-          <CardTitle className="text-lg">Beginner-First AI Tutor</CardTitle>
+          <CardTitle className="text-xl">AI Tutor</CardTitle>
         </div>
         <p className="text-sm text-[#4E5672] leading-relaxed">
-          Ask for simpler intuition or a progressive hint without spoiling the full solution.
+          Get a simpler explanation, a gentle hint, or ask a specific question without spoiling the full solution.
         </p>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Quick Pedagogical Action Chips */}
+      <CardContent className="space-y-5">
+        {/* Essential Actions Only: Explain simply, Give a hint */}
         <div
           role="group"
           aria-label="Tutor quick actions"
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap gap-2.5"
         >
-          {TUTOR_ACTIONS.map((item) => (
-            <button
+          {ESSENTIAL_TUTOR_ACTIONS.map((item) => (
+            <Button
               key={item.id}
               type="button"
+              variant="secondary"
+              size="md"
               disabled={loading}
               onClick={() => void runTutorAction(item.id)}
-              className="rounded-lg border border-[#E4E7F1] bg-[#F8F9FC] px-3 py-2 text-sm font-medium text-[#181B2E] transition-colors hover:border-[#645BE8] hover:bg-[#EEF0FF]/60 hover:text-[#4F46D8] cursor-pointer disabled:opacity-50"
             >
               {item.label}
-            </button>
+            </Button>
           ))}
         </div>
 
-        {/* Custom Question Form */}
+        {/* Ask a Question Form */}
         <form onSubmit={handleCustomSubmit} className="space-y-3">
           <div className="flex gap-2">
             <label htmlFor="tutor-question-input" className="sr-only">
-              Ask the AI Tutor a question
+              Ask a question
             </label>
             <input
               id="tutor-question-input"
               type="text"
               value={customMessage}
               onChange={(e) => setCustomMessage(e.target.value)}
-              placeholder="Ask a question or test your idea..."
-              className="h-11 flex-1 rounded-xl border border-[#D7DCEB] bg-white px-3.5 text-sm text-[#181B2E] placeholder:text-[#7A829E] focus:border-[#645BE8] focus:outline-none"
+              placeholder="Ask a question about this problem..."
+              className="h-11 flex-1 rounded-xl border border-[#D7DCEB] bg-white px-4 text-base text-[#181B2E] placeholder:text-[#7A829E] focus:border-[#645BE8] focus:outline-none"
             />
             <Button
               type="submit"
@@ -194,17 +199,42 @@ export function AiTutorPanel({
               Ask
             </Button>
           </div>
-
-          <label className="inline-flex items-center gap-2 text-xs text-[#4E5672] cursor-pointer">
-            <input
-              type="checkbox"
-              checked={requestFullSolution}
-              onChange={(e) => setRequestFullSolution(e.target.checked)}
-              className="rounded border-[#D7DCEB] accent-[#645BE8]"
-            />
-            Explicitly request a fuller solution outline
-          </label>
         </form>
+
+        {/* Expandable Advanced Tutor Actions */}
+        <details className="group rounded-xl border border-[#E4E7F1] bg-[#F8F9FC]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-[#4E5672] hover:text-[#181B2E]">
+            <span>More tutor options</span>
+            <ChevronDown
+              className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="border-t border-[#E4E7F1] px-4 py-3.5 space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {ADVANCED_TUTOR_ACTIONS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void runTutorAction(item.id)}
+                  className="rounded-lg border border-[#E4E7F1] bg-white px-3 py-2 text-sm font-medium text-[#181B2E] transition-colors hover:border-[#645BE8] hover:text-[#4F46D8] cursor-pointer disabled:opacity-50"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <label className="inline-flex items-center gap-2 text-sm text-[#4E5672] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={requestFullSolution}
+                onChange={(e) => setRequestFullSolution(e.target.checked)}
+                className="rounded border-[#D7DCEB] accent-[#645BE8]"
+              />
+              Explicitly request a fuller solution outline
+            </label>
+          </div>
+        </details>
 
         {/* Loading State */}
         {loading && (
@@ -247,7 +277,7 @@ export function AiTutorPanel({
         {response && !loading && (
           <div
             aria-label="AI Tutor response"
-            className="space-y-4 border-t border-[#E4E7F1] pt-4"
+            className="space-y-4 border-t border-[#E4E7F1] pt-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <Badge variant={response.mode === 'offline-demo' ? 'demo' : 'indigo'}>
@@ -260,33 +290,27 @@ export function AiTutorPanel({
               </span>
             </div>
 
-            {response.notice && (
-              <p className="text-xs font-medium text-[#9A630A]">
-                {response.notice}
-              </p>
-            )}
-
-            <p className="text-base leading-relaxed text-[#181B2E]">
+            <p className="text-base leading-[1.7] text-[#181B2E]">
               {response.reply}
             </p>
 
-            <div className="rounded-xl border-l-4 border-[#645BE8] bg-[#F8F9FC] px-4 py-3 text-sm space-y-1">
+            <div className="rounded-xl border-l-4 border-[#645BE8] bg-[#F8F9FC] px-4 py-3.5 text-sm space-y-1">
               <p className="flex items-center gap-1.5 font-bold text-[#4F46D8]">
                 <HelpCircle className="h-4 w-4" aria-hidden="true" />
                 Guiding Question
               </p>
-              <p className="text-[#181B2E] leading-relaxed">
+              <p className="text-base text-[#181B2E] leading-relaxed">
                 {response.guiding_question}
               </p>
             </div>
 
             {response.progressive_hint && (
-              <div className="rounded-xl border-l-4 border-[#F1B34C] bg-[#FEF6E6]/60 px-4 py-3 text-sm space-y-1">
+              <div className="rounded-xl border-l-4 border-[#F1B34C] bg-[#FEF6E6]/60 px-4 py-3.5 text-sm space-y-1">
                 <p className="flex items-center gap-1.5 font-bold text-[#9A630A]">
                   <Lightbulb className="h-4 w-4" aria-hidden="true" />
                   Progressive Hint
                 </p>
-                <p className="text-[#181B2E] leading-relaxed">
+                <p className="text-base text-[#181B2E] leading-relaxed">
                   {response.progressive_hint}
                 </p>
               </div>

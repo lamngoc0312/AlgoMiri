@@ -106,6 +106,9 @@ export function LandingPage() {
   const [selectedStrategyName, setSelectedStrategyName] = useState<
     string | null
   >(null);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<
+    'analysis' | 'tutor'
+  >('analysis');
 
   const analyzeSeqRef = useRef(0);
   const analyzeAbortRef = useRef<AbortController | null>(null);
@@ -161,6 +164,7 @@ export function LandingPage() {
       setAnalysisResult(response);
       setAnalyzedStatement(trimmed);
       setAnalysisRevision((rev) => rev + 1);
+      setActiveWorkspaceTab('analysis');
       setSelectedStrategyName(
         response.analysis.candidate_strategies[0]?.name ?? null,
       );
@@ -384,46 +388,112 @@ export function LandingPage() {
         </Card>
       </section>
 
-      {/* Live AI Analysis + Beginner Tutor Section (progressive — appears only when analyzing) */}
+      {/* Focused Single-Column Analysis / Ask AI Tutor Workspace */}
       {analysisResult && (
         <section
-          className="space-y-5"
+          className="mx-auto max-w-3xl space-y-5"
           aria-labelledby="ai-analysis-heading"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h2
               id="ai-analysis-heading"
-              className="text-2xl font-extrabold tracking-tight text-[#181B2E]"
+              className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#181B2E]"
             >
-              Problem Analysis &amp; Beginner Tutor
+              {analysisResult.mode === 'offline-demo'
+                ? 'Analysis Status'
+                : 'Problem Breakdown'}
             </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setAnalysisResult(null);
-                setAnalyzedStatement(null);
-                setSelectedStrategyName(null);
-              }}
-            >
-              Clear Analysis
-            </Button>
+
+            <div className="flex items-center gap-2">
+              {analysisResult.mode !== 'offline-demo' && (
+                <div
+                  role="tablist"
+                  aria-label="Analysis and AI Tutor views"
+                  className="inline-flex rounded-xl border border-[#E4E7F1] bg-white p-1"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeWorkspaceTab === 'analysis'}
+                    onClick={() => setActiveWorkspaceTab('analysis')}
+                    className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
+                      activeWorkspaceTab === 'analysis'
+                        ? 'bg-[#645BE8] text-white'
+                        : 'text-[#4E5672] hover:text-[#181B2E]'
+                    }`}
+                  >
+                    Learn (Analysis)
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeWorkspaceTab === 'tutor'}
+                    onClick={() => setActiveWorkspaceTab('tutor')}
+                    className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
+                      activeWorkspaceTab === 'tutor'
+                        ? 'bg-[#645BE8] text-white'
+                        : 'text-[#4E5672] hover:text-[#181B2E]'
+                    }`}
+                  >
+                    Ask AI Tutor
+                  </button>
+                </div>
+              )}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAnalysisResult(null);
+                  setAnalyzedStatement(null);
+                  setSelectedStrategyName(null);
+                  setActiveWorkspaceTab('analysis');
+                }}
+              >
+                Clear
+              </Button>
+            </div>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-            <ProblemAnalysisView
-              result={analysisResult}
-              selectedStrategyName={selectedStrategyName}
-              isStale={isAnalysisStale}
-              onReanalyze={() => void runAiAnalysis()}
-              onSelectStrategy={setSelectedStrategyName}
-            />
-            <AiTutorPanel
-              contextKey={`landing-analysis-${analysisRevision}`}
-              problemAnalysis={analysisResult.analysis}
-              selectedStrategy={selectedStrategyName}
-            />
-          </div>
+          {analysisResult.mode === 'offline-demo' ||
+          activeWorkspaceTab === 'analysis' ? (
+            <div role="tabpanel" aria-label="Problem analysis">
+              <ProblemAnalysisView
+                result={analysisResult}
+                selectedStrategyName={selectedStrategyName}
+                isStale={isAnalysisStale}
+                onReanalyze={() => void runAiAnalysis()}
+                onSelectStrategy={setSelectedStrategyName}
+                onOpenTutor={() => setActiveWorkspaceTab('tutor')}
+              />
+            </div>
+          ) : (
+            <div role="tabpanel" aria-label="AI Tutor" className="space-y-4">
+              {isAnalysisStale && (
+                <div
+                  role="alert"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F1B34C] bg-[#FEF6E6] px-5 py-3.5 text-sm text-[#9A630A]"
+                >
+                  <span className="font-bold">
+                    Outdated Analysis — Problem Statement Changed
+                  </span>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => void runAiAnalysis()}
+                  >
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                    Re-analyze Updated Text
+                  </Button>
+                </div>
+              )}
+              <AiTutorPanel
+                contextKey={`landing-analysis-${analysisRevision}`}
+                problemAnalysis={analysisResult.analysis}
+                selectedStrategy={selectedStrategyName}
+              />
+            </div>
+          )}
         </section>
       )}
 

@@ -112,34 +112,28 @@ test.describe('End-to-End Learning Journeys (Live Local Servers)', () => {
     );
   });
 
-  test('@smoke Journey 5: Live FastAPI AI Offline-Demo mode, Tutor disclaimer, stale warning, and unavailable-backend recovery', async ({
+  test('@smoke Journey 5: Live FastAPI Offline AI state, mocked structured Reverse Integer AI + Tutor tab, stale warning, and unavailable-backend recovery', async ({
     page,
   }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
     const textarea = page.getByLabel(/paste a problem statement/i);
     await textarea.fill(
-      'Given coin denominations and a target amount, find the minimum number of coins needed to make up that amount.',
+      'Reverse Integer (LeetCode #7): Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range, return 0.',
     );
 
-    // 1. Live FastAPI offline-demo analysis + AI Tutor
+    // 1. Live FastAPI offline-demo returns compact honest offline state (no fake generic analysis page)
     await page.getByRole('button', { name: /analyze problem \(ai\)/i }).click();
     await expect(
-      page.getByText(/offline demo mode \(no live ai key\)/i),
+      page.getByText(/live ai unavailable \(offline mode\)/i),
     ).toBeVisible();
     await expect(
-      page.getByText(/^conceptual analysis only$/i),
+      page.getByText(/your pasted problem was not analyzed by an ai model/i),
     ).toBeVisible();
-
-    await page
-      .getByRole('button', { name: /give a conceptual hint/i })
-      .click();
-    await expect(
-      page.getByText(/does not verify code execution/i),
-    ).toBeVisible();
+    await expect(page.getByText(/direct brute-force baseline/i)).toBeHidden();
 
     // 2. Editing statement triggers stale-analysis warning
     await textarea.fill(
-      'Given coin denominations and a target amount, count all distinct combinations.',
+      'Reverse Integer: return 0 if overflow occurs outside [-2^31, 2^31 - 1].',
     );
     await expect(
       page.getByText(/outdated analysis — problem statement changed/i),
@@ -168,7 +162,7 @@ test.describe('End-to-End Learning Journeys (Live Local Servers)', () => {
       page.getByText(/outdated analysis — problem statement changed/i),
     ).toBeHidden();
     await expect(
-      page.getByText(/offline demo mode \(no live ai key\)/i),
+      page.getByText(/live ai unavailable \(offline mode\)/i),
     ).toBeVisible();
   });
 });

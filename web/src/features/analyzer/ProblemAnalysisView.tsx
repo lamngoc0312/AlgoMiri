@@ -6,11 +6,14 @@ import {
   ChevronDown,
   Clock,
   Database,
-  Info,
+  HelpCircle,
+  MessageCircle,
   RotateCcw,
   Sparkles,
+  WifiOff,
 } from 'lucide-react';
 import type { AnalyzeResponseDto } from '../../services/aiClient';
+import { getVerifiedLibraryItems } from '../../domain/problems/libraryCatalog';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -21,6 +24,7 @@ interface ProblemAnalysisViewProps {
   isStale?: boolean;
   onReanalyze?: () => void;
   onSelectStrategy: (strategyName: string) => void;
+  onOpenTutor?: () => void;
 }
 
 export function ProblemAnalysisView({
@@ -29,13 +33,116 @@ export function ProblemAnalysisView({
   isStale = false,
   onReanalyze,
   onSelectStrategy,
+  onOpenTutor,
 }: ProblemAnalysisViewProps) {
-  const { analysis, verified_match: match, mode, notice } = result;
+  const { analysis, verified_match: match, mode } = result;
+  const isOffline = mode === 'offline-demo';
+  const verifiedStudios = getVerifiedLibraryItems();
 
+  const essentialSteps = analysis.subproblem_decomposition.slice(0, 3);
+  const guidingQuestion =
+    analysis.clarifications_or_ambiguities[0] ??
+    (analysis.candidate_strategies[0]
+      ? `Before writing code, why does ${analysis.candidate_strategies[0].name} fit this problem's constraints?`
+      : 'Before writing code, what small example best tests the core rule of this problem?');
+
+  // Phase C: Compact, honest Offline AI state — never render a fake generic analysis page
+  if (isOffline) {
+    return (
+      <div
+        aria-label="Offline AI status"
+        className={`space-y-4 transition-opacity ${isStale ? 'opacity-85' : ''}`}
+      >
+        {isStale && (
+          <div
+            role="alert"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F1B34C] bg-[#FEF6E6] px-5 py-3.5 text-sm text-[#9A630A]"
+          >
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="font-semibold">
+                Outdated Analysis — Problem Statement Changed
+              </span>
+            </div>
+            {onReanalyze && (
+              <Button variant="primary" size="sm" onClick={onReanalyze}>
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                Re-analyze Updated Text
+              </Button>
+            )}
+          </div>
+        )}
+
+        <Card className="p-6 sm:p-8 space-y-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="demo">
+                  <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />
+                  Live AI Unavailable (Offline Mode)
+                </Badge>
+                {match.status === 'verified' && (
+                  <Badge variant="mint">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Verified Deterministic Studio Available
+                  </Badge>
+                )}
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#181B2E]">
+                Live AI analysis is not enabled on this server
+              </h3>
+              <p className="text-base leading-relaxed text-[#4E5672]">
+                Your pasted problem was not analyzed by an AI model because no live
+                LLM key is configured. Your statement stays intact above — or you can
+                practice right now in a verified interactive studio below.
+              </p>
+            </div>
+          </div>
+
+          {match.studio_path ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#BDECE2] bg-[#E6F8F4]/60 px-5 py-4">
+              <p className="text-sm font-medium text-[#181B2E]">
+                {match.reason}
+              </p>
+              <Link
+                to={match.studio_path}
+                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#16B89D] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0E967F]"
+              >
+                {match.status === 'verified'
+                  ? `Open Verified ${match.matched_problem_title} Studio`
+                  : `Inspect Curated ${match.matched_problem_title} Studio`}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3 border-t border-[#E4E7F1] pt-5">
+              <p className="text-sm font-semibold text-[#181B2E]">
+                Try a verified interactive lesson instead:
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {verifiedStudios.map((studio) => (
+                  <Link
+                    key={studio.id}
+                    to={studio.studioPath ?? `/studio/${studio.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4E7F1] bg-[#F8F9FC] px-4 py-2.5 text-sm font-semibold text-[#181B2E] transition-colors hover:border-[#645BE8] hover:bg-[#EEF0FF]/60 hover:text-[#4F46D8]"
+                  >
+                    {studio.title}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+    );
+  }
+
+  // Phase A: Focused, Single-Column Reading Experience for Live Structured AI Analysis
   return (
     <div
       aria-label="Structured AI problem analysis"
-      className={`space-y-5 transition-opacity ${isStale ? 'opacity-80' : ''}`}
+      className={`space-y-5 transition-opacity ${isStale ? 'opacity-85' : ''}`}
     >
       {/* Stale Analysis Alert (only visible after editing problem text) */}
       {isStale && (
@@ -66,22 +173,18 @@ export function ProblemAnalysisView({
         </div>
       )}
 
-      {/* Single Unified Document Card (replaces 5 stacked cards & repetitive banners) */}
       <Card className="overflow-hidden divide-y divide-[#E4E7F1]">
-        {/* 1. Unified Status & Studio Routing Bar */}
-        <div
-          role="status"
-          className="bg-[#F8F9FC] px-6 py-4 space-y-2.5"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* 1. Title, Plain-Language Explanation & Calm Status Strip */}
+        <div className="p-6 sm:p-8 space-y-5">
+          <div
+            role="status"
+            className="flex flex-wrap items-center justify-between gap-2"
+          >
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={mode === 'offline-demo' ? 'demo' : 'indigo'}>
+              <Badge variant="indigo">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                {mode === 'offline-demo'
-                  ? 'Offline Demo Mode (No Live AI Key)'
-                  : 'AI-Generated · Conceptual (Not Verified)'}
+                AI-Generated · Conceptual (Not Verified)
               </Badge>
-
               {match.status === 'verified' && (
                 <Badge variant="mint">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -95,67 +198,49 @@ export function ProblemAnalysisView({
                 </Badge>
               )}
               {match.status === 'conceptual_only' && (
-                <Badge variant="neutral">
-                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                  Conceptual Analysis Only
-                </Badge>
+                <Badge variant="neutral">Conceptual Analysis Only</Badge>
               )}
             </div>
-
-            <span className="text-xs font-semibold text-[#4E5672]">
+            <span className="text-sm font-medium text-[#4E5672]">
               {analysis.inferred_problem_type}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-[#4E5672] leading-relaxed">
-              {match.reason}
-              {notice ? ` ${notice}` : ''}
-            </p>
-
-            {match.studio_path && (
-              <Link
-                to={match.studio_path}
-                className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition-colors ${
-                  match.status === 'verified'
-                    ? 'bg-[#16B89D] text-white hover:bg-[#0E967F]'
-                    : 'border border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A] hover:bg-[#FDEBC8]'
-                }`}
-              >
-                {match.status === 'verified'
-                  ? `Open Verified ${match.matched_problem_title} Studio`
-                  : `Inspect Curated ${match.matched_problem_title} Studio`}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* 2. Problem Overview & Worked Example (16px readable body) */}
-        <div className="p-6 sm:p-7 space-y-6">
-          <div className="space-y-2.5">
-            <h3 className="text-2xl font-extrabold tracking-tight text-[#181B2E]">
+          <div className="space-y-3">
+            <h3 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#181B2E] leading-tight">
               {analysis.title}
             </h3>
-            <p className="text-base leading-relaxed text-[#181B2E]">
+            <p className="text-base leading-[1.7] text-[#181B2E]">
               {analysis.plain_language_summary}
             </p>
           </div>
 
-          {/* Worked Example — clean left-accented callout instead of nested card */}
-          <div className="rounded-xl border-l-4 border-[#645BE8] bg-[#F8F9FC] px-5 py-4 space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#4F46D8]">
-              Worked Example (Conceptual)
+          {/* 2. Visual Input -> Output Example */}
+          <div className="rounded-xl bg-[#F8F9FC] border border-[#E4E7F1] p-5 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+              Example
             </p>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-sm">
-              <p className="text-[#181B2E]">
-                <span className="text-[#4E5672]">Input:</span>{' '}
-                {analysis.worked_example.input_summary}
-              </p>
-              <p className="text-[#0D7D6A] font-semibold">
-                <span className="font-normal text-[#4E5672]">Output:</span>{' '}
-                {analysis.worked_example.output_summary}
-              </p>
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+              <div className="rounded-lg bg-white border border-[#E4E7F1] px-4 py-3">
+                <span className="block text-xs font-semibold text-[#4E5672]">
+                  Input
+                </span>
+                <p className="mt-1 font-mono text-sm font-medium text-[#181B2E] break-words">
+                  {analysis.worked_example.input_summary}
+                </p>
+              </div>
+              <ArrowRight
+                className="hidden sm:block h-5 w-5 text-[#645BE8]"
+                aria-hidden="true"
+              />
+              <div className="rounded-lg bg-[#E6F8F4]/55 border border-[#BDECE2] px-4 py-3">
+                <span className="block text-xs font-semibold text-[#0D7D6A]">
+                  Output
+                </span>
+                <p className="mt-1 font-mono text-sm font-bold text-[#0A594B] break-words">
+                  {analysis.worked_example.output_summary}
+                </p>
+              </div>
             </div>
             <p className="text-sm leading-relaxed text-[#4E5672]">
               {analysis.worked_example.walkthrough}
@@ -163,38 +248,111 @@ export function ProblemAnalysisView({
           </div>
         </div>
 
-        {/* 3. Candidate Approaches (primary interactive focus) */}
-        <div className="p-6 sm:p-7 space-y-4">
-          <div>
+        {/* 3. Three Essential Reasoning Steps */}
+        {essentialSteps.length > 0 && (
+          <div className="p-6 sm:p-8 space-y-4">
             <h4 className="text-lg font-bold tracking-tight text-[#181B2E]">
-              Candidate Approaches
+              3 Key Reasoning Steps
             </h4>
-            <p className="mt-0.5 text-sm text-[#4E5672]">
-              Choose an approach to focus the AI Tutor on comparing or explaining it.
+            <ol className="space-y-4">
+              {essentialSteps.map((step, idx) => (
+                <li key={step.id} className="flex items-start gap-3.5">
+                  <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] font-mono text-sm font-bold text-[#4F46D8]">
+                    {idx + 1}
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-base font-bold text-[#181B2E]">
+                      {step.title}
+                    </p>
+                    <p className="text-base leading-relaxed text-[#4E5672]">
+                      {step.goal}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {/* 4 & 5. One Useful Guiding Question + One Clear Next Action */}
+        <div className="p-6 sm:p-8 space-y-5">
+          <div className="rounded-xl border-l-4 border-[#645BE8] bg-[#F8F9FC] px-5 py-4 space-y-1.5">
+            <p className="flex items-center gap-2 text-sm font-bold text-[#4F46D8]">
+              <HelpCircle className="h-4 w-4" aria-hidden="true" />
+              Think About This First
+            </p>
+            <p className="text-base leading-relaxed text-[#181B2E]">
+              {guidingQuestion}
             </p>
           </div>
 
-          <div className="grid gap-3.5 md:grid-cols-2">
-            {analysis.candidate_strategies.map((strat) => {
-              const isSelected = selectedStrategyName === strat.name;
-              return (
-                <button
-                  key={strat.name}
-                  type="button"
-                  aria-pressed={isSelected}
-                  onClick={() => onSelectStrategy(strat.name)}
-                  className={`flex flex-col justify-between rounded-xl border p-4.5 text-left transition-colors cursor-pointer ${
-                    isSelected
-                      ? 'border-[#645BE8] bg-[#EEF0FF]/45 ring-1 ring-[#645BE8]/30'
-                      : 'border-[#E4E7F1] bg-white hover:border-[#C5CBE3] hover:bg-[#F8F9FC]'
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            {match.studio_path ? (
+              <>
+                <p className="text-sm text-[#4E5672] max-w-md">{match.reason}</p>
+                <Link
+                  to={match.studio_path}
+                  className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors ${
+                    match.status === 'verified'
+                      ? 'bg-[#16B89D] text-white hover:bg-[#0E967F]'
+                      : 'border border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A] hover:bg-[#FDEBC8]'
                   }`}
                 >
-                  <div className="space-y-2">
+                  {match.status === 'verified'
+                    ? `Open Verified ${match.matched_problem_title} Studio`
+                    : `Inspect Curated ${match.matched_problem_title} Studio`}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </>
+            ) : onOpenTutor ? (
+              <>
+                <p className="text-sm text-[#4E5672]">
+                  Ready to test your intuition or get a hint?
+                </p>
+                <Button variant="primary" size="md" onClick={onOpenTutor}>
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  Ask AI Tutor
+                </Button>
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Progressive Disclosure 1: Candidate Strategies & Complexity */}
+        {analysis.candidate_strategies.length > 0 && (
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 sm:px-8 py-4 text-sm font-bold text-[#181B2E] hover:bg-[#F8F9FC]">
+              <span>
+                Candidate Approaches &amp; Complexity (
+                {analysis.candidate_strategies.length})
+              </span>
+              <ChevronDown
+                className="h-4 w-4 shrink-0 text-[#4E5672] transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
+            <div className="px-6 sm:px-8 pb-7 pt-2 space-y-3.5">
+              {analysis.candidate_strategies.map((strat) => {
+                const isSelected = selectedStrategyName === strat.name;
+                return (
+                  <button
+                    key={strat.name}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => onSelectStrategy(strat.name)}
+                    className={`w-full rounded-xl border p-5 text-left transition-colors cursor-pointer space-y-2.5 ${
+                      isSelected
+                        ? 'border-[#645BE8] bg-[#EEF0FF]/40 ring-1 ring-[#645BE8]/30'
+                        : 'border-[#E4E7F1] bg-white hover:bg-[#F8F9FC]'
+                    }`}
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="text-base font-bold text-[#181B2E]">
                         {strat.name}
                       </span>
-                      <Badge variant="indigo">{strat.technique}</Badge>
+                      <span className="text-xs font-semibold text-[#4F46D8]">
+                        {strat.technique}
+                      </span>
                     </div>
                     <p className="text-sm leading-relaxed text-[#181B2E]">
                       {strat.intuition}
@@ -202,83 +360,42 @@ export function ProblemAnalysisView({
                     <p className="text-sm leading-relaxed text-[#4E5672]">
                       {strat.why_it_applies}
                     </p>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#E4E7F1] pt-3 font-mono text-xs">
-                    <span className="inline-flex items-center gap-1 rounded-md bg-[#F8F9FC] px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
-                      <Clock
-                        className="h-3.5 w-3.5 text-[#645BE8]"
-                        aria-hidden="true"
-                      />
-                      {strat.time_complexity}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-[#F8F9FC] px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
-                      <Database
-                        className="h-3.5 w-3.5 text-[#16B89D]"
-                        aria-hidden="true"
-                      />
-                      {strat.space_complexity}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 4. Progressive Disclosure: Subproblem Breakdown */}
-        {analysis.subproblem_decomposition.length > 0 && (
-          <details className="group">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4 text-sm font-bold text-[#181B2E] hover:bg-[#F8F9FC]">
-              <span>
-                Step-by-Step Subproblem Breakdown (
-                {analysis.subproblem_decomposition.length} steps)
-              </span>
-              <ChevronDown
-                className="h-4 w-4 shrink-0 text-[#4E5672] transition-transform group-open:rotate-180"
-                aria-hidden="true"
-              />
-            </summary>
-            <div className="px-6 pb-6 pt-1">
-              <ol className="space-y-3">
-                {analysis.subproblem_decomposition.map((step, idx) => (
-                  <li
-                    key={step.id}
-                    className="flex items-start gap-3.5 rounded-xl bg-[#F8F9FC] px-4 py-3.5"
-                  >
-                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#645BE8] font-mono text-xs font-bold text-white">
-                      {idx + 1}
-                    </span>
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-bold text-[#181B2E]">
-                        {step.title}
-                        {step.depends_on.length > 0 && (
-                          <span className="ml-2 text-xs font-medium text-[#4F46D8]">
-                            (after {step.depends_on.join(', ')})
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-sm leading-relaxed text-[#4E5672]">
-                        {step.goal}
-                      </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-[#F8F9FC] px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
+                        <Clock
+                          className="h-3.5 w-3.5 text-[#645BE8]"
+                          aria-hidden="true"
+                        />
+                        {strat.time_complexity}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-md bg-[#F8F9FC] px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
+                        <Database
+                          className="h-3.5 w-3.5 text-[#16B89D]"
+                          aria-hidden="true"
+                        />
+                        {strat.space_complexity}
+                      </span>
                     </div>
-                  </li>
-                ))}
-              </ol>
+                    <p className="text-xs text-[#4E5672]">
+                      Limitations: {strat.limitations}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </details>
         )}
 
-        {/* 5. Progressive Disclosure: Specs, Constraints, Edge Cases & Notes */}
+        {/* Progressive Disclosure 2: Constraints, Edge Cases & Details */}
         <details className="group">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4 text-sm font-bold text-[#181B2E] hover:bg-[#F8F9FC]">
-            <span>Inputs, Constraints, Edge Cases &amp; Prerequisites</span>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 sm:px-8 py-4 text-sm font-bold text-[#181B2E] hover:bg-[#F8F9FC]">
+            <span>Constraints, Edge Cases &amp; Prerequisites</span>
             <ChevronDown
               className="h-4 w-4 shrink-0 text-[#4E5672] transition-transform group-open:rotate-180"
               aria-hidden="true"
             />
           </summary>
-          <div className="px-6 pb-6 pt-2 space-y-5 text-sm">
+          <div className="px-6 sm:px-8 pb-7 pt-2 space-y-5 text-sm">
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
@@ -324,19 +441,6 @@ export function ProblemAnalysisView({
                 </ul>
               </div>
             </div>
-
-            {analysis.clarifications_or_ambiguities.length > 0 && (
-              <div className="space-y-1.5">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
-                  Clarifications / Ambiguities
-                </h5>
-                <ul className="space-y-1 text-[#9A630A]">
-                  {analysis.clarifications_or_ambiguities.map((a) => (
-                    <li key={a}>• {a}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
 
             {analysis.prerequisite_concepts.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E4E7F1]">

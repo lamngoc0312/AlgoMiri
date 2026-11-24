@@ -112,10 +112,9 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
     expect(screen.getByText('Minimum Coin Change')).toBeInTheDocument();
     expect(screen.getByText(/^conceptual analysis only$/i)).toBeInTheDocument();
 
-    // Ask AI Tutor for a conceptual hint
-    await user.click(
-      screen.getByRole('button', { name: /give a conceptual hint/i }),
-    );
+    // Open the dedicated Ask AI Tutor tab and ask for a hint
+    await user.click(screen.getByRole('tab', { name: /ask ai tutor/i }));
+    await user.click(screen.getByRole('button', { name: /give a hint/i }));
     expect(
       await screen.findByText(/compare 4 \+ 1 \+ 1/i),
     ).toBeInTheDocument();
@@ -203,10 +202,9 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
     );
     expect(await screen.findByText('Minimum Coin Change')).toBeInTheDocument();
 
-    // Generate a Tutor message under the first analysis
-    await user.click(
-      screen.getByRole('button', { name: /give a conceptual hint/i }),
-    );
+    // Generate a Tutor message under the first analysis via the Ask AI Tutor tab
+    await user.click(screen.getByRole('tab', { name: /ask ai tutor/i }));
+    await user.click(screen.getByRole('button', { name: /give a hint/i }));
     expect(await screen.findByText(/compare 4 \+ 1 \+ 1/i)).toBeInTheDocument();
 
     // Edit problem statement in place -> stale warning must appear
@@ -457,5 +455,57 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
     // Second retry recovers cleanly
     await user.click(screen.getByRole('button', { name: /retry/i }));
     expect(await screen.findByText('Minimum Coin Change')).toBeInTheDocument();
+  });
+
+  it('shows a compact honest offline card (not a fake analysis) when offline-demo is returned for Reverse Integer', async () => {
+    const offlineResponse: AnalyzeResponseDto = {
+      ...MOCK_ANALYZE_RESPONSE,
+      mode: 'offline-demo',
+      is_ai_generated: false,
+      notice: 'Offline Demo Mode: GEMINI_API_KEY is not configured on the server.',
+      analysis: {
+        ...MOCK_ANALYZE_RESPONSE.analysis,
+        title: 'Offline Conceptual Draft: Reverse Integer',
+      },
+    };
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => offlineResponse,
+    } as Response);
+
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    const textarea = screen.getByLabelText(/paste a problem statement/i);
+    await user.type(
+      textarea,
+      'Reverse Integer: Given a signed 32-bit integer x, return x with its digits reversed, or 0 on overflow.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /analyze problem \(ai\)/i }),
+    );
+
+    expect(
+      await screen.findByText(/live ai unavailable \(offline mode\)/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/your pasted problem was not analyzed by an ai model/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/offline conceptual draft: reverse integer/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('tab', { name: /ask ai tutor/i }),
+    ).not.toBeInTheDocument();
+    // Pasted statement stays intact
+    expect(textarea).toHaveValue(
+      'Reverse Integer: Given a signed 32-bit integer x, return x with its digits reversed, or 0 on overflow.',
+    );
   });
 });
