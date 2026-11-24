@@ -260,32 +260,113 @@ export const validParenthesesModule: ProblemModule<
     'stack-matching': {
       id: 'valid-parentheses-stack-graph',
       strategyId: 'stack-matching',
+      title: 'Stack LIFO Bracket Decomposition',
+      summary:
+        'Model nested brackets as Last-In-First-Out, handle opening and closing brackets through two distinct branches, and merge at the final empty-stack check.',
+      requiresDag: true,
       nodes: [
         {
-          id: 'vp-1',
+          id: 'vp-lifo-rule',
+          title: 'Model nesting as LIFO',
+          category: 'invariant',
+          learningGoal:
+            'Recognize that the most recently opened bracket must always be the first to close.',
+          explanation:
+            'Because inner brackets must close before outer brackets, a Last-In-First-Out Stack naturally tracks pending openers.',
+          rationale:
+            'Simple counters fail on crossed brackets like "([)]"; a Stack preserves exact nesting order.',
+          skills: ['LIFO Invariant', 'Problem Modeling'],
+          prerequisites: ['Balanced Bracket Rules'],
+          techniques: ['Stack (LIFO)'],
+          ioContract: {
+            inputs: ['bracket stream s'],
+            outputs: ['LIFO stack of unclosed openers'],
+          },
+          mappedActions: ['push', 'check-match'],
+        },
+        {
+          id: 'vp-push-open',
           title: 'Push opening brackets',
-          learningGoal: 'Remember each unclosed opener on TOP of the stack.',
+          category: 'operation',
+          learningGoal:
+            'Place each "(", "[", or "{" onto TOP of the stack as a pending obligation.',
+          explanation:
+            'When scanning an opening bracket, push it onto TOP so the next closing bracket can inspect it in O(1) time.',
+          rationale:
+            'Pushing preserves the exact reverse order in which openers must be closed.',
           skills: ['Stack Push'],
-          rationale: 'The most recently opened bracket must be closed first.',
+          prerequisites: ['LIFO Invariant'],
+          techniques: ['Stack'],
+          ioContract: {
+            inputs: ['opening char ch'],
+            outputs: ['updated stack with ch at TOP'],
+          },
+          mappedActions: ['push'],
         },
         {
-          id: 'vp-2',
-          title: 'Match closer against TOP',
-          learningGoal: 'Verify stack is non-empty and TOP matches, then pop.',
-          skills: ['LIFO Matching', 'Early Exit'],
-          rationale: 'Any mismatch or empty-stack closer proves the string invalid immediately.',
+          id: 'vp-match-close',
+          title: 'Match closer against TOP & pop',
+          category: 'decision',
+          learningGoal:
+            'Reject empty stack or wrong TOP immediately; otherwise pop the matched opener.',
+          explanation:
+            'When scanning ")", "]", or "}", check that the stack is non-empty and TOP is its matching opener, then pop TOP.',
+          rationale:
+            'An empty stack or mismatched TOP immediately proves the bracket sequence is invalid.',
+          skills: ['Stack Pop', 'Early Mismatch Exit'],
+          prerequisites: ['LIFO Invariant'],
+          techniques: ['Bracket Pair Lookup'],
+          ioContract: {
+            inputs: ['closing char ch', 'stack TOP'],
+            outputs: ['popped stack | immediate false'],
+          },
+          mappedActions: ['check-match', 'pop', 'mismatch'],
         },
         {
-          id: 'vp-3',
-          title: 'Verify stack is empty',
-          learningGoal: 'Ensure no opening brackets were left unclosed at the end.',
-          skills: ['Boundary Invariant'],
-          rationale: 'Catches inputs like "((" that never had a mismatch.',
+          id: 'vp-final-empty',
+          title: 'Verify stack is empty at end',
+          category: 'termination',
+          learningGoal:
+            'Return true only if every pushed opener was cleanly popped and nothing remains unclosed.',
+          explanation:
+            'After scanning all characters without a mismatch, check stack.length === 0 to catch leftover openers like "((".',
+          rationale:
+            'Without this final boundary check, unclosed opening brackets would falsely return true.',
+          skills: ['Boundary Invariant', 'Edge-Case Handling'],
+          prerequisites: ['Stack Push', 'Stack Pop'],
+          techniques: ['Final State Verification'],
+          ioContract: {
+            inputs: ['final stack after scan'],
+            outputs: ['isValid: boolean'],
+          },
+          mappedActions: ['valid', 'unclosed'],
         },
       ],
       edges: [
-        { source: 'vp-1', target: 'vp-2', reason: 'Closing brackets resolve the most recent opener.' },
-        { source: 'vp-2', target: 'vp-3', reason: 'After scanning all characters, check for leftovers.' },
+        {
+          id: 'vp-e1',
+          source: 'vp-lifo-rule',
+          target: 'vp-push-open',
+          reason: 'Opening brackets become the newest item on TOP of the LIFO stack.',
+        },
+        {
+          id: 'vp-e2',
+          source: 'vp-lifo-rule',
+          target: 'vp-match-close',
+          reason: 'Closing brackets must cancel the most recent opener sitting on TOP.',
+        },
+        {
+          id: 'vp-e3',
+          source: 'vp-push-open',
+          target: 'vp-final-empty',
+          reason: 'Every pushed opener must eventually be matched and popped.',
+        },
+        {
+          id: 'vp-e4',
+          source: 'vp-match-close',
+          target: 'vp-final-empty',
+          reason: 'If no mismatch occurred, remaining stack size decides validity.',
+        },
       ],
     },
   },

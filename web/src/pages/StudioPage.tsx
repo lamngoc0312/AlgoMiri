@@ -6,6 +6,7 @@ import {
   BookOpen,
   Compass,
   Eye,
+  GitBranch,
   GraduationCap,
   Library,
   MessageSquareText,
@@ -37,15 +38,18 @@ import {
 import { ProblemPane } from '../features/studio/ProblemPane';
 import { VisualCanvas } from '../features/studio/VisualCanvas';
 import { StackVisualCanvas } from '../features/studio/StackVisualCanvas';
+import { PlaybackControls } from '../features/studio/PlaybackControls';
 import { WalkthroughPane } from '../features/studio/WalkthroughPane';
 import { useTracePlayback } from '../features/studio/useTracePlayback';
 import { GuidedLessonBar } from '../features/guided/GuidedLessonBar';
 import { GuidedStagePanel } from '../features/guided/GuidedStagePanel';
 import { SessionSummaryCard } from '../features/guided/SessionSummaryCard';
+import { InteractiveSolutionMap } from '../features/solutions/InteractiveSolutionMap';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
 
 type StudioMode = 'guided' | 'explore';
+type PerspectiveView = 'micro' | 'macro';
 type MobileTab = 'problem' | 'canvas' | 'walkthrough';
 
 const MOBILE_TABS: { id: MobileTab; label: string; icon: typeof Eye }[] = [
@@ -65,6 +69,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
   const [sessionId, setSessionId] = useState(1);
   const [mode, setMode] = useState<StudioMode>(initialMode);
+  const [perspective, setPerspective] = useState<PerspectiveView>('micro');
   const [activeStageId, setActiveStageId] = useState<string>(firstStageId);
   const [showingSummary, setShowingSummary] = useState(false);
 
@@ -136,6 +141,21 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       predictionRecords,
     ],
   );
+
+  // Phase A: Furthest reachable step is the FIRST unresolved guided checkpoint.
+  // Prevents dragging the timeline slider over an unresolved checkpoint even if the current one is solved.
+  const maxReachableStepIndex = useMemo(() => {
+    const lastIdx = Math.max(0, trace.steps.length - 1);
+    if (mode !== 'guided' || !predictModeEnabled) {
+      return lastIdx;
+    }
+    for (let i = 0; i <= lastIdx; i += 1) {
+      if (shouldPauseAtStep(i)) {
+        return i;
+      }
+    }
+    return lastIdx;
+  }, [mode, predictModeEnabled, trace.steps.length, shouldPauseAtStep]);
 
   const playback = useTracePlayback({
     totalSteps: trace.steps.length,
@@ -255,6 +275,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   const handleRestartLesson = () => {
     setSessionId((id) => id + 1);
     setShowingSummary(false);
+    setPerspective('micro');
     setActiveStageId(firstStageId);
     setSelectedStrategyId(problemModule.guidedInitialStrategyId);
     setCurrentInput(problemModule.defaultInput);
@@ -287,8 +308,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           </div>
           <p className="mt-1 text-sm text-[#555D7A]">
             {mode === 'guided'
-              ? 'Discover the intuition step by step, predict transitions, and reveal pseudocode only when ready.'
-              : 'Explore freely with custom inputs, playback controls, and optional step predictions.'}
+              ? 'Discover the intuition step by step, inspect the Solution Map, and predict verified trace transitions.'
+              : 'Explore freely across Micro (execution trace) and Macro (conceptual Solution Map) views.'}
           </p>
         </div>
 
@@ -448,9 +469,81 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
             <section
               aria-label="Visual execution canvas panel"
-              className={mobileTab === 'canvas' ? 'block' : 'hidden lg:block'}
+              className={`space-y-4 ${
+                mobileTab === 'canvas' ? 'block' : 'hidden lg:block'
+              }`}
             >
-              {currentStep.visualState.kind === 'array-hash' ? (
+              {/* Synchronized Micro / Macro Perspective Switcher */}
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#E3E7F2] bg-white px-3.5 py-2.5">
+                <span className="text-xs font-bold text-[#555D7A]">
+                  Perspective:
+                </span>
+                <div
+                  role="group"
+                  aria-label="Micro and Macro view switcher"
+                  className="inline-flex rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-0.5"
+                >
+                  <button
+                    type="button"
+                    aria-pressed={perspective === 'micro'}
+                    onClick={() => setPerspective('micro')}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                      perspective === 'micro'
+                        ? 'bg-[#645BE8] text-white shadow-2xs'
+                        : 'text-[#555D7A] hover:text-[#20253B]'
+                    }`}
+                  >
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                    Micro View (Execution)
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={perspective === 'macro'}
+                    onClick={() => setPerspective('macro')}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                      perspective === 'macro'
+                        ? 'bg-[#645BE8] text-white shadow-2xs'
+                        : 'text-[#555D7A] hover:text-[#20253B]'
+                    }`}
+                  >
+                    <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
+                    Macro View (Solution Map)
+                  </button>
+                </div>
+              </div>
+
+              {perspective === 'macro' ? (
+                <div className="space-y-4">
+                  <InteractiveSolutionMap
+                    key={solutionGraph.id}
+                    graph={solutionGraph}
+                    steps={trace.steps}
+                    currentStep={currentStep}
+                    maxAllowedStepIndex={maxReachableStepIndex}
+                    onSelectStep={(idx) => {
+                      playback.goToStep(idx);
+                      setPerspective('micro');
+                    }}
+                    onSwitchToMicro={() => setPerspective('micro')}
+                  />
+
+                  <PlaybackControls
+                    stepIndex={playback.stepIndex}
+                    totalSteps={trace.steps.length}
+                    isPlaying={playback.isPlaying}
+                    speed={playback.speed}
+                    status={currentStep.visualState.status}
+                    checkpointPaused={isPredictionCheckpointActive}
+                    maxAllowedStepIndex={maxReachableStepIndex}
+                    onPrev={playback.prev}
+                    onNext={playback.next}
+                    onTogglePlay={playback.togglePlay}
+                    onReset={playback.reset}
+                    onSpeedChange={playback.setSpeed}
+                    onSeek={playback.goToStep}
+                  />
+                </div>
+              ) : currentStep.visualState.kind === 'array-hash' ? (
                 <VisualCanvas
                   sessionId={sessionId}
                   strategy={strategy}
@@ -465,6 +558,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   predictionPrompt={predictionPrompt}
                   predictionRecord={currentPredictionRecord}
                   checkpointPaused={isPredictionCheckpointActive}
+                  maxAllowedStepIndex={maxReachableStepIndex}
                   onTogglePredictMode={() =>
                     setPredictModeEnabled((prev) => !prev)
                   }
@@ -482,6 +576,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   onReset={playback.reset}
                   onSpeedChange={playback.setSpeed}
                   onSeek={playback.goToStep}
+                  onOpenMacroView={() => setPerspective('macro')}
                 />
               ) : (
                 <StackVisualCanvas
@@ -499,6 +594,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   predictionPrompt={predictionPrompt}
                   predictionRecord={currentPredictionRecord}
                   checkpointPaused={isPredictionCheckpointActive}
+                  maxAllowedStepIndex={maxReachableStepIndex}
                   onTogglePredictMode={() =>
                     setPredictModeEnabled((prev) => !prev)
                   }
@@ -513,6 +609,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   onReset={playback.reset}
                   onSpeedChange={playback.setSpeed}
                   onSeek={playback.goToStep}
+                  onOpenMacroView={() => setPerspective('macro')}
                 />
               )}
             </section>

@@ -17,6 +17,7 @@ interface PlaybackControlsProps {
   speed: number;
   status: TraceStatus;
   checkpointPaused?: boolean;
+  maxAllowedStepIndex?: number;
   onPrev: () => void;
   onNext: () => void;
   onTogglePlay: () => void;
@@ -32,6 +33,7 @@ export function PlaybackControls({
   speed,
   status,
   checkpointPaused = false,
+  maxAllowedStepIndex,
   onPrev,
   onNext,
   onTogglePlay,
@@ -40,16 +42,25 @@ export function PlaybackControls({
   onSeek,
 }: PlaybackControlsProps) {
   const maxIndex = Math.max(0, totalSteps - 1);
+  const effectiveMaxAllowed =
+    maxAllowedStepIndex !== undefined
+      ? Math.max(0, Math.min(maxIndex, maxAllowedStepIndex))
+      : maxIndex;
+
   const isFirst = stepIndex === 0;
   const isLast = stepIndex >= maxIndex;
   const canPlay = totalSteps > 1;
-  const isForwardBlocked = checkpointPaused && !isLast;
+  const isForwardBlocked =
+    (checkpointPaused || stepIndex >= effectiveMaxAllowed) && !isLast;
   const progressPercent =
     maxIndex === 0 ? 100 : Math.round((stepIndex / maxIndex) * 100);
 
   const handleSliderChange = (nextValue: number) => {
-    // Prevent timeline from bypassing an unanswered guided prediction checkpoint
-    if (isForwardBlocked && nextValue > stepIndex) {
+    // Never allow forward seeking past the first unresolved guided checkpoint
+    if (nextValue > effectiveMaxAllowed) {
+      if (stepIndex < effectiveMaxAllowed) {
+        onSeek(effectiveMaxAllowed);
+      }
       return;
     }
     onSeek(nextValue);

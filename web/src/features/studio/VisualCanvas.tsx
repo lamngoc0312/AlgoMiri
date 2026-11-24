@@ -1,4 +1,12 @@
-import { CheckCircle2, Eye, Hash, SearchX, Sparkles } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Eye,
+  GitBranch,
+  Hash,
+  SearchX,
+  Sparkles,
+} from 'lucide-react';
 import type { SolutionGraph, SolutionStrategy } from '../../domain/problems/types';
 import type { HighlightRole, TwoSumInput } from '../../domain/traces/types';
 import type {
@@ -7,9 +15,10 @@ import type {
   PredictionPrompt,
 } from '../../domain/core/types';
 import type { PredictionRecord } from '../../domain/learning/session';
+import { getActiveNodeIdsForStep } from '../../domain/solutions/graphValidator';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { SolutionMapPreview } from '../solutions/SolutionMapPreview';
 import { PredictNextStepCard } from '../guided/PredictNextStepCard';
 import { CustomInputBar } from './CustomInputBar';
 import { PlaybackControls } from './PlaybackControls';
@@ -28,6 +37,7 @@ interface VisualCanvasProps {
   predictionPrompt: PredictionPrompt | null;
   predictionRecord: PredictionRecord | undefined;
   checkpointPaused: boolean;
+  maxAllowedStepIndex: number;
   onTogglePredictMode: () => void;
   onAnswerPrediction: (
     questionId: string,
@@ -42,6 +52,7 @@ interface VisualCanvasProps {
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
   onSeek: (stepIndex: number) => void;
+  onOpenMacroView: () => void;
 }
 
 const ROLE_STYLES: Record<
@@ -80,6 +91,7 @@ export function VisualCanvas({
   predictionPrompt,
   predictionRecord,
   checkpointPaused,
+  maxAllowedStepIndex,
   onTogglePredictMode,
   onAnswerPrediction,
   onSkipPrediction,
@@ -90,11 +102,17 @@ export function VisualCanvas({
   onReset,
   onSpeedChange,
   onSeek,
+  onOpenMacroView,
 }: VisualCanvasProps) {
   const { visualState } = step;
 
   const getHighlightForIndex = (index: number) =>
     visualState.highlights.find((h) => h.index === index);
+
+  const activeNodeIds = getActiveNodeIdsForStep(solutionGraph, step);
+  const activeNodes = solutionGraph.nodes.filter((n) =>
+    activeNodeIds.includes(n.id),
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -334,7 +352,7 @@ export function VisualCanvas({
             </div>
           )}
 
-          {/* Playback Controls directly beneath visualization (desktop & mobile) */}
+          {/* Playback Controls directly beneath visualization */}
           <PlaybackControls
             stepIndex={stepIndex}
             totalSteps={totalSteps}
@@ -342,6 +360,7 @@ export function VisualCanvas({
             speed={speed}
             status={visualState.status}
             checkpointPaused={checkpointPaused}
+            maxAllowedStepIndex={maxAllowedStepIndex}
             onPrev={onPrev}
             onNext={onNext}
             onTogglePlay={onTogglePlay}
@@ -362,7 +381,7 @@ export function VisualCanvas({
             />
           )}
 
-          {/* Compact Synchronized Narrative on Mobile so users don't have to switch tabs */}
+          {/* Compact Synchronized Narrative on Mobile */}
           <div
             aria-live="polite"
             className="rounded-xl border border-[#E3E7F2] bg-white p-3.5 text-xs leading-relaxed text-[#20253B] lg:hidden"
@@ -397,10 +416,29 @@ export function VisualCanvas({
         </CardContent>
       </Card>
 
-      <SolutionMapPreview
-        graph={solutionGraph}
-        activeGoalIndex={visualState.activeGoalIndex}
-      />
+      {/* Synchronized Macro Goal Link Banner */}
+      <div
+        aria-label="Synchronized Macro conceptual goal"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#D8DCFF] bg-[#EEF0FF]/45 px-4 py-3"
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F46D8]">
+            <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
+            Current Step Supports Conceptual Goal:
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {activeNodes.map((node) => (
+              <Badge key={node.id} variant="mint">
+                {node.title}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        <Button variant="secondary" size="sm" onClick={onOpenMacroView}>
+          Open Solution Map
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </Button>
+      </div>
     </div>
   );
 }

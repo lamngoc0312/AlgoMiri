@@ -1,8 +1,10 @@
 import {
   ArrowDown,
+  ArrowRight,
   ArrowUp,
   CheckCircle2,
   Eye,
+  GitBranch,
   Layers,
   Sparkles,
   XCircle,
@@ -16,9 +18,10 @@ import type {
 } from '../../domain/core/types';
 import type { PredictionRecord } from '../../domain/learning/session';
 import type { ValidParenthesesInput } from '../../domain/traces/validParenthesesValidation';
+import { getActiveNodeIdsForStep } from '../../domain/solutions/graphValidator';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { SolutionMapPreview } from '../solutions/SolutionMapPreview';
 import { PredictNextStepCard } from '../guided/PredictNextStepCard';
 import { PlaybackControls } from './PlaybackControls';
 import { StackInputBar } from './StackInputBar';
@@ -38,6 +41,7 @@ interface StackVisualCanvasProps {
   predictionPrompt: PredictionPrompt | null;
   predictionRecord: PredictionRecord | undefined;
   checkpointPaused: boolean;
+  maxAllowedStepIndex: number;
   onTogglePredictMode: () => void;
   onAnswerPrediction: (
     questionId: string,
@@ -52,6 +56,7 @@ interface StackVisualCanvasProps {
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
   onSeek: (stepIndex: number) => void;
+  onOpenMacroView: () => void;
 }
 
 export function StackVisualCanvas({
@@ -69,6 +74,7 @@ export function StackVisualCanvas({
   predictionPrompt,
   predictionRecord,
   checkpointPaused,
+  maxAllowedStepIndex,
   onTogglePredictMode,
   onAnswerPrediction,
   onSkipPrediction,
@@ -79,9 +85,14 @@ export function StackVisualCanvas({
   onReset,
   onSpeedChange,
   onSeek,
+  onOpenMacroView,
 }: StackVisualCanvasProps) {
   const { visualState } = step;
   const chars = visualState.input.split('');
+  const activeNodeIds = getActiveNodeIdsForStep(solutionGraph, step);
+  const activeNodes = solutionGraph.nodes.filter((n) =>
+    activeNodeIds.includes(n.id),
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -202,7 +213,6 @@ export function StackVisualCanvas({
             aria-label="Vertical stack visualization"
             className="grid gap-4 sm:grid-cols-[1fr_220px] sm:items-center rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC] p-4"
           >
-            {/* Operation Status & Comparison Explanation */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
@@ -348,6 +358,7 @@ export function StackVisualCanvas({
             speed={speed}
             status={visualState.status}
             checkpointPaused={checkpointPaused}
+            maxAllowedStepIndex={maxAllowedStepIndex}
             onPrev={onPrev}
             onNext={onNext}
             onTogglePlay={onTogglePlay}
@@ -390,10 +401,29 @@ export function StackVisualCanvas({
         </CardContent>
       </Card>
 
-      <SolutionMapPreview
-        graph={solutionGraph}
-        activeGoalIndex={visualState.activeGoalIndex}
-      />
+      {/* Synchronized Macro Goal Link Banner */}
+      <div
+        aria-label="Synchronized Macro conceptual goal"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#D8DCFF] bg-[#EEF0FF]/45 px-4 py-3"
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F46D8]">
+            <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
+            Current Step Supports Conceptual Goal:
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {activeNodes.map((node) => (
+              <Badge key={node.id} variant="mint">
+                {node.title}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        <Button variant="secondary" size="sm" onClick={onOpenMacroView}>
+          Open Solution Map
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </Button>
+      </div>
     </div>
   );
 }

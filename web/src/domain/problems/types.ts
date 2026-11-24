@@ -4,15 +4,35 @@ export interface ProblemExample {
   explanation: string;
 }
 
+export type SolutionNodeCategory =
+  | 'input-model'
+  | 'invariant'
+  | 'operation'
+  | 'decision'
+  | 'technique'
+  | 'termination';
+
+export interface SolutionNodeIO {
+  inputs: string[];
+  outputs: string[];
+}
+
 export interface SolutionGraphNode {
   id: string;
   title: string;
+  category: SolutionNodeCategory;
   learningGoal: string;
-  skills: string[];
+  explanation: string;
   rationale: string;
+  skills: string[];
+  prerequisites?: string[];
+  techniques?: string[];
+  ioContract?: SolutionNodeIO;
+  mappedActions: string[];
 }
 
 export interface SolutionGraphEdge {
+  id: string;
   source: string;
   target: string;
   reason: string;
@@ -21,6 +41,9 @@ export interface SolutionGraphEdge {
 export interface SolutionGraph {
   id: string;
   strategyId: string;
+  title: string;
+  summary: string;
+  requiresDag?: boolean;
   nodes: SolutionGraphNode[];
   edges: SolutionGraphEdge[];
 }
