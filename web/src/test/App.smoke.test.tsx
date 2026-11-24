@@ -97,12 +97,17 @@ describe('AlgoMiri smoke tests', () => {
     ).toBeInTheDocument();
   });
 
-  it('displays Demo Data notice on Roadmap and honest Local Browser History on Progress', () => {
+  it('displays personalized local history notices on Roadmap and Progress pages', () => {
     window.localStorage.clear();
     const { unmount } = renderAt('/roadmap');
-    expect(screen.getByText(/demo data/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/personalized · local history/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: /algorithm learning roadmap/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/start with two sum guided learning/i),
     ).toBeInTheDocument();
     unmount();
 

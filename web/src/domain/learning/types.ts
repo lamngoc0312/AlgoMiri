@@ -15,6 +15,7 @@ export interface SkillDefinition {
   name: string;
   category: string;
   description: string;
+  prerequisites: SkillId[];
   relatedProblemIds: string[];
   recommendedStudioPath: string;
 }
@@ -169,6 +170,10 @@ export interface LearningProgressSummary {
   totalPredictionsSolvedAfterRetry: number;
   totalPredictionsSolved: number;
   totalPredictionsSkipped: number;
+  totalPredictionsSkippedAfterAttempt: number;
+  totalPredictionsSkippedWithoutAttempt: number;
+  totalPredictionsUnresolved: number;
+  totalPredictionQuestions: number;
   /** Percentage of attempted predictions answered right on first try, or null if none attempted. */
   firstTryAccuracyPercent: number | null;
   /** Percentage of attempted predictions eventually solved, or null if none attempted. */

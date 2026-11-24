@@ -207,9 +207,12 @@ export function buildLearningSession(
     const skillIds = getSkillsForPrediction(
       params.problemId,
       record.strategyId,
+      record.nextStepAction,
       record.stepAction,
     );
 
+    // Skipping WITHOUT attempting must NOT count as active practice ('attempted');
+    // it records 'viewed' exposure only while marking skipped: true on the record.
     if (record.lastSelectedOptionId === null && record.skipped) {
       attempts.push({
         id: `${params.sessionId}:pred:${record.questionId}`,
@@ -221,15 +224,15 @@ export function buildLearningSession(
         retries: 0,
         hintsUsed: 0,
         skipped: true,
-        evidenceLevel: 'attempted',
+        evidenceLevel: 'viewed',
       });
-      pushEvidence(skillIds, 'trace-prediction', 'attempted');
+      pushEvidence(skillIds, 'trace-prediction', 'viewed');
       continue;
     }
 
     if (record.lastSelectedOptionId !== null) {
       let evidenceLevel: EvidenceLevel = 'attempted';
-      if (record.firstAttemptCorrect) {
+      if (record.firstAttemptCorrect && !record.wasEverSkipped) {
         evidenceLevel = 'first-try-correct';
       } else if (record.solved) {
         evidenceLevel = 'correct-with-assistance';
@@ -241,7 +244,7 @@ export function buildLearningSession(
         targetId: record.questionId,
         skillIds,
         correct: record.solved,
-        firstTry: record.firstAttemptCorrect,
+        firstTry: Boolean(record.firstAttemptCorrect && !record.wasEverSkipped),
         retries: record.retryCount,
         hintsUsed: 0,
         skipped: record.skipped && !record.solved,
@@ -540,6 +543,10 @@ export function aggregateLearningProgress(
   let totalPredictionsSolvedAfterRetry = 0;
   let totalPredictionsSolved = 0;
   let totalPredictionsSkipped = 0;
+  let totalPredictionsSkippedAfterAttempt = 0;
+  let totalPredictionsSkippedWithoutAttempt = 0;
+  let totalPredictionsUnresolved = 0;
+  let totalPredictionQuestions = 0;
   let totalHintsUsed = 0;
 
   for (const session of sortedSessions) {
@@ -547,12 +554,35 @@ export function aggregateLearningProgress(
     for (const stratId of session.strategiesExplored) {
       uniqueStrategyKeys.add(`${session.problemId}:${stratId}`);
     }
-    totalPredictionsAttempted += session.predictionSummary.questionsAttempted;
-    totalPredictionsFirstTry += session.predictionSummary.firstTryCorrect;
-    totalPredictionsSolvedAfterRetry +=
-      session.predictionSummary.solvedAfterRetry;
-    totalPredictionsSolved += session.predictionSummary.totalSolved;
-    totalPredictionsSkipped += session.predictionSummary.skippedCount;
+    const ps = session.predictionSummary;
+    const firstTry = ps.firstTryCorrect;
+    const afterRetry = ps.solvedAfterRetry;
+    const solved = firstTry + afterRetry;
+    // Derive mutually exclusive buckets safely even for pre-Sprint-9 persisted sessions
+    const skippedAfterAttempt =
+      typeof ps.skippedAfterAttempt === 'number'
+        ? ps.skippedAfterAttempt
+        : Math.min(ps.skippedCount, Math.max(0, ps.questionsAttempted - solved));
+    const skippedWithoutAttempt =
+      typeof ps.skippedWithoutAttempt === 'number'
+        ? ps.skippedWithoutAttempt
+        : Math.max(0, ps.skippedCount - skippedAfterAttempt);
+    const unresolvedAttempt =
+      typeof ps.unresolvedAttempt === 'number'
+        ? ps.unresolvedAttempt
+        : Math.max(0, ps.questionsAttempted - solved - skippedAfterAttempt);
+    const attempted = solved + skippedAfterAttempt + unresolvedAttempt;
+    const totalQ = attempted + skippedWithoutAttempt;
+
+    totalPredictionsAttempted += attempted;
+    totalPredictionsFirstTry += firstTry;
+    totalPredictionsSolvedAfterRetry += afterRetry;
+    totalPredictionsSolved += solved;
+    totalPredictionsSkipped += skippedAfterAttempt + skippedWithoutAttempt;
+    totalPredictionsSkippedAfterAttempt += skippedAfterAttempt;
+    totalPredictionsSkippedWithoutAttempt += skippedWithoutAttempt;
+    totalPredictionsUnresolved += unresolvedAttempt;
+    totalPredictionQuestions += totalQ;
     totalHintsUsed += session.hintsUsed;
   }
 
@@ -690,6 +720,10 @@ export function aggregateLearningProgress(
     totalPredictionsSolvedAfterRetry,
     totalPredictionsSolved,
     totalPredictionsSkipped,
+    totalPredictionsSkippedAfterAttempt,
+    totalPredictionsSkippedWithoutAttempt,
+    totalPredictionsUnresolved,
+    totalPredictionQuestions,
     firstTryAccuracyPercent,
     overallSolvedPercent,
     totalHintsUsed,

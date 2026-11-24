@@ -146,16 +146,42 @@ export function sanitizeStoredSession(raw: unknown): LearningSession | null {
   const rawPred = isRecord(raw.predictionSummary) ? raw.predictionSummary : {};
   const firstTryCorrect = asNonNegativeInt(rawPred.firstTryCorrect);
   const solvedAfterRetry = asNonNegativeInt(rawPred.solvedAfterRetry);
+  const totalSolved = firstTryCorrect + solvedAfterRetry;
+  const rawQuestionsAttempted = asNonNegativeInt(
+    rawPred.questionsAttempted,
+    totalSolved,
+  );
+  const rawSkippedCount = asNonNegativeInt(rawPred.skippedCount);
+
+  const skippedAfterAttempt =
+    typeof rawPred.skippedAfterAttempt === 'number'
+      ? asNonNegativeInt(rawPred.skippedAfterAttempt)
+      : Math.min(rawSkippedCount, Math.max(0, rawQuestionsAttempted - totalSolved));
+  const skippedWithoutAttempt =
+    typeof rawPred.skippedWithoutAttempt === 'number'
+      ? asNonNegativeInt(rawPred.skippedWithoutAttempt)
+      : Math.max(0, rawSkippedCount - skippedAfterAttempt);
+  const unresolvedAttempt =
+    typeof rawPred.unresolvedAttempt === 'number'
+      ? asNonNegativeInt(rawPred.unresolvedAttempt)
+      : Math.max(0, rawQuestionsAttempted - totalSolved - skippedAfterAttempt);
+
+  const questionsAttempted =
+    totalSolved + skippedAfterAttempt + unresolvedAttempt;
+  const skippedCount = skippedAfterAttempt + skippedWithoutAttempt;
+  const totalQuestions = questionsAttempted + skippedWithoutAttempt;
+
   const predictionSummary = {
-    questionsAttempted: asNonNegativeInt(rawPred.questionsAttempted),
+    questionsAttempted,
     firstTryCorrect,
     solvedAfterRetry,
-    totalSolved: asNonNegativeInt(
-      rawPred.totalSolved,
-      firstTryCorrect + solvedAfterRetry,
-    ),
+    totalSolved,
     totalRetries: asNonNegativeInt(rawPred.totalRetries),
-    skippedCount: asNonNegativeInt(rawPred.skippedCount),
+    skippedCount,
+    skippedAfterAttempt,
+    skippedWithoutAttempt,
+    unresolvedAttempt,
+    totalQuestions,
   };
 
   const hintsByStage: Record<string, number> = {};

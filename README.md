@@ -4,17 +4,21 @@
 
 AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners can paste a programming problem for structured AI conceptual analysis and beginner tutoring, or step through verified deterministic visual studios for Two Sum, Valid Parentheses, and Split Array Largest Sum.
 
-## Current Status (Sprint 8 — Learning Progress, Skill Evidence & Local History)
+## Current Status (Sprint 9 — Personalized Learning Roadmap & Interactive Skill Map)
 - **Verified Deterministic Visual Studios (`web/`):**
   1. **Two Sum (`/studio/two-sum`)**: Brute Force (`O(n²)`) vs. Hash Map (`O(n)`), 4-stage Guided Lesson.
   2. **Valid Parentheses (`/studio/valid-parentheses`)**: Stack (`O(n)`) vertical LIFO visualizer, 4-stage Guided Lesson.
   3. **Split Array Largest Sum (`/studio/split-array-largest-sum`)**: Binary Search on Answer + Greedy Composition (`O(n log S)` time, `O(1)` auxiliary space), Iteration Inspector, 5-stage Guided Lesson.
   - Synchronized **Macro View** (Interactive Solution Map DAG + Accessible List) and **Micro View** (Deterministic Execution Trace), enforced Guided Checkpoints, progressive hints, and dynamic predictions.
+- **Personalized Learning Roadmap & Interactive Skill Map (`/roadmap`):**
+  - Replaces the old demo roadmap with a pure, deterministic recommendation engine driven by locally persisted learning sessions.
+  - Validates a genuine 8-skill prerequisite DAG (non-linear roots: `Array Indexing` and `Stack / LIFO`, up through `Brute Force`, `Time and Space Complexity`, `Hash Map Lookup`, `Greedy Feasibility`, `Binary Search on Answer`, and `Algorithm Composition`).
+  - Interactive Skill Prerequisite Map with **Visual Map** + **Accessible List** toggle, keyboard arrow-key navigation, live Skill Inspector, and direct Studio links (never locks learners out of available Studios).
+  - Classifies skills cautiously across 5 transparent states (`Not Started`, `Introduced`, `Needs Practice`, `Guided Progress`, `Strong Guided Recall`) — detecting contradictory evidence and never claiming independent mastery.
 - **Evidence-Based Learning Progress & Local History (`/progress`):**
-  - Replaces demo progress stats with real, locally persisted learning sessions (`localStorage`, versioned schema `v1` with automatic `v0 -> v1` migration and corruption recovery).
-  - Tracks 8 core skills (`Array Indexing`, `Brute Force`, `Hash Map Lookup`, `Stack / LIFO`, `Binary Search on Answer`, `Greedy Feasibility`, `Algorithm Composition`, `Time and Space Complexity`) across cautious evidence levels (`Viewed`, `Attempted`, `Correct with assistance`, `First-try correct`, with `Independently Demonstrated` reserved for future unassisted assessments).
+  - Real locally persisted learning sessions (`localStorage`, versioned schema with migration and corruption recovery), mutually exclusive prediction outcome breakdowns (no double-counting, Skip & Reveal never counted as first-try, skipping without attempting excluded from active practice), and next-step prediction skill attribution.
   - Deduplicates saves by stable `sessionId`; restarting a lesson creates a fresh session without altering earlier records.
-  - Provides honest empty states (no fabricated stats or fake streaks), rule-based deterministic next-practice suggestions with clear explanations, and one-click confirmed **Clear Local History**.
+  - Honest empty states (no fabricated stats or fake streaks), rule-based deterministic next-practice suggestions with clear explanations, and confirmed **Clear Local History**.
   - **Privacy & Local-Only Scope:** History is saved **only in the current browser** and is not synchronized across devices. API keys, private pasted problem statements, and AI Tutor conversations are never stored or counted as verified mastery.
 - **Hardened FastAPI AI Backend (`api/`):**
   - `GET /health`, `POST /api/analyze`, `POST /api/tutor` with strict Pydantic v2 schemas, automatic `api/.env` loading (real OS environment variables always take precedence), managed async `google-genai` SDK client with explicit timeouts and bounded retries on transient errors only, streaming request-body byte caps (enforced even without `Content-Length`), per-client rate limits, daily request budget, concurrency guard, and strict non-wildcard CORS.

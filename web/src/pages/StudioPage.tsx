@@ -378,10 +378,12 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     optionId: string,
     isCorrect: boolean,
   ) => {
+    const nextStep = trace.steps[playback.stepIndex + 1];
     setPredictionRecords((prev) =>
       recordPredictionAnswer(prev, questionId, optionId, isCorrect, {
         strategyId: strategy.id,
         stepAction: currentStep.action,
+        nextStepAction: nextStep?.action,
         stepIndex: currentStep.stepIndex,
       }),
     );
@@ -394,10 +396,12 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   };
 
   const handleSkipPrediction = (questionId: string) => {
+    const nextStep = trace.steps[playback.stepIndex + 1];
     setPredictionRecords((prev) =>
       recordPredictionSkip(prev, questionId, {
         strategyId: strategy.id,
         stepAction: currentStep.action,
+        nextStepAction: nextStep?.action,
         stepIndex: currentStep.stepIndex,
       }),
     );

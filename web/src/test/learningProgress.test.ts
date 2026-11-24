@@ -12,8 +12,12 @@ import {
   recordPredictionAnswer,
   recordPredictionSkip,
   recordStageAnswer,
+  summarizePredictions,
 } from '../domain/learning/session';
-import { SKILL_REGISTRY } from '../domain/learning/skills';
+import {
+  SKILL_REGISTRY,
+  getSkillsForPrediction,
+} from '../domain/learning/skills';
 import type { LearningSession } from '../domain/learning/types';
 import {
   LEARNING_SCHEMA_VERSION,
@@ -465,5 +469,221 @@ describe('Phase E & G — Cross-Problem Aggregation & Deterministic Suggestions'
     for (const s of summary.suggestions) {
       expect(s.reason.length).toBeGreaterThan(20);
     }
+  });
+});
+
+describe('Sprint 9 Phase A — Analytics & Prediction Accounting Regressions', () => {
+  it('prevents double-counting when a learner answers a prediction wrong and then skips, keeping all outcome buckets mutually exclusive', () => {
+    // q1: first-try correct
+    let recs = recordPredictionAnswer({}, 'q1', 'right', true);
+    // q2: wrong -> right (solvedAfterRetry)
+    recs = recordPredictionAnswer(recs, 'q2', 'wrong', false);
+    recs = recordPredictionAnswer(recs, 'q2', 'right', true);
+    // q3: wrong -> skip (skippedAfterAttempt — must NOT also count as unresolvedAttempt!)
+    recs = recordPredictionAnswer(recs, 'q3', 'wrong', false);
+    recs = recordPredictionSkip(recs, 'q3');
+    // q4: skip without attempting (skippedWithoutAttempt)
+    recs = recordPredictionSkip(recs, 'q4');
+    // q5: wrong, neither solved nor skipped (unresolvedAttempt)
+    recs = recordPredictionAnswer(recs, 'q5', 'wrong', false);
+
+    const summary = summarizePredictions(recs);
+    expect(summary.firstTryCorrect).toBe(1);
+    expect(summary.solvedAfterRetry).toBe(1);
+    expect(summary.skippedAfterAttempt).toBe(1);
+    expect(summary.skippedWithoutAttempt).toBe(1);
+    expect(summary.unresolvedAttempt).toBe(1);
+    expect(summary.totalQuestions).toBe(5);
+    expect(
+      summary.firstTryCorrect +
+        summary.solvedAfterRetry +
+        summary.skippedAfterAttempt +
+        summary.skippedWithoutAttempt +
+        summary.unresolvedAttempt,
+    ).toBe(summary.totalQuestions);
+    expect(summary.questionsAttempted).toBe(4);
+    expect(summary.skippedCount).toBe(2);
+
+    const session = buildLearningSession({
+      sessionId: 'mutually-exclusive-1',
+      problemId: 'two-sum',
+      problemTitle: 'Two Sum',
+      mode: 'guided',
+      strategiesExplored: ['hash-map'],
+      startedAt: '2026-11-24T05:00:00.000Z',
+      completedAt: '2026-11-24T05:05:00.000Z',
+      stageIds: ['understand'],
+      stageStatuses: { understand: 'viewed' },
+      hintsByStage: {},
+      predictionRecords: recs,
+    });
+    const agg = aggregateLearningProgress([session]);
+    expect(agg.totalPredictionQuestions).toBe(5);
+    expect(agg.totalPredictionsSkippedAfterAttempt).toBe(1);
+    expect(agg.totalPredictionsSkippedWithoutAttempt).toBe(1);
+    expect(agg.totalPredictionsUnresolved).toBe(1);
+  });
+
+  it('ensures skipping predictions without attempting does NOT count as active practice', () => {
+    let recs = recordPredictionSkip({}, 'skip-only-1', {
+      strategyId: 'stack-matching',
+      stepAction: 'init',
+      nextStepAction: 'push',
+    });
+    recs = recordPredictionSkip(recs, 'skip-only-2', {
+      strategyId: 'stack-matching',
+      stepAction: 'push',
+      nextStepAction: 'pop',
+    });
+
+    const session = buildLearningSession({
+      sessionId: 'skip-only-session',
+      problemId: 'valid-parentheses',
+      problemTitle: 'Valid Parentheses',
+      mode: 'guided',
+      strategiesExplored: ['stack-matching'],
+      startedAt: '2026-11-24T05:00:00.000Z',
+      completedAt: '2026-11-24T05:02:00.000Z',
+      stageIds: validParenthesesModule.lesson.stages.map((s) => s.id),
+      stageStatuses: createInitialStageStatuses(
+        validParenthesesModule.lesson.stages,
+      ),
+      hintsByStage: {},
+      predictionRecords: recs,
+    });
+
+    expect(session.outcome).toBe('viewed-only');
+    expect(session.predictionSummary.questionsAttempted).toBe(0);
+    expect(session.predictionSummary.skippedWithoutAttempt).toBe(2);
+
+    const agg = aggregateLearningProgress([session]);
+    expect(agg.skillsPracticedCount).toBe(0);
+    const stackSkill = agg.skillSummaries.find(
+      (s) => s.skill.id === 'stack-lifo',
+    )!;
+    expect(stackSkill.totalAttempts).toBe(0);
+    expect(stackSkill.label).toBe('Introduced (Viewed Only)');
+  });
+
+  it('attributes next-step prediction skills from the predicted nextStepAction rather than currentStepAction', () => {
+    // At greedy-result, the question asks how Binary Search updates its bounds (next = bs-update-bounds)
+    expect(
+      getSkillsForPrediction(
+        'split-array-largest-sum',
+        'bs-greedy-composition',
+        'bs-update-bounds',
+        'greedy-result',
+      ),
+    ).toEqual(['binary-search-answer', 'algorithm-composition']);
+
+    // At bs-select-mid, the question asks what Greedy will check (next = greedy-start)
+    expect(
+      getSkillsForPrediction(
+        'split-array-largest-sum',
+        'bs-greedy-composition',
+        'greedy-start',
+        'bs-select-mid',
+      ),
+    ).toEqual(['greedy-feasibility', 'algorithm-composition']);
+
+    // At greedy-add-to-group -> greedy-result: asks Greedy feasibility
+    expect(
+      getSkillsForPrediction(
+        'split-array-largest-sum',
+        'bs-greedy-composition',
+        'greedy-result',
+        'greedy-add-to-group',
+      ),
+    ).toEqual(['greedy-feasibility']);
+
+    // At bs-init-bounds -> bs-select-mid: asks Binary Search midpoint
+    expect(
+      getSkillsForPrediction(
+        'split-array-largest-sum',
+        'bs-greedy-composition',
+        'bs-select-mid',
+        'bs-init-bounds',
+      ),
+    ).toEqual(['binary-search-answer']);
+  });
+
+  it('prevents answering correctly AFTER Skip & Reveal from counting as first-try success', () => {
+    let recs = recordPredictionSkip({}, 'q-reveal', {
+      strategyId: 'hash-map',
+      stepAction: 'store-value',
+      nextStepAction: 'lookup-hit',
+    });
+    // Learner navigates back and clicks the revealed right answer
+    recs = recordPredictionAnswer(recs, 'q-reveal', 'will-hit', true, {
+      strategyId: 'hash-map',
+      stepAction: 'store-value',
+      nextStepAction: 'lookup-hit',
+    });
+
+    expect(recs['q-reveal'].wasEverSkipped).toBe(true);
+    expect(recs['q-reveal'].firstAttemptCorrect).toBe(false);
+    expect(recs['q-reveal'].solved).toBe(true);
+
+    const summary = summarizePredictions(recs);
+    expect(summary.firstTryCorrect).toBe(0);
+    expect(summary.solvedAfterRetry).toBe(1);
+    expect(summary.totalQuestions).toBe(1);
+
+    const session = buildLearningSession({
+      sessionId: 'after-reveal-1',
+      problemId: 'two-sum',
+      problemTitle: 'Two Sum',
+      mode: 'guided',
+      strategiesExplored: ['hash-map'],
+      startedAt: '2026-11-24T05:00:00.000Z',
+      completedAt: '2026-11-24T05:03:00.000Z',
+      stageIds: ['understand'],
+      stageStatuses: { understand: 'viewed' },
+      hintsByStage: {},
+      predictionRecords: recs,
+    });
+    const predAttempt = session.attempts.find(
+      (a) => a.source === 'trace-prediction',
+    );
+    expect(predAttempt?.firstTry).toBe(false);
+    expect(predAttempt?.evidenceLevel).toBe('correct-with-assistance');
+  });
+
+  it('safely backfills legacy Sprint 8 persisted records without double-counting', () => {
+    const legacyRaw = {
+      sessionId: 'legacy-s8',
+      problemId: 'two-sum',
+      problemTitle: 'Two Sum',
+      mode: 'guided',
+      strategiesExplored: ['hash-map'],
+      startedAt: '2026-11-24T04:00:00.000Z',
+      completedAt: '2026-11-24T04:05:00.000Z',
+      stageStatuses: { understand: 'completed' },
+      totalStages: 4,
+      completedStagesCount: 1,
+      skippedStagesCount: 0,
+      attemptedStagesCount: 0,
+      // Legacy Sprint 8 predictionSummary shape without skippedAfterAttempt / unresolvedAttempt
+      predictionSummary: {
+        questionsAttempted: 2,
+        firstTryCorrect: 1,
+        solvedAfterRetry: 0,
+        totalSolved: 1,
+        totalRetries: 1,
+        skippedCount: 1,
+      },
+      hintsUsed: 0,
+      hintsByStage: {},
+      attempts: [],
+      skillEvidence: [],
+      events: [],
+      outcome: 'partial-attempt',
+    };
+
+    const sanitized = sanitizeStoredSession(legacyRaw)!;
+    expect(sanitized.predictionSummary.skippedAfterAttempt).toBe(1);
+    expect(sanitized.predictionSummary.skippedWithoutAttempt).toBe(0);
+    expect(sanitized.predictionSummary.unresolvedAttempt).toBe(0);
+    expect(sanitized.predictionSummary.totalQuestions).toBe(2);
   });
 });

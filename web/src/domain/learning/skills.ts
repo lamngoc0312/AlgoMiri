@@ -1,5 +1,10 @@
 import type { SkillDefinition, SkillId } from './types';
 
+/**
+ * Stable Skill Registry with genuine conceptual prerequisite dependencies.
+ * Note: Dependencies reflect real learning prerequisites, NOT an artificial linear chain
+ * (e.g., Stack / LIFO is an independent foundation alongside Array Indexing).
+ */
 export const SKILL_REGISTRY: readonly SkillDefinition[] = [
   {
     id: 'array-indexing',
@@ -7,25 +12,8 @@ export const SKILL_REGISTRY: readonly SkillDefinition[] = [
     category: 'Foundations',
     description:
       'Reason accurately about 0-based indices, element values vs. positions, and distinct-index constraints.',
+    prerequisites: [],
     relatedProblemIds: ['two-sum', 'split-array-largest-sum'],
-    recommendedStudioPath: '/studio/two-sum',
-  },
-  {
-    id: 'brute-force',
-    name: 'Brute Force',
-    category: 'Strategy Design',
-    description:
-      'Construct a systematic baseline search (such as j > i pair enumeration) before optimizing.',
-    relatedProblemIds: ['two-sum'],
-    recommendedStudioPath: '/studio/two-sum',
-  },
-  {
-    id: 'hash-map-lookup',
-    name: 'Hash Map Lookup',
-    category: 'Data Structures',
-    description:
-      'Reformulate repeated scans into O(1) complement lookups while preserving lookup-before-insert invariants.',
-    relatedProblemIds: ['two-sum'],
     recommendedStudioPath: '/studio/two-sum',
   },
   {
@@ -34,17 +22,43 @@ export const SKILL_REGISTRY: readonly SkillDefinition[] = [
     category: 'Data Structures',
     description:
       'Model nested obligations with Last-In-First-Out push/top/pop operations and empty-stack boundary checks.',
+    prerequisites: [],
     relatedProblemIds: ['valid-parentheses'],
     recommendedStudioPath: '/studio/valid-parentheses',
   },
   {
-    id: 'binary-search-answer',
-    name: 'Binary Search on Answer',
-    category: 'Search & Monotonicity',
+    id: 'brute-force',
+    name: 'Brute Force',
+    category: 'Strategy Design',
     description:
-      'Bound a monotonic answer space [low, high], pick mid, and safely narrow bounds until convergence.',
-    relatedProblemIds: ['split-array-largest-sum'],
-    recommendedStudioPath: '/studio/split-array-largest-sum',
+      'Construct a systematic baseline search (such as j > i pair enumeration) before optimizing.',
+    prerequisites: ['array-indexing'],
+    relatedProblemIds: ['two-sum'],
+    recommendedStudioPath: '/studio/two-sum',
+  },
+  {
+    id: 'time-space-complexity',
+    name: 'Time and Space Complexity',
+    category: 'Analysis',
+    description:
+      'Compare naive vs. optimized runtime and auxiliary memory tradeoffs accurately.',
+    prerequisites: ['brute-force'],
+    relatedProblemIds: [
+      'two-sum',
+      'valid-parentheses',
+      'split-array-largest-sum',
+    ],
+    recommendedStudioPath: '/studio/two-sum',
+  },
+  {
+    id: 'hash-map-lookup',
+    name: 'Hash Map Lookup',
+    category: 'Data Structures',
+    description:
+      'Reformulate repeated scans into O(1) complement lookups while preserving lookup-before-insert invariants.',
+    prerequisites: ['array-indexing', 'brute-force'],
+    relatedProblemIds: ['two-sum'],
+    recommendedStudioPath: '/studio/two-sum',
   },
   {
     id: 'greedy-feasibility',
@@ -52,6 +66,17 @@ export const SKILL_REGISTRY: readonly SkillDefinition[] = [
     category: 'Optimization',
     description:
       'Verify a candidate cap in O(n) via greedy contiguous packing and understand why nonnegativity is required.',
+    prerequisites: ['array-indexing'],
+    relatedProblemIds: ['split-array-largest-sum'],
+    recommendedStudioPath: '/studio/split-array-largest-sum',
+  },
+  {
+    id: 'binary-search-answer',
+    name: 'Binary Search on Answer',
+    category: 'Search & Monotonicity',
+    description:
+      'Bound a monotonic answer space [low, high], pick mid, and safely narrow bounds until convergence.',
+    prerequisites: ['time-space-complexity'],
     relatedProblemIds: ['split-array-largest-sum'],
     recommendedStudioPath: '/studio/split-array-largest-sum',
   },
@@ -61,21 +86,9 @@ export const SKILL_REGISTRY: readonly SkillDefinition[] = [
     category: 'Problem Decomposition',
     description:
       'Coordinate a driver technique (Binary Search) with a nested feasibility subroutine (Greedy).',
+    prerequisites: ['binary-search-answer', 'greedy-feasibility'],
     relatedProblemIds: ['split-array-largest-sum'],
     recommendedStudioPath: '/studio/split-array-largest-sum',
-  },
-  {
-    id: 'time-space-complexity',
-    name: 'Time and Space Complexity',
-    category: 'Analysis',
-    description:
-      'Compare naive vs. optimized runtime and auxiliary memory tradeoffs accurately.',
-    relatedProblemIds: [
-      'two-sum',
-      'valid-parentheses',
-      'split-array-largest-sum',
-    ],
-    recommendedStudioPath: '/studio/two-sum',
   },
 ] as const;
 
@@ -139,18 +152,24 @@ export function getSkillsForStage(
 }
 
 /**
- * Deterministic mapping from verified trace prediction steps to core skills.
+ * Deterministic mapping from verified next-step trace predictions to core skills.
+ * Uses `nextStepAction` (the actual upcoming transition the learner is asked to predict)
+ * and falls back gracefully when loading older records that only stored `currentStepAction`.
  */
 export function getSkillsForPrediction(
   problemId: string,
   strategyId?: string,
-  stepAction?: string,
+  nextStepAction?: string,
+  currentStepAction?: string,
 ): SkillId[] {
+  const predictedAction = nextStepAction ?? currentStepAction;
+
   if (problemId === 'two-sum') {
     if (strategyId === 'hash-map') {
-      return stepAction === 'lookup-hit'
-        ? ['hash-map-lookup', 'array-indexing']
-        : ['hash-map-lookup'];
+      if (predictedAction === 'found' || currentStepAction === 'lookup-hit') {
+        return ['hash-map-lookup', 'array-indexing'];
+      }
+      return ['hash-map-lookup'];
     }
     return ['brute-force', 'array-indexing'];
   }
@@ -160,23 +179,50 @@ export function getSkillsForPrediction(
   }
 
   if (problemId === 'split-array-largest-sum') {
-    if (
-      stepAction === 'bs-init-bounds' ||
-      stepAction === 'bs-select-mid' ||
-      stepAction === 'bs-update-bounds' ||
-      stepAction === 'bs-converged'
-    ) {
-      return ['binary-search-answer', 'algorithm-composition'];
+    // Next-step prediction semantics (matches splitArrayModule.ts):
+    // - next = bs-select-mid -> choosing Binary Search midpoint
+    // - next = greedy-start -> delegating mid to nested Greedy subroutine (Composition + Greedy)
+    // - next = greedy-add-to-group | greedy-new-group | greedy-result -> Greedy packing & feasibility check
+    // - next = bs-update-bounds -> updating Binary Search bounds from Greedy verdict (BS + Composition)
+    // - next = bs-converged -> Binary Search convergence
+    if (nextStepAction) {
+      switch (nextStepAction) {
+        case 'bs-select-mid':
+        case 'bs-converged':
+          return ['binary-search-answer'];
+        case 'greedy-start':
+          return ['greedy-feasibility', 'algorithm-composition'];
+        case 'greedy-add-to-group':
+        case 'greedy-new-group':
+        case 'greedy-result':
+          return ['greedy-feasibility'];
+        case 'bs-update-bounds':
+          return ['binary-search-answer', 'algorithm-composition'];
+        default:
+          return ['binary-search-answer', 'algorithm-composition'];
+      }
     }
-    if (
-      stepAction === 'greedy-start' ||
-      stepAction === 'greedy-add-to-group' ||
-      stepAction === 'greedy-new-group' ||
-      stepAction === 'greedy-result'
-    ) {
-      return ['greedy-feasibility', 'algorithm-composition'];
+
+    // Legacy fallback when only currentStepAction was recorded
+    switch (currentStepAction) {
+      case 'bs-init-bounds':
+      case 'bs-update-bounds':
+        return ['binary-search-answer'];
+      case 'bs-select-mid':
+        return ['greedy-feasibility', 'algorithm-composition'];
+      case 'greedy-start':
+      case 'greedy-add-to-group':
+      case 'greedy-new-group':
+        return ['greedy-feasibility'];
+      case 'greedy-result':
+        return ['binary-search-answer', 'algorithm-composition'];
+      default:
+        return [
+          'binary-search-answer',
+          'greedy-feasibility',
+          'algorithm-composition',
+        ];
     }
-    return ['binary-search-answer', 'greedy-feasibility', 'algorithm-composition'];
   }
 
   return [];

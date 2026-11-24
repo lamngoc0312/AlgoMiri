@@ -110,14 +110,8 @@ export function ProgressPage({
     }
   };
 
-  const totalPredictionEvents =
-    summary.totalPredictionsFirstTry +
-    summary.totalPredictionsSolvedAfterRetry +
-    summary.totalPredictionsSkipped +
-    Math.max(
-      0,
-      summary.totalPredictionsAttempted - summary.totalPredictionsSolved,
-    );
+  // Strictly mutually exclusive prediction outcome buckets (zero double-counting)
+  const totalPredictionEvents = summary.totalPredictionQuestions;
 
   const firstTryBarPct =
     totalPredictionEvents > 0
@@ -132,10 +126,31 @@ export function ProgressPage({
             100,
         )
       : 0;
-  const skippedBarPct =
+  const skippedAfterAttemptBarPct =
     totalPredictionEvents > 0
       ? Math.round(
-          (summary.totalPredictionsSkipped / totalPredictionEvents) * 100,
+          (summary.totalPredictionsSkippedAfterAttempt /
+            totalPredictionEvents) *
+            100,
+        )
+      : 0;
+  const skippedWithoutAttemptBarPct =
+    totalPredictionEvents > 0
+      ? Math.round(
+          (summary.totalPredictionsSkippedWithoutAttempt /
+            totalPredictionEvents) *
+            100,
+        )
+      : 0;
+  const unresolvedBarPct =
+    totalPredictionEvents > 0
+      ? Math.max(
+          0,
+          100 -
+            firstTryBarPct -
+            retryBarPct -
+            skippedAfterAttemptBarPct -
+            skippedWithoutAttemptBarPct,
         )
       : 0;
 
@@ -409,6 +424,7 @@ export function ProgressPage({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle>Trace Prediction Breakdown</CardTitle>
                 <Badge variant="neutral">
+                  {summary.totalPredictionQuestions} total ·{' '}
                   {summary.totalPredictionsAttempted} attempted ·{' '}
                   {summary.totalPredictionsSkipped} skipped
                 </Badge>
@@ -419,7 +435,7 @@ export function ProgressPage({
                 <>
                   <div
                     role="img"
-                    aria-label={`Prediction outcomes: ${summary.totalPredictionsFirstTry} first-try correct, ${summary.totalPredictionsSolvedAfterRetry} solved after retry, ${summary.totalPredictionsSkipped} skipped`}
+                    aria-label={`Prediction outcomes across ${totalPredictionEvents} question(s): ${summary.totalPredictionsFirstTry} first-try correct, ${summary.totalPredictionsSolvedAfterRetry} solved after retry, ${summary.totalPredictionsSkippedAfterAttempt} skipped after attempt, ${summary.totalPredictionsSkippedWithoutAttempt} skipped without attempt, ${summary.totalPredictionsUnresolved} unresolved`}
                     className="flex h-4 w-full overflow-hidden rounded-full bg-[#EEF0FF]"
                   >
                     {firstTryBarPct > 0 && (
@@ -433,18 +449,33 @@ export function ProgressPage({
                       <div
                         className="h-full bg-[#645BE8] transition-all"
                         style={{ width: `${retryBarPct}%` }}
-                        title={`Solved after retry: ${summary.totalPredictionsSolvedAfterRetry}`}
+                        title={`Solved after retry/reveal: ${summary.totalPredictionsSolvedAfterRetry}`}
                       />
                     )}
-                    {skippedBarPct > 0 && (
+                    {skippedAfterAttemptBarPct > 0 && (
+                      <div
+                        className="h-full bg-[#E08A2E] transition-all"
+                        style={{ width: `${skippedAfterAttemptBarPct}%` }}
+                        title={`Skipped after wrong attempt: ${summary.totalPredictionsSkippedAfterAttempt}`}
+                      />
+                    )}
+                    {skippedWithoutAttemptBarPct > 0 && (
                       <div
                         className="h-full bg-[#F1B34C] transition-all"
-                        style={{ width: `${skippedBarPct}%` }}
-                        title={`Skipped: ${summary.totalPredictionsSkipped}`}
+                        style={{ width: `${skippedWithoutAttemptBarPct}%` }}
+                        title={`Skipped without attempting: ${summary.totalPredictionsSkippedWithoutAttempt}`}
                       />
                     )}
+                    {summary.totalPredictionsUnresolved > 0 &&
+                      unresolvedBarPct > 0 && (
+                        <div
+                          className="h-full bg-[#9AA2BE] transition-all"
+                          style={{ width: `${unresolvedBarPct}%` }}
+                          title={`Unresolved attempt: ${summary.totalPredictionsUnresolved}`}
+                        />
+                      )}
                   </div>
-                  <div className="flex flex-wrap gap-4 text-xs text-[#555D7A]">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[#555D7A]">
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#16B89D]" />
                       First-try correct:{' '}
@@ -454,18 +485,34 @@ export function ProgressPage({
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#645BE8]" />
-                      Solved after retry:{' '}
+                      Solved after retry/reveal:{' '}
                       <strong className="text-[#20253B]">
                         {summary.totalPredictionsSolvedAfterRetry}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#F1B34C]" />
-                      Skipped:{' '}
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#E08A2E]" />
+                      Skipped after attempt:{' '}
                       <strong className="text-[#20253B]">
-                        {summary.totalPredictionsSkipped}
+                        {summary.totalPredictionsSkippedAfterAttempt}
                       </strong>
                     </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#F1B34C]" />
+                      Skipped (unattempted):{' '}
+                      <strong className="text-[#20253B]">
+                        {summary.totalPredictionsSkippedWithoutAttempt}
+                      </strong>
+                    </span>
+                    {summary.totalPredictionsUnresolved > 0 && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#9AA2BE]" />
+                        Unresolved:{' '}
+                        <strong className="text-[#20253B]">
+                          {summary.totalPredictionsUnresolved}
+                        </strong>
+                      </span>
+                    )}
                     {summary.overallSolvedPercent !== null && (
                       <span className="ml-auto font-mono text-[11px] font-semibold text-[#4F46D8]">
                         Eventually solved: {summary.overallSolvedPercent}%
