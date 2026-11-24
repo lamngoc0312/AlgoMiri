@@ -4,12 +4,14 @@
 
 AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners can paste a programming problem for structured AI conceptual analysis and beginner tutoring, or step through verified deterministic visual studios for Two Sum, Valid Parentheses, and Split Array Largest Sum.
 
-## Current Status (Sprint 10 — Beta Readiness & End-to-End UX Polish)
-- **Verified Deterministic Visual Studios (`web/`):**
+## Current Status (Product Reset — Simplified UX & Scalable Problem Library)
+- **Focused Landing Experience (`/`):** Single centered problem input with one primary CTA (`Analyze Problem (AI)`), optional curated Studio shortcut, and a compact Verified Visual Studios row.
+- **Scalable Problem Library (`/problems`):** Search, topic, difficulty, and visualization availability filters separating **Verified Visual Studios** (`3`), **Original AI-Guided Practice Problems** (`6` original AlgoMiri prompts that prefill the conceptual analyzer), and compact **External Practice References** (IDs/links only — zero scraped statements or locked placeholder grids).
+- **Canvas-First Learning Studio (`/studio/:problemId`):**
   1. **Two Sum (`/studio/two-sum`)**: Brute Force (`O(n²)`) vs. Hash Map (`O(n)`), 4-stage Guided Lesson.
   2. **Valid Parentheses (`/studio/valid-parentheses`)**: Stack (`O(n)`) vertical LIFO visualizer, 4-stage Guided Lesson.
   3. **Split Array Largest Sum (`/studio/split-array-largest-sum`)**: Binary Search on Answer + Greedy Composition (`O(n log S)` time, `O(1)` auxiliary space), Iteration Inspector, 5-stage Guided Lesson.
-  - Synchronized **Macro View** (Interactive Solution Map DAG + Accessible List) and **Micro View** (Deterministic Execution Trace), enforced Guided Checkpoints, progressive hints, and dynamic predictions.
+  - Streamlined 2-column desktop layout giving the visualization primary focus, progressive disclosure for Problem Statement/Examples and Complexity/Tradeoffs, synchronized **Macro View** (Solution Map) and **Micro View** (Execution Trace), enforced Guided Checkpoints, progressive hints, and dynamic predictions.
 - **Personalized Learning Roadmap & Interactive Skill Map (`/roadmap`):**
   - Pure deterministic recommendation engine driven by locally persisted learning sessions with honest fresh-session wording, constraint-compatible edge-case drills, and genuine 8-skill prerequisite DAG validation (`Array Indexing` and `Stack / LIFO` as independent roots up to `Algorithm Composition`).
   - Interactive Skill Prerequisite Map with **Visual Map** + **Accessible List** toggle, roving-`tabIndex` keyboard focus management (`Arrow`, `Home`, `End`), live Skill Inspector, and direct Studio links (never locks learners out of available Studios).

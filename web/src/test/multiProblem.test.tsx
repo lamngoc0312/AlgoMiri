@@ -71,16 +71,23 @@ describe('Phase A — Checkpoint Enforcement & Stage Status Integrity', () => {
 });
 
 describe('Multi-Problem Library, Routing & Valid Parentheses Studio', () => {
-  it('renders Problem Library with supported problems and unavailable upcoming problems', () => {
+  it('renders Problem Library with verified visual studios, original AI-guided practice, and external references', () => {
     renderAt('/problems');
 
     expect(
       screen.getByRole('heading', { name: /problem library/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Two Sum')).toBeInTheDocument();
-    expect(screen.getByText('Valid Parentheses')).toBeInTheDocument();
-    expect(screen.getByText('Binary Search')).toBeInTheDocument();
-    expect(screen.getAllByText(/unavailable yet/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Two Sum' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Valid Parentheses' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /original ai-guided practice problems/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /external practice references/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/unavailable yet/i)).not.toBeInTheDocument();
   });
 
   it('renders Valid Parentheses Studio with vertical Stack canvas, validation, and 1 strategy', async () => {

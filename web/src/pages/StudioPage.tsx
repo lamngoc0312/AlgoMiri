@@ -471,23 +471,13 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-4">
-      {/* Studio Top Bar + Problem Switcher + Mode Switcher */}
+      {/* Studio Top Bar + Problem Switcher + Mode Switcher (Streamlined) */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#20253B]">
-              Learning Studio
-            </h1>
-            <Badge variant="indigo">{spec.title}</Badge>
-            <Badge variant="mint">
-              {mode === 'guided' ? 'Guided Learning' : 'Free Exploration'}
-            </Badge>
-          </div>
-          <p className="mt-1 text-sm text-[#555D7A]">
-            {mode === 'guided'
-              ? 'Discover the intuition step by step, inspect the Solution Map, and predict verified trace transitions.'
-              : 'Explore freely across Micro (execution trace) and Macro (conceptual Solution Map) views.'}
-          </p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#20253B]">
+            Learning Studio
+          </h1>
+          <Badge variant="indigo">{spec.title}</Badge>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -617,8 +607,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
             })}
           </div>
 
-          {/* Responsive 3-Column Desktop Grid / Mobile Tabbed Panes */}
-          <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)_300px] lg:items-start">
+          {/* Responsive 2-Column Canvas-First Desktop Grid / Mobile Tabbed Panes */}
+          <div className="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
             <section
               aria-label="Problem and guided lesson panel"
               className={`space-y-4 ${
@@ -644,15 +634,17 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                 selectedStrategyId={strategy.id}
                 onSelectStrategy={handleSelectStrategy}
                 lockedStrategyIds={lockedStrategyIds}
+                defaultStatementExpanded={mode === 'explore'}
               />
             </section>
 
-            <section
-              aria-label="Visual execution canvas panel"
-              className={`space-y-4 ${
-                mobileTab === 'canvas' ? 'block' : 'hidden lg:block'
-              }`}
-            >
+            <div className="space-y-4">
+              <section
+                aria-label="Visual execution canvas panel"
+                className={`space-y-4 ${
+                  mobileTab === 'canvas' ? 'block' : 'hidden lg:block'
+                }`}
+              >
               {/* Synchronized Micro / Macro Perspective Switcher */}
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#E3E7F2] bg-white px-3.5 py-2.5">
                 <span className="text-xs font-bold text-[#555D7A]">
@@ -852,7 +844,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                 learningStage={mode === 'guided' ? activeStage.title : 'Free Exploration'}
                 executionContext={`Step ${playback.stepIndex + 1} of ${trace.steps.length}: ${currentStep.actionTitle} — ${currentStep.explanation}`}
               />
-            </section>
+              </section>
+            </div>
           </div>
         </>
       )}
