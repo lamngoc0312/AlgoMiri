@@ -50,16 +50,89 @@ export interface StackVisualState {
   activeGoalIndex: number;
 }
 
-export type AnyVisualState = ArrayHashVisualState | StackVisualState;
+export type CompositionRole = 'driver' | 'subroutine';
+
+export type CompositionAction =
+  | 'bs-init-bounds'
+  | 'bs-select-mid'
+  | 'greedy-start'
+  | 'greedy-add-to-group'
+  | 'greedy-new-group'
+  | 'greedy-result'
+  | 'bs-update-bounds'
+  | 'bs-converged';
+
+export interface CompositionContext {
+  invocationId: string;
+  bsIteration: number;
+  role: CompositionRole;
+  driverTechnique: 'Binary Search on Answer';
+  subroutineTechnique: 'Greedy Partitioning';
+}
+
+export interface ContiguousGroup {
+  groupIndex: number;
+  startIndex: number;
+  endIndex: number;
+  elements: number[];
+  sum: number;
+  isCurrent: boolean;
+  justCreated?: boolean;
+}
+
+export interface BsIterationSummary {
+  invocationId: string;
+  iteration: number;
+  low: number;
+  high: number;
+  mid: number;
+  groupsUsed: number;
+  feasible: boolean;
+  nextLow: number;
+  nextHigh: number;
+  firstStepIndex: number;
+  lastStepIndex: number;
+}
+
+export interface BinarySearchGreedyVisualState {
+  kind: 'bs-greedy';
+  nums: number[];
+  k: number;
+  low: number;
+  high: number;
+  mid: number | null;
+  composition: CompositionContext;
+  scanIndex: number | null;
+  runningSum: number | null;
+  groupsUsed: number;
+  groups: ContiguousGroup[];
+  feasible: boolean | null;
+  boundDecision: string | null;
+  finalAnswer: number | null;
+  completedIterations: BsIterationSummary[];
+  status: TraceStatus;
+  activeGoalIndex: number;
+}
+
+export type AnyVisualState =
+  | ArrayHashVisualState
+  | StackVisualState
+  | BinarySearchGreedyVisualState;
+
+export type AnyStepAction =
+  | ExecutionAction
+  | StackOperation
+  | CompositionAction;
 
 export interface GenericExecutionStep<
   TVisual extends AnyVisualState = AnyVisualState,
 > {
   id: string;
   stepIndex: number;
-  action: ExecutionAction | StackOperation;
+  action: AnyStepAction;
   actionTitle: string;
   line?: number;
+  conceptualNodeIds?: string[];
   variables: Record<string, string | number | boolean | null>;
   visualState: TVisual;
   highlightedIndices: number[];

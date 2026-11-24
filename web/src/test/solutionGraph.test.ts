@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import type { SolutionGraph } from '../domain/problems/types';
 import { getAllProblemModules } from '../domain/problems/registry';
 import { twoSumModule } from '../domain/problems/twoSumModule';
+import { splitArrayModule } from '../domain/problems/splitArrayModule';
 import {
   computeDagLayers,
   getActiveNodeIdsForStep,
   getMatchingStepIndicesForNode,
   validateSolutionGraph,
+  validateTraceNodeReferences,
 } from '../domain/solutions/graphValidator';
 
 function makeNode(id: string) {
@@ -23,9 +25,9 @@ function makeNode(id: string) {
 }
 
 describe('SolutionGraph validation & topological layout', () => {
-  it('validates all registered problem SolutionGraphs cleanly', () => {
+  it('validates all registered problem SolutionGraphs and trace node references cleanly', () => {
     const modules = getAllProblemModules();
-    expect(modules.length).toBeGreaterThanOrEqual(2);
+    expect(modules.length).toBeGreaterThanOrEqual(3);
 
     for (const mod of modules) {
       const graphs = Object.values(mod.solutionGraphs);
@@ -36,6 +38,13 @@ describe('SolutionGraph validation & topological layout', () => {
           true,
         );
         expect(result.errors).toEqual([]);
+
+        const trace = mod.generateTrace(graph.strategyId, mod.defaultInput);
+        const refCheck = validateTraceNodeReferences(graph, trace.steps);
+        expect(
+          refCheck.valid,
+          `Trace refs for ${graph.id}: ${refCheck.errors.join('; ')}`,
+        ).toBe(true);
       }
     }
   });
@@ -93,27 +102,41 @@ describe('SolutionGraph validation & topological layout', () => {
     expect(layout.layerIndexById['hm-check-and-store']).toBe(2);
     expect(layout.layerIndexById['hm-terminate']).toBe(3);
 
-    // Branching layer has 2 nodes; merge node has 2 incoming dependencies
     expect(layout.layers[1]).toHaveLength(2);
     expect(layout.incomingById['hm-check-and-store']).toHaveLength(2);
   });
 
-  it('maps verified ExecutionSteps to conceptual nodes accurately', () => {
-    const hashMapGraph = twoSumModule.solutionGraphs['hash-map'];
-    const trace = twoSumModule.generateTrace('hash-map', {
-      nums: [2, 7, 11, 15],
-      target: 9,
+  it('prefers explicit conceptualNodeIds, validates unknown node IDs, and never silently falls back to the first node', () => {
+    const graph = splitArrayModule.solutionGraphs['bs-greedy-composition'];
+    const trace = splitArrayModule.generateTrace('bs-greedy-composition', {
+      nums: [7, 2, 5, 10, 8],
+      k: 2,
     });
 
-    // Final 'found' step maps to termination node
-    const lastStep = trace.steps[trace.steps.length - 1];
-    expect(getActiveNodeIdsForStep(hashMapGraph, lastStep)).toContain(
-      'hm-terminate',
+    // Explicit conceptualNodeIds map accurately
+    const selectMidStep = trace.steps.find((s) => s.action === 'bs-select-mid')!;
+    expect(getActiveNodeIdsForStep(graph, selectMidStep)).toEqual(['sa-bs-driver']);
+
+    const driverNode = graph.nodes.find((n) => n.id === 'sa-bs-driver')!;
+    expect(getMatchingStepIndicesForNode(driverNode, trace.steps)).toContain(
+      selectMidStep.stepIndex,
     );
 
-    const terminateNode = hashMapGraph.nodes.find((n) => n.id === 'hm-terminate')!;
-    expect(getMatchingStepIndicesForNode(terminateNode, trace.steps)).toEqual([
-      lastStep.stepIndex,
-    ]);
+    // Unrelated step without matching action or conceptualNodeIds returns [] (NEVER nodes[0])
+    const unrelatedStep = {
+      ...trace.steps[0],
+      action: 'push' as const,
+      conceptualNodeIds: undefined,
+    };
+    expect(getActiveNodeIdsForStep(graph, unrelatedStep)).toEqual([]);
+
+    // Invalid explicit node ID is caught by validateTraceNodeReferences
+    const badRefStep = {
+      ...trace.steps[0],
+      conceptualNodeIds: ['nonexistent-node-id'],
+    };
+    const badValidation = validateTraceNodeReferences(graph, [badRefStep]);
+    expect(badValidation.valid).toBe(false);
+    expect(badValidation.errors[0]).toMatch(/unknown node id/i);
   });
 });

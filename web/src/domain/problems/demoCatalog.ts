@@ -33,6 +33,17 @@ export const SAMPLE_PROBLEMS: SampleProblemCard[] = [
     studioPath: '/studio/valid-parentheses',
   },
   {
+    id: 'split-array-largest-sum',
+    title: 'Split Array Largest Sum',
+    pattern: 'Binary Search + Greedy',
+    difficulty: 'Intermediate',
+    status: 'live-demo',
+    summary:
+      'Learn algorithm composition: Binary Search on Answer proposes candidate caps while an O(n) Greedy packer checks feasibility.',
+    strategiesCount: 1,
+    studioPath: '/studio/split-array-largest-sum',
+  },
+  {
     id: 'binary-search',
     title: 'Binary Search',
     pattern: 'Divide & Conquer',
@@ -109,22 +120,23 @@ export const DEMO_ROADMAP_MILESTONES: RoadmapMilestone[] = [
     status: 'planned',
   },
   {
-    id: 'binary-search',
+    id: 'binary-search-composition',
     stage: 5,
-    title: 'Binary Search',
+    title: 'Binary Search on Answer + Greedy',
     description:
-      'Eliminate half the remaining search space whenever a monotonic condition holds.',
-    prerequisites: ['Two Pointers'],
-    sampleProblem: 'Binary Search',
-    status: 'planned',
+      'Compose Binary Search over a monotonic answer range with an O(n) Greedy feasibility subroutine.',
+    prerequisites: ['Arrays & Hash Lookups'],
+    sampleProblem: 'Split Array Largest Sum',
+    studioPath: '/studio/split-array-largest-sum',
+    status: 'available-demo',
   },
   {
     id: 'trees-graphs',
     stage: 6,
-    title: 'Trees, Graphs & Composite Strategies',
+    title: 'Trees, Graphs & Traversals',
     description:
-      'Combine BFS, DFS, and greedy/backtracking reasoning on connected structures.',
-    prerequisites: ['Stacks & Queues', 'Binary Search'],
+      'Combine BFS, DFS, and shortest-path reasoning on connected structures.',
+    prerequisites: ['Stacks & Queues', 'Binary Search on Answer + Greedy'],
     sampleProblem: 'Shortest Path in Grid',
     status: 'planned',
   },
@@ -151,14 +163,21 @@ export const DEMO_PROGRESS_SKILLS: DemoSkillMastery[] = [
     evidenceNote: 'Sample metric — viewing a visualization alone does not count as mastery.',
   },
   {
-    skill: 'Distinct-Index Loop Bounds',
-    levelLabel: 'Practicing (Demo)',
-    progressPercent: 75,
+    skill: 'Binary Search + Greedy Composition',
+    levelLabel: 'Introduced (Demo)',
+    progressPercent: 45,
     evidenceNote: 'Sample metric — persistent tracking arrives in a later phase.',
   },
 ];
 
 export const DEMO_RECENT_SESSIONS = [
+  {
+    id: 'session-0',
+    problem: 'Split Array Largest Sum',
+    strategy: 'Binary Search on Answer + Greedy Check',
+    outcome: 'Composition explored (Demo)',
+    dateLabel: 'Sample entry',
+  },
   {
     id: 'session-1',
     problem: 'Valid Parentheses',

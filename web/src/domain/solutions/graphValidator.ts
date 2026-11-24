@@ -119,6 +119,34 @@ export function validateSolutionGraph(
 }
 
 /**
+ * Validates that every explicit `conceptualNodeIds` annotation on a trace's ExecutionSteps
+ * exists in the selected SolutionGraph.
+ */
+export function validateTraceNodeReferences(
+  graph: SolutionGraph,
+  steps: GenericExecutionStep[],
+): GraphValidationResult {
+  const validNodeIds = new Set(graph.nodes.map((n) => n.id));
+  const errors: string[] = [];
+
+  for (const step of steps) {
+    if (!step.conceptualNodeIds) continue;
+    for (const refId of step.conceptualNodeIds) {
+      if (!validNodeIds.has(refId)) {
+        errors.push(
+          `Step ${step.stepIndex} ("${step.id}") references unknown node ID "${refId}" in graph "${graph.id}".`,
+        );
+      }
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
  * Computes topological layers from actual dependency edges (never relying on node array order).
  * Supports branching and merging DAGs cleanly.
  */
@@ -147,7 +175,6 @@ export function computeDagLayers(graph: SolutionGraph): DagLayoutResult {
     }
   }
 
-  // Longest-path topological layering so merged nodes sit after ALL their prerequisites
   const layerIndexById: Record<string, number> = {};
   const queue: string[] = [];
 
@@ -178,7 +205,6 @@ export function computeDagLayers(graph: SolutionGraph): DagLayoutResult {
     }
   }
 
-  // Fallback for any disconnected/cyclic nodes so rendering never crashes
   for (const node of graph.nodes) {
     if (!processed.has(node.id)) {
       layerIndexById[node.id] = 0;
@@ -204,23 +230,33 @@ export function computeDagLayers(graph: SolutionGraph): DagLayoutResult {
   };
 }
 
+function stepSupportsNode(
+  step: GenericExecutionStep,
+  node: SolutionGraphNode,
+): boolean {
+  if (step.conceptualNodeIds !== undefined) {
+    return step.conceptualNodeIds.includes(node.id);
+  }
+  return node.mappedActions.includes(step.action);
+}
+
 /**
  * Maps a verified ExecutionStep to the conceptual SolutionGraph node ID(s) it supports.
+ * Prefers explicit `step.conceptualNodeIds` (validated against the graph), falling back
+ * to `node.mappedActions`. Never silently assigns unrelated steps to the first node.
  */
 export function getActiveNodeIdsForStep(
   graph: SolutionGraph,
   step: GenericExecutionStep,
 ): string[] {
-  const matched = graph.nodes
-    .filter((node) => node.mappedActions.includes(step.action))
-    .map((node) => node.id);
-
-  if (matched.length > 0) {
-    return matched;
+  if (step.conceptualNodeIds !== undefined) {
+    const validIds = new Set(graph.nodes.map((n) => n.id));
+    return step.conceptualNodeIds.filter((id) => validIds.has(id));
   }
 
-  // Graceful fallback to first node if an action has no explicit mapping
-  return graph.nodes.length > 0 ? [graph.nodes[0].id] : [];
+  return graph.nodes
+    .filter((node) => node.mappedActions.includes(step.action))
+    .map((node) => node.id);
 }
 
 /**
@@ -231,6 +267,6 @@ export function getMatchingStepIndicesForNode(
   steps: GenericExecutionStep[],
 ): number[] {
   return steps
-    .filter((step) => node.mappedActions.includes(step.action))
+    .filter((step) => stepSupportsNode(step, node))
     .map((step) => step.stepIndex);
 }

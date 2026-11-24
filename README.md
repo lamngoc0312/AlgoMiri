@@ -2,18 +2,18 @@
 
 **Understand first. Code second.**
 
-AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners start with a **problem statement**, decompose strategies through interactive conceptual Solution Maps, predict transitions on deterministic visual traces, and reveal pseudocode only when ready.
+AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners start with a **problem statement**, decompose strategies through interactive conceptual Solution Maps, see how multiple techniques compose via explicit data contracts, predict transitions on deterministic visual traces, and reveal pseudocode only when ready.
 
-## Current Status (Sprint 5 — Interactive Problem Decomposition & Solution Map)
-- **Implemented:** Responsive React + Vite + TypeScript (strict) + Tailwind CSS app in `web/` with:
-  - **Interactive Conceptual Solution Map (`Macro View`)**: Topological branching-and-merging DAG visualization (`InteractiveSolutionMap`) with real SVG dependency edges, accessible **List Fallback**, keyboard navigation, interactive node inspector (**"Why is this step necessary?"**, dependencies, data contracts, skills with honest non-mastery disclaimer), and clickable verified execution step links.
-  - **Synchronized Macro & Micro Perspectives**: Switch seamlessly between **Micro View** (deterministic visualization, variables, explanations) and **Macro View** (conceptual Solution Map highlighting the reasoning goal supported by the current verified step).
-  - **Validated `SolutionGraph` Architecture (`web/src/domain/solutions/graphValidator.ts`)**: Validates duplicate IDs, missing references, self-dependencies, and DAG cycles; computes true edge-based topological layers; prepared for future multi-technique composition (e.g., Binary Search on Answer + Greedy).
-  - **Multi-Problem Architecture & Routing**: `/problems` library, `/studio/two-sum` (Brute Force + Hash Map), `/studio/valid-parentheses` (vertical LIFO Stack renderer), and backward-compatible `/studio` redirect.
-  - **Enforced Multi-Checkpoint Guided Learning**: In Guided Predict Mode, `Play`, `Next`, and forward timeline seeking stop at the first unresolved checkpoint (even after earlier checkpoints are solved); backward navigation and **Free Exploration** remain unrestricted. Stage statuses distinguish `unvisited`, `viewed`, `attempted`, `skipped`, `skipped-after-attempt`, and `completed`.
+## Current Status (Sprint 6 — Algorithm Composition Engine)
+- **Implemented:** Responsive React + Vite + TypeScript (strict) + Tailwind CSS app in `web/` with **3 verified interactive problem modules**:
+  1. **Two Sum (`/studio/two-sum`)**: Brute Force (`O(n²)`) vs. Hash Map (`O(n)`) comparison, array + live Hash Map visualization, 4-stage Guided Lesson.
+  2. **Valid Parentheses (`/studio/valid-parentheses`)**: Stack (`O(n)`) LIFO bracket matching, vertical U-shaped Stack Execution Canvas, 4-stage Guided Lesson.
+  3. **Split Array Largest Sum (`/studio/split-array-largest-sum`)**: **Algorithm Composition Engine** pairing **Binary Search on Answer** (outer driver) with **Greedy Contiguous Partitioning** (nested `O(n)` feasibility subroutine, `O(1)` auxiliary algorithm space). Includes Driver ↔ Subroutine coordination view, contiguous group visualizer, clickable Binary Search Iteration Inspector (`invocationId` subtrace linking), and a 5-stage Guided Lesson.
+  - **Interactive Conceptual Solution Map (`Macro View`)**: Validated topological DAGs (`validateSolutionGraph`, `validateTraceNodeReferences`) with explicit `conceptualNodeIds` trace mapping, Graph / Accessible List toggle, **"Why is this step necessary?"**, data contracts, and clickable verified execution step pills.
+  - **Enforced Multi-Checkpoint Guided Learning**: `Play`, `Next`, and forward timeline seeking stop at the first unresolved checkpoint; Free Exploration remains unrestricted.
   - **CI Workflow (`.github/workflows/ci.yml`)**: Runs `npm ci`, `npm run lint`, `npm run test`, and `npm run build` in `web/` on pull requests.
 - **Not implemented yet (honest scope):**
-  - Backend (FastAPI), database/accounts, real AI problem analysis, arbitrary LeetCode/Codeforces parsing, composite Binary Search + Greedy problem implementation, or code execution sandbox.
+  - Backend (FastAPI), database/accounts, real AI problem analysis, arbitrary LeetCode/Codeforces parsing, or code execution sandbox.
 
 ## Quick Start (Windows / macOS / Linux)
 All frontend code lives in `web/`.
@@ -30,7 +30,7 @@ Open the local URL printed by Vite (typically `http://localhost:5173`).
 - `npm run dev` — Start the Vite development server
 - `npm run build` — Run strict TypeScript check (`tsc -b`) and build production bundle
 - `npm run lint` — Run ESLint across `web/`
-- `npm run test` — Run Vitest unit, graph validation, solution map, multi-problem, and Studio tests once
+- `npm run test` — Run Vitest unit, composition oracle, graph validation, solution map, and Studio UI tests once
 - `npm run preview` — Preview the production build locally
 
 ## Project Structure
@@ -50,17 +50,17 @@ AlgoMiri/
       app/                 # AppShell, multi-problem routing (/problems, /studio/:problemId)
       pages/               # Landing, Problems, Studio, Roadmap, Progress
       components/          # Reusable accessible UI primitives & DemoNotice
-      features/studio/     # ProblemPane, VisualCanvas, StackVisualCanvas, PlaybackControls, WalkthroughPane, useTracePlayback
+      features/studio/     # ProblemPane, VisualCanvas, StackVisualCanvas, CompositionVisualCanvas, PlaybackControls, WalkthroughPane
       features/guided/     # Reusable GuidedLessonBar, GuidedStagePanel, HintPanel, PredictNextStepCard, SessionSummaryCard
       features/solutions/  # InteractiveSolutionMap (DAG Graph + Accessible List + Node Inspector)
       domain/
-        core/              # Discriminated union VisualState, GenericExecutionStep, ProblemLesson, ProblemModule
-        problems/          # ProblemRegistry, twoSumModule, validParenthesesModule, demoCatalog
-        solutions/         # DAG validator, topological layering, graph-to-trace mapping
-        traces/            # Pure deterministic Two Sum & Valid Parentheses trace generators + validators
+        core/              # Discriminated union AnyVisualState, CompositionContext, ProblemModule
+        problems/          # ProblemRegistry, twoSumModule, validParenthesesModule, splitArrayModule, demoCatalog
+        solutions/         # DAG validator, trace node-reference validator, topological layering
+        traces/            # Deterministic Two Sum, Valid Parentheses & Split Array Largest Sum trace engines + validators
         learning/          # Pure session integrity state, hints, dynamic predictions
       styles/              # Brand theme tokens, focus rings, reduced-motion CSS
-      test/                # Trace, graph validation, solution map, multi-problem, guided learning & smoke tests
+      test/                # Unit, composition oracle, graph validation, solution map & Studio UI tests
 ```
 
 ## Product Docs

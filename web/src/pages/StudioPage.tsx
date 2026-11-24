@@ -18,11 +18,13 @@ import {
 } from '../domain/problems/registry';
 import type {
   ArrayHashVisualState,
+  BinarySearchGreedyVisualState,
   GenericExecutionStep,
   StackVisualState,
 } from '../domain/core/types';
 import type { TwoSumInput } from '../domain/traces/types';
 import type { ValidParenthesesInput } from '../domain/traces/validParenthesesValidation';
+import type { SplitArrayInput } from '../domain/traces/splitArrayValidation';
 import {
   createInitialHintsByStage,
   createInitialStageStatuses,
@@ -38,6 +40,7 @@ import {
 import { ProblemPane } from '../features/studio/ProblemPane';
 import { VisualCanvas } from '../features/studio/VisualCanvas';
 import { StackVisualCanvas } from '../features/studio/StackVisualCanvas';
+import { CompositionVisualCanvas } from '../features/studio/CompositionVisualCanvas';
 import { PlaybackControls } from '../features/studio/PlaybackControls';
 import { WalkthroughPane } from '../features/studio/WalkthroughPane';
 import { useTracePlayback } from '../features/studio/useTracePlayback';
@@ -578,7 +581,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   onSeek={playback.goToStep}
                   onOpenMacroView={() => setPerspective('macro')}
                 />
-              ) : (
+              ) : currentStep.visualState.kind === 'stack' ? (
                 <StackVisualCanvas
                   sessionId={sessionId}
                   strategy={strategy}
@@ -602,6 +605,44 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   onSkipPrediction={handleSkipPrediction}
                   onApplyInput={(nextInput) =>
                     handleApplyInput({ brackets: nextInput.brackets })
+                  }
+                  onPrev={playback.prev}
+                  onNext={playback.next}
+                  onTogglePlay={playback.togglePlay}
+                  onReset={playback.reset}
+                  onSpeedChange={playback.setSpeed}
+                  onSeek={playback.goToStep}
+                  onOpenMacroView={() => setPerspective('macro')}
+                />
+              ) : (
+                <CompositionVisualCanvas
+                  sessionId={sessionId}
+                  strategy={strategy}
+                  currentInput={currentInput as SplitArrayInput}
+                  presets={problemModule.presets}
+                  step={
+                    currentStep as GenericExecutionStep<BinarySearchGreedyVisualState>
+                  }
+                  stepIndex={playback.stepIndex}
+                  totalSteps={trace.steps.length}
+                  isPlaying={playback.isPlaying}
+                  speed={playback.speed}
+                  solutionGraph={solutionGraph}
+                  predictModeEnabled={predictModeEnabled}
+                  predictionPrompt={predictionPrompt}
+                  predictionRecord={currentPredictionRecord}
+                  checkpointPaused={isPredictionCheckpointActive}
+                  maxAllowedStepIndex={maxReachableStepIndex}
+                  onTogglePredictMode={() =>
+                    setPredictModeEnabled((prev) => !prev)
+                  }
+                  onAnswerPrediction={handleAnswerPrediction}
+                  onSkipPrediction={handleSkipPrediction}
+                  onApplyInput={(nextInput) =>
+                    handleApplyInput({
+                      nums: [...nextInput.nums],
+                      k: nextInput.k,
+                    })
                   }
                   onPrev={playback.prev}
                   onNext={playback.next}

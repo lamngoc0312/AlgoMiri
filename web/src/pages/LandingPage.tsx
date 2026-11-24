@@ -64,6 +64,13 @@ function matchSupportedProblemRoute(text: string): string | null {
   ) {
     return '/studio/valid-parentheses';
   }
+  if (
+    normalized.includes('split array') ||
+    normalized.includes('largest sum') ||
+    normalized.includes('minimize the largest subarray sum')
+  ) {
+    return '/studio/split-array-largest-sum';
+  }
   return null;
 }
 
