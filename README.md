@@ -102,6 +102,7 @@ CORS restrictions, prompt delimiters, and in-process rate limits help harden loc
 - [`docs/ANTIGRAVITY_PROMPTS.md`](docs/ANTIGRAVITY_PROMPTS.md)
 - [`docs/BETA_USABILITY_PROTOCOL.md`](docs/BETA_USABILITY_PROTOCOL.md)
 - [`docs/RELEASE_READINESS_REPORT.md`](docs/RELEASE_READINESS_REPORT.md)
+- [`docs/BROWSER_QA_REPORT.md`](docs/BROWSER_QA_REPORT.md)
 
 ## Key Principle
 **Algorithm execution traces must be generated from deterministic, tested code.** AI analysis teaches, decomposes, and tutors conceptually, but unverified AI output is never displayed as real execution.

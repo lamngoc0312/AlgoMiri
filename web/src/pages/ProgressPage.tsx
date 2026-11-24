@@ -787,7 +787,7 @@ export function ProgressPage({
                         · Hints: <strong>{session.hintsUsed}</strong>
                       </p>
                     </div>
-                    <span className="text-xs font-medium text-[#8B93B0]">
+                    <span className="text-xs font-medium text-[#555D7A]">
                       {formatSessionTimestamp(session.completedAt)}
                     </span>
                   </li>

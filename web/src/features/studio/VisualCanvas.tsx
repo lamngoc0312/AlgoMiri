@@ -130,7 +130,7 @@ export function VisualCanvas({
                 role="switch"
                 aria-checked={predictModeEnabled}
                 onClick={onTogglePredictMode}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   predictModeEnabled
                     ? 'bg-[#645BE8] text-white'
                     : 'border border-[#D7DCEB] bg-[#F7F8FC] text-[#555D7A] hover:text-[#20253B]'

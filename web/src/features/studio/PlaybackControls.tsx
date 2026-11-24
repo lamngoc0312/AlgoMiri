@@ -118,7 +118,7 @@ export function PlaybackControls({
             aria-label="Previous step"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Prev</span>
+            <span className="hidden sm:inline">Previous</span>
           </Button>
 
           <Button

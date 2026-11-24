@@ -594,7 +594,7 @@ export function LandingPage() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEF0FF] text-[#645BE8]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <span className="font-mono text-xs font-bold text-[#8B93B0]">
+                <span className="font-mono text-xs font-bold text-[#555D7A]">
                   {step}
                 </span>
               </div>

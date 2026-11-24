@@ -58,7 +58,7 @@ export function AppShell() {
             </Badge>
           </div>
 
-          <nav aria-label="Primary navigation" className="hidden md:flex items-center gap-1">
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
             {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -79,7 +79,7 @@ export function AppShell() {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden lg:flex items-center">
             <Link
               to="/problems"
               className="inline-flex h-9 items-center justify-center rounded-xl bg-[#645BE8] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#4F46D8]"
@@ -90,7 +90,7 @@ export function AppShell() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E3E7F2] bg-white text-[#20253B] md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E3E7F2] bg-white text-[#20253B] lg:hidden"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
@@ -108,7 +108,7 @@ export function AppShell() {
           <nav
             id="mobile-nav"
             aria-label="Mobile navigation"
-            className="border-t border-[#E3E7F2] bg-white px-4 py-3 md:hidden"
+            className="border-t border-[#E3E7F2] bg-white px-4 py-3 lg:hidden"
           >
             <div className="flex flex-col gap-1">
               {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (

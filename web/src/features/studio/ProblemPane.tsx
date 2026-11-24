@@ -99,7 +99,7 @@ export function ProblemPane({
                   return (
                     <div
                       key={strategy.id}
-                      className="w-full rounded-xl border border-dashed border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-left opacity-80"
+                      className="w-full rounded-xl border border-dashed border-[#D7DCEB] bg-[#F7F8FC] p-3.5 text-left"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-bold text-[#555D7A]">

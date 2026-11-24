@@ -470,12 +470,12 @@ export function RoadmapPage({
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-bold text-[#20253B]">{m.title}</span>
                   <Lock
-                    className="h-3.5 w-3.5 text-[#8B93B0]"
+                    className="h-3.5 w-3.5 text-[#555D7A]"
                     aria-hidden="true"
                   />
                 </div>
                 <p className="text-[#555D7A] leading-relaxed">{m.description}</p>
-                <p className="text-[11px] text-[#8B93B0]">
+                <p className="text-xs font-medium text-[#555D7A]">
                   Planned anchor: {m.sampleProblem}
                 </p>
               </li>

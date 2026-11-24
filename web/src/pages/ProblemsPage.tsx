@@ -138,7 +138,7 @@ export function ProblemsPage() {
                 <p className="text-sm leading-relaxed text-[#555D7A]">
                   {problem.summary}
                 </p>
-                <p className="text-xs font-medium text-[#8B93B0]">
+                <p className="text-xs font-medium text-[#555D7A]">
                   Deterministic visual engine and guided lesson planned for a future sprint.
                 </p>
               </CardContent>

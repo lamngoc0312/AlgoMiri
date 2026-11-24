@@ -123,7 +123,7 @@ export function CompositionVisualCanvas({
                 role="switch"
                 aria-checked={predictModeEnabled}
                 onClick={onTogglePredictMode}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   predictModeEnabled
                     ? 'bg-[#645BE8] text-white'
                     : 'border border-[#D7DCEB] bg-[#F7F8FC] text-[#555D7A] hover:text-[#20253B]'
@@ -224,7 +224,7 @@ export function CompositionVisualCanvas({
                 {isSubroutineActive ? (
                   <Badge variant="mint">{composition.invocationId}</Badge>
                 ) : (
-                  <span className="font-mono text-[10px] text-[#8B93B0]">
+                  <span className="font-mono text-xs text-[#555D7A]">
                     {composition.invocationId}
                   </span>
                 )}

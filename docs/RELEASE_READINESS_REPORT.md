@@ -7,7 +7,7 @@ To prevent overstating readiness, this report explicitly separates what has been
 |---|---|---|
 | **Code Review & Static Analysis** | Completed | Full audit of `web/` (TypeScript strict, ESLint) and `api/` (FastAPI, Pydantic v2, config, routing, guards, Gemini SDK). |
 | **Automated Unit & Integration Tests** | Completed | Frontend Vitest + React Testing Library (`119` tests across `15` files) and Backend Pytest (`31` tests). Production `tsc -b && vite build` verified. |
-| **Live Browser Visual QA (Chrome DevTools)** | **Not Run in This Environment** | Chrome remote debugging (`DevToolsActivePort`) is inactive in this environment. Responsive classes, focus management, ARIA roles, and reduced-motion CSS were audited in source and React Testing Library, **not visually inspected in a live rendered Chrome viewport**. |
+| **Live Browser Visual QA (Playwright + Chrome + `axe-core`)** | **Completed (Sprint 10.1)** | Real Google Chrome `158.0.8127.37` across 4 viewports (`375×812`, `390×844`, `768×1024`, `1440×900`), all 7 routes (28 checks), full-page screenshots inspected, all 6 live journeys clicked end-to-end against local Vite + FastAPI (`offline-demo`), **0 px horizontal overflow**, **0 `axe-core` WCAG 2.1 AA violations**, **0 console/page errors**. See [`docs/BROWSER_QA_REPORT.md`](./BROWSER_QA_REPORT.md). |
 | **Controlled Beta Testing with Real Users** | **Not Run Yet** | Manual usability protocol is prepared in [`docs/BETA_USABILITY_PROTOCOL.md`](./BETA_USABILITY_PROTOCOL.md). Zero real-user sessions have occurred yet. |
 
 ---

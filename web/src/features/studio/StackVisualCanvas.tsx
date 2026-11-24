@@ -110,7 +110,7 @@ export function StackVisualCanvas({
                 role="switch"
                 aria-checked={predictModeEnabled}
                 onClick={onTogglePredictMode}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   predictModeEnabled
                     ? 'bg-[#645BE8] text-white'
                     : 'border border-[#D7DCEB] bg-[#F7F8FC] text-[#555D7A] hover:text-[#20253B]'
@@ -269,7 +269,7 @@ export function StackVisualCanvas({
               </span>
               <div className="flex min-h-[168px] w-full max-w-[200px] flex-col-reverse justify-start gap-2 rounded-b-2xl border-x-2 border-b-2 border-[#C5CBE3] bg-white px-3 pb-3 pt-4">
                 {visualState.stack.length === 0 ? (
-                  <div className="my-auto py-8 text-center text-xs font-medium text-[#8B93B0]">
+                  <div className="my-auto py-8 text-center text-xs font-medium text-[#555D7A]">
                     Stack is empty
                   </div>
                 ) : (
@@ -294,7 +294,7 @@ export function StackVisualCanvas({
                       >
                         <span>
                           {item.char}{' '}
-                          <span className="text-[10px] font-normal opacity-75">
+                          <span className="text-xs font-normal">
                             (idx {item.index})
                           </span>
                         </span>
@@ -308,7 +308,7 @@ export function StackVisualCanvas({
                   })
                 )}
               </div>
-              <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-[#8B93B0]">
+              <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-[#555D7A]">
                 Bottom
               </span>
             </div>
