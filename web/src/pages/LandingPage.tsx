@@ -64,18 +64,24 @@ const LEARNING_STEPS = [
 function matchCuratedStudioRoute(text: string): string | null {
   const raw = text.trim().toLowerCase();
 
-  // Split Array Largest Sum (must explicitly state nonnegative/positive and disallow negatives)
+  // Split Array Largest Sum (must explicitly state non-negative/nonnegative/positive and disallow negatives)
   if (
     /split\s+array\s+largest\s+sum|minimiz\w+\s+the\s+(largest|maximum)\s+(subarray\s+)?sum/.test(
       raw,
     )
   ) {
-    const allowsNegatives = /negative\s+(numbers?|integers?|values?)|may\s+be\s+negative/.test(
-      raw,
+    const rawForNegativeCheck = raw.replace(
+      /\b(?:non[-\s]?negative|no\s+negative|not\s+negative)\b/g,
+      '',
     );
-    const hasNonNegative = /non[-\s]?negative|positive\s+(integers?|numbers?)|>=\s*0/.test(
-      raw,
-    );
+    const allowsNegatives =
+      /\bnegative\s+(numbers?|integers?|values?)\b|may\s+(?:contain|include|have|be)\s+negative|can\s+(?:contain|include|have)\s+negative/.test(
+        rawForNegativeCheck,
+      );
+    const hasNonNegative =
+      /\bnon[-\s]?negative\b|\bpositive\s+(integers?|numbers?|values?)\b|>=\s*0/.test(
+        raw,
+      );
     if (!allowsNegatives && hasNonNegative) {
       return '/studio/split-array-largest-sum';
     }

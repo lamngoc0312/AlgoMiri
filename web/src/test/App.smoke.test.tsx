@@ -76,7 +76,29 @@ describe('AlgoMiri smoke tests', () => {
     expect(screen.getByText(/step 1 of 3/i)).toBeInTheDocument();
   });
 
-  it('displays explicit Demo Data notices on Roadmap and Progress previews', () => {
+  it('routes hyphenated non-negative Split Array statements to the curated Studio', async () => {
+    const user = userEvent.setup();
+    renderAt('/');
+
+    const textarea = screen.getByLabelText(/paste a problem statement/i);
+    await user.type(
+      textarea,
+      'Split Array Largest Sum: Given an array of non-negative integers nums and k, minimize the largest subarray sum.',
+    );
+    await user.click(screen.getByRole('button', { name: /open curated studio/i }));
+
+    expect(
+      screen.getByRole('heading', { name: /learning studio/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: /stage 1: contiguous partitions & minimax goal/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('displays Demo Data notice on Roadmap and honest Local Browser History on Progress', () => {
+    window.localStorage.clear();
     const { unmount } = renderAt('/roadmap');
     expect(screen.getByText(/demo data/i)).toBeInTheDocument();
     expect(
@@ -85,9 +107,12 @@ describe('AlgoMiri smoke tests', () => {
     unmount();
 
     renderAt('/progress');
-    expect(screen.getAllByText(/demo data/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/local browser history/i)).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: /learning progress/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/no learning sessions recorded yet/i),
     ).toBeInTheDocument();
   });
 });

@@ -4,10 +4,13 @@ import {
   Award,
   CheckCircle2,
   Compass,
+  HardDrive,
   Info,
   Lightbulb,
   RotateCcw,
+  Save,
   Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import type { ProblemSpec } from '../../domain/problems/types';
 import type { ProblemLesson } from '../../domain/core/types';
@@ -15,6 +18,9 @@ import type {
   PredictionSummaryStats,
   StageStatusMap,
 } from '../../domain/learning/session';
+import type { LearningSession } from '../../domain/learning/types';
+import { formatOutcomeLabel } from '../../domain/learning/analytics';
+import { getSkillDefinition } from '../../domain/learning/skills';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -26,6 +32,9 @@ interface SessionSummaryCardProps {
   stageStatuses: StageStatusMap;
   predictionStats: PredictionSummaryStats;
   hintsUsed: number;
+  savedSession?: LearningSession | null;
+  saveWarning?: string | null;
+  onSaveSession?: () => void;
   onSwitchToExplore: () => void;
   onRestartLesson: () => void;
 }
@@ -37,6 +46,9 @@ export function SessionSummaryCard({
   stageStatuses,
   predictionStats,
   hintsUsed,
+  savedSession = null,
+  saveWarning = null,
+  onSaveSession,
   onSwitchToExplore,
   onRestartLesson,
 }: SessionSummaryCardProps) {
@@ -53,6 +65,16 @@ export function SessionSummaryCard({
     strategiesExplored.has(s.id),
   );
 
+  const uniquePracticedSkillIds = savedSession
+    ? Array.from(
+        new Set(
+          savedSession.skillEvidence
+            .filter((ev) => ev.evidenceLevel !== 'viewed')
+            .map((ev) => ev.skillId),
+        ),
+      )
+    : [];
+
   return (
     <Card className="border-[#16B89D]/50">
       <CardHeader className="border-b border-[#E3E7F2] bg-[#E6F8F4]/50">
@@ -63,14 +85,37 @@ export function SessionSummaryCard({
               Local Session Summary · {problem.title}
             </CardTitle>
           </div>
-          <Badge variant="demo">Local Session Only</Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {savedSession ? (
+              <>
+                <Badge variant="mint">
+                  <HardDrive className="h-3 w-3" aria-hidden="true" />
+                  Saved to This Browser
+                </Badge>
+                <Badge variant="indigo">
+                  {formatOutcomeLabel(savedSession.outcome)}
+                </Badge>
+              </>
+            ) : (
+              <Badge variant="demo">Local Session Only</Badge>
+            )}
+          </div>
         </div>
         <p className="text-xs leading-relaxed text-[#555D7A]">
-          Verified activity from this browser session. Skipped stages and repeated clicks are never counted as completed.
+          Verified activity from this browser session. Skipped stages, viewing visuals alone, and repeated clicks are never counted as completed.
         </p>
       </CardHeader>
 
       <CardContent className="space-y-5 pt-5">
+        {saveWarning && (
+          <div
+            role="alert"
+            className="rounded-xl border border-[#F1B34C] bg-[#FEF6E6] px-3.5 py-2.5 text-xs text-[#9A630A]"
+          >
+            {saveWarning}
+          </div>
+        )}
+
         {/* Metrics Row */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5">
@@ -177,6 +222,24 @@ export function SessionSummaryCard({
           )}
         </div>
 
+        {/* Skills Practiced in This Session */}
+        {uniquePracticedSkillIds.length > 0 && (
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
+              Skills with Recorded Practice Evidence
+            </h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {uniquePracticedSkillIds.map((skillId) => (
+                <li key={skillId}>
+                  <Badge variant="indigo">
+                    {getSkillDefinition(skillId).name}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Suggested Next Learning Activities */}
         <div className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC] p-4 space-y-2.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#20253B]">
@@ -187,7 +250,20 @@ export function SessionSummaryCard({
             {lesson.suggestedNextActivity}
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Button variant="primary" size="sm" onClick={onSwitchToExplore}>
+            {!savedSession && onSaveSession && (
+              <Button variant="primary" size="sm" onClick={onSaveSession}>
+                <Save className="h-3.5 w-3.5" aria-hidden="true" />
+                Save Session to Local History
+              </Button>
+            )}
+            <Link
+              to="/progress"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#645BE8] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#4F46D8]"
+            >
+              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+              View Learning Progress
+            </Link>
+            <Button variant="outline" size="sm" onClick={onSwitchToExplore}>
               Try Edge Cases in Free Exploration
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
@@ -205,7 +281,7 @@ export function SessionSummaryCard({
           </div>
         </div>
 
-        {/* Honest Mastery Disclaimer */}
+        {/* Honest Mastery & Local Storage Disclaimer */}
         <div
           role="note"
           className="flex items-start gap-2 rounded-xl border border-[#F1B34C]/60 bg-[#FEF6E6]/70 px-3.5 py-3 text-xs leading-relaxed text-[#20253B]"
@@ -215,10 +291,10 @@ export function SessionSummaryCard({
             aria-hidden="true"
           />
           <p>
-            <strong>Honest scope note:</strong> This summary reflects your local
-            browser session only and is not saved to an account. Completing a
-            visual walkthrough is a great start, but does not measure long-term
-            skill mastery yet.
+            <strong>Local browser history only:</strong> Saved sessions are stored
+            only in this browser and are not synced across devices. Finishing a
+            guided lesson records guided progress, not independent mastery. Restarting
+            begins a fresh session without altering previously saved records.
           </p>
         </div>
       </CardContent>

@@ -74,12 +74,20 @@ def _detect_problem_family(
 def _check_split_array_compatibility(
     raw_statement: str,
 ) -> VerifiedMatchInfo:
-    allows_negatives = _has_any(
+    # Strip "non-negative" / "nonnegative" / "no negative" phrases before checking
+    # whether negative integers are explicitly allowed so hyphenated "non-negative"
+    # is never falsely matched by \bnegative\b.
+    statement_for_negative_check = re.sub(
+        r"\b(?:non[-\s]?negative|no\s+negative|not\s+negative)\b",
+        "",
         raw_statement,
+    )
+    allows_negatives = _has_any(
+        statement_for_negative_check,
         [
             r"\bnegative\s+(numbers?|integers?|values?)\b",
             r"can\s+(contain|include|have)\s+negative",
-            r"may\s+be\s+negative",
+            r"may\s+(contain|include|have|be)\s+negative",
             r"-\d+\s*<=\s*nums",
             r"nums\[i\]\s*<\s*0",
         ],

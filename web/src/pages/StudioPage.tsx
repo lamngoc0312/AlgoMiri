@@ -37,6 +37,15 @@ import {
   type PredictionRecord,
   type StageStatusMap,
 } from '../domain/learning/session';
+import {
+  buildLearningSession,
+  createSessionId,
+} from '../domain/learning/analytics';
+import type {
+  LearningEvent,
+  LearningSession,
+} from '../domain/learning/types';
+import { defaultLearningRepository } from '../services/learningRepository';
 import { ProblemPane } from '../features/studio/ProblemPane';
 import { VisualCanvas } from '../features/studio/VisualCanvas';
 import { StackVisualCanvas } from '../features/studio/StackVisualCanvas';
@@ -74,6 +83,23 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   const firstStageId = lesson.stages[0]?.id ?? '';
 
   const [sessionId, setSessionId] = useState(1);
+  const [sessionUuid, setSessionUuid] = useState<string>(() =>
+    createSessionId(problemModule.id),
+  );
+  const [sessionStartedAt, setSessionStartedAt] = useState<string>(() =>
+    new Date().toISOString(),
+  );
+  const [sessionEvents, setSessionEvents] = useState<LearningEvent[]>(() => [
+    {
+      id: `init-stage-${firstStageId}`,
+      type: 'stage-viewed',
+      timestamp: new Date().toISOString(),
+      stageId: firstStageId,
+    },
+  ]);
+  const [savedSessionRecord, setSavedSessionRecord] =
+    useState<LearningSession | null>(null);
+  const [saveWarning, setSaveWarning] = useState<string | null>(null);
   const [mode, setMode] = useState<StudioMode>(initialMode);
   const [perspective, setPerspective] = useState<PerspectiveView>('micro');
   const [activeStageId, setActiveStageId] = useState<string>(firstStageId);
@@ -201,10 +227,68 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     0,
   );
 
+  const appendEvent = (event: Omit<LearningEvent, 'id' | 'timestamp'>) => {
+    const timestamp = new Date().toISOString();
+    setSessionEvents((prev) => [
+      ...prev,
+      {
+        ...event,
+        id: `${sessionUuid}:ev-${prev.length + 1}`,
+        timestamp,
+      },
+    ]);
+  };
+
+  const persistCurrentSession = (
+    overrideStatuses?: StageStatusMap,
+    overrideEvents?: LearningEvent[],
+  ) => {
+    const statusesToUse = overrideStatuses ?? stageStatuses;
+    const eventsToUse = overrideEvents ?? sessionEvents;
+    const built = buildLearningSession({
+      sessionId: sessionUuid,
+      problemId: problemModule.id,
+      problemTitle: spec.title,
+      mode,
+      strategiesExplored,
+      startedAt: sessionStartedAt,
+      stageIds: lesson.stages.map((s) => s.id),
+      stageStatuses: statusesToUse,
+      hintsByStage,
+      predictionRecords,
+      events: eventsToUse,
+    });
+    const res = defaultLearningRepository.saveSession(built);
+    if (res.saved) {
+      setSavedSessionRecord(built);
+      setSaveWarning(null);
+    } else {
+      setSaveWarning(
+        res.warningMessage ?? 'Session could not be saved to local storage.',
+      );
+    }
+  };
+
+  const hasRecordedActivity = (statuses: StageStatusMap) => {
+    const anyStageActivity = Object.values(statuses).some(
+      (s) =>
+        s === 'completed' ||
+        s === 'attempted' ||
+        s === 'skipped' ||
+        s === 'skipped-after-attempt',
+    );
+    return (
+      anyStageActivity ||
+      Object.keys(predictionRecords).length > 0 ||
+      totalHintsUsed > 0
+    );
+  };
+
   const handleSelectStrategy = (newStrategyId: string) => {
     if (spec.supportedStrategies.some((s) => s.id === newStrategyId)) {
       setSelectedStrategyId(newStrategyId);
       setStrategiesExplored((prev) => new Set(prev).add(newStrategyId));
+      appendEvent({ type: 'strategy-explored', strategyId: newStrategyId });
     }
   };
 
@@ -217,6 +301,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     setShowingSummary(false);
     setActiveStageId(stageId);
     setStageStatuses((prev) => markStageViewed(prev, stageId));
+    appendEvent({ type: 'stage-viewed', stageId });
     const targetStage = lesson.stages.find((s) => s.id === stageId);
     if (targetStage) {
       setSelectedStrategyId(targetStage.recommendedStrategy);
@@ -228,28 +313,64 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
   const handleAnswerStage = (stageId: string, isCorrect: boolean) => {
     setStageStatuses((prev) => recordStageAnswer(prev, stageId, isCorrect));
+    appendEvent({ type: 'stage-answered', stageId, correct: isCorrect });
   };
 
   const handleSkipOrContinue = (
     currentStageId: string,
     destination: string | 'summary',
   ) => {
-    setStageStatuses((prev) =>
-      markStageSkippedIfIncomplete(prev, currentStageId),
+    const nextStatuses = markStageSkippedIfIncomplete(
+      stageStatuses,
+      currentStageId,
     );
+    setStageStatuses(nextStatuses);
+
+    const wasSkipped =
+      nextStatuses[currentStageId] === 'skipped' ||
+      nextStatuses[currentStageId] === 'skipped-after-attempt';
+    const nextEvents = wasSkipped
+      ? [
+          ...sessionEvents,
+          {
+            id: `${sessionUuid}:ev-${sessionEvents.length + 1}`,
+            type: 'stage-skipped' as const,
+            timestamp: new Date().toISOString(),
+            stageId: currentStageId,
+          },
+        ]
+      : sessionEvents;
+    if (wasSkipped) {
+      setSessionEvents(nextEvents);
+    }
+
     if (destination === 'summary') {
       setShowingSummary(true);
+      persistCurrentSession(nextStatuses, nextEvents);
     } else {
       navigateToStage(destination);
     }
   };
 
+  const handleOpenSummary = () => {
+    setShowingSummary(true);
+    if (hasRecordedActivity(stageStatuses)) {
+      persistCurrentSession();
+    }
+  };
+
   const handleRevealNextHint = () => {
     const maxHints = lesson.hintsByStage[activeStage.id]?.length ?? 3;
+    const nextLevel = Math.min(maxHints, (hintsByStage[activeStage.id] ?? 0) + 1);
     setHintsByStage((prev) => ({
       ...prev,
-      [activeStage.id]: Math.min(maxHints, (prev[activeStage.id] ?? 0) + 1),
+      [activeStage.id]: nextLevel,
     }));
+    appendEvent({
+      type: 'hint-revealed',
+      stageId: activeStage.id,
+      hintLevel: nextLevel,
+    });
   };
 
   const handleAnswerPrediction = (
@@ -258,12 +379,33 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     isCorrect: boolean,
   ) => {
     setPredictionRecords((prev) =>
-      recordPredictionAnswer(prev, questionId, optionId, isCorrect),
+      recordPredictionAnswer(prev, questionId, optionId, isCorrect, {
+        strategyId: strategy.id,
+        stepAction: currentStep.action,
+        stepIndex: currentStep.stepIndex,
+      }),
     );
+    appendEvent({
+      type: 'prediction-answered',
+      questionId,
+      strategyId: strategy.id,
+      correct: isCorrect,
+    });
   };
 
   const handleSkipPrediction = (questionId: string) => {
-    setPredictionRecords((prev) => recordPredictionSkip(prev, questionId));
+    setPredictionRecords((prev) =>
+      recordPredictionSkip(prev, questionId, {
+        strategyId: strategy.id,
+        stepAction: currentStep.action,
+        stepIndex: currentStep.stepIndex,
+      }),
+    );
+    appendEvent({
+      type: 'prediction-skipped',
+      questionId,
+      strategyId: strategy.id,
+    });
     playback.next();
   };
 
@@ -279,7 +421,21 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   };
 
   const handleRestartLesson = () => {
+    const freshUuid = createSessionId(problemModule.id);
+    const now = new Date().toISOString();
     setSessionId((id) => id + 1);
+    setSessionUuid(freshUuid);
+    setSessionStartedAt(now);
+    setSessionEvents([
+      {
+        id: `${freshUuid}:ev-1`,
+        type: 'stage-viewed',
+        timestamp: now,
+        stageId: firstStageId,
+      },
+    ]);
+    setSavedSessionRecord(null);
+    setSaveWarning(null);
     setShowingSummary(false);
     setPerspective('micro');
     setActiveStageId(firstStageId);
@@ -395,7 +551,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           stageStatuses={stageStatuses}
           showingSummary={showingSummary}
           onSelectStage={navigateToStage}
-          onOpenSummary={() => setShowingSummary(true)}
+          onOpenSummary={handleOpenSummary}
         />
       )}
 
@@ -409,6 +565,9 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
             stageStatuses={stageStatuses}
             predictionStats={predictionStats}
             hintsUsed={totalHintsUsed}
+            savedSession={savedSessionRecord}
+            saveWarning={saveWarning}
+            onSaveSession={() => persistCurrentSession()}
             onSwitchToExplore={() => handleSwitchMode('explore')}
             onRestartLesson={handleRestartLesson}
           />
@@ -673,6 +832,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
               <StudioTutorDrawer
                 problemModule={problemModule}
+                selectedStrategyId={strategy.id}
                 selectedStrategy={strategy.name}
                 learningStage={mode === 'guided' ? activeStage.title : 'Free Exploration'}
                 executionContext={`Step ${playback.stepIndex + 1} of ${trace.steps.length}: ${currentStep.actionTitle} — ${currentStep.explanation}`}
@@ -687,19 +847,21 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
 function StudioTutorDrawer({
   problemModule,
+  selectedStrategyId,
   selectedStrategy,
   learningStage,
   executionContext,
 }: {
   problemModule: AnyProblemModule;
+  selectedStrategyId: string;
   selectedStrategy: string;
   learningStage: string;
   executionContext: string;
 }) {
   const [open, setOpen] = useState(false);
   const analysis = useMemo(
-    () => buildProblemAnalysisFromModule(problemModule),
-    [problemModule],
+    () => buildProblemAnalysisFromModule(problemModule, selectedStrategyId),
+    [problemModule, selectedStrategyId],
   );
 
   return (

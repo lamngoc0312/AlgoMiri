@@ -171,6 +171,22 @@ def test_malformed_config_raises_sanitized_configuration_error() -> None:
             )
 
 
+def test_env_example_defaults_match_settings_defaults() -> None:
+    env_example = Path(__file__).resolve().parent.parent / ".env.example"
+    loaded = load_settings(env_file=env_example, environ={})
+    defaults = Settings()
+    assert loaded.gemini_model == defaults.gemini_model
+    assert loaded.cors_origins == defaults.cors_origins
+    assert loaded.llm_timeout_seconds == defaults.llm_timeout_seconds
+    assert loaded.llm_max_retries == defaults.llm_max_retries
+    assert loaded.max_statement_chars == defaults.max_statement_chars
+    assert loaded.max_request_body_bytes == defaults.max_request_body_bytes
+    assert loaded.max_tutor_request_bytes == defaults.max_tutor_request_bytes
+    assert loaded.rate_limit_per_minute == defaults.rate_limit_per_minute
+    assert loaded.daily_request_budget == defaults.daily_request_budget
+    assert loaded.max_concurrent_llm_requests == defaults.max_concurrent_llm_requests
+
+
 def test_health_and_offline_fallback_without_credentials() -> None:
     client = TestClient(create_app(settings=BASE_SETTINGS))
 
@@ -254,8 +270,26 @@ def test_health_and_offline_fallback_without_credentials() -> None:
             "split-array-largest-sum",
         ),
         (
+            "Verified Split Array Largest Sum (hyphenated non-negative integers)",
+            "Split Array Largest Sum: Given an array of non-negative integers nums and integer k, split nums into k contiguous subarrays to minimize the largest sum.",
+            "verified",
+            "split-array-largest-sum",
+        ),
+        (
+            "Verified Split Array Largest Sum (positive integers)",
+            "Split Array Largest Sum: Given an array of positive integers nums and integer k, split nums into k contiguous subarrays to minimize the largest sum.",
+            "verified",
+            "split-array-largest-sum",
+        ),
+        (
             "Split Array with negative integers -> conceptual_only",
             "Split Array Largest Sum: Given an array of integers where negative numbers are allowed, split into k contiguous subarrays to minimize the largest sum.",
+            "conceptual_only",
+            None,
+        ),
+        (
+            "Split Array with mixed non-negative and explicitly allowed negative -> conceptual_only",
+            "Split Array Largest Sum: Usually non-negative, but here negative integers may be present; split into k contiguous subarrays to minimize the largest sum.",
             "conceptual_only",
             None,
         ),

@@ -254,9 +254,24 @@ export async function askTutor(
  */
 export function buildProblemAnalysisFromModule(
   mod: AnyProblemModule,
+  strategyId?: string,
 ): ProblemAnalysisDto {
   const { spec } = mod;
   const ex = spec.examples[0];
+  const graph =
+    (strategyId ? mod.solutionGraphs[strategyId] : undefined) ??
+    mod.solutionGraphs[mod.defaultStrategyId] ??
+    Object.values(mod.solutionGraphs)[0];
+
+  const dependenciesByNode = new Map<string, string[]>();
+  for (const edge of graph?.edges ?? []) {
+    const existing = dependenciesByNode.get(edge.target) ?? [];
+    if (!existing.includes(edge.source)) {
+      existing.push(edge.source);
+    }
+    dependenciesByNode.set(edge.target, existing);
+  }
+
   return {
     title: spec.title,
     inferred_problem_type: spec.supportedStrategies
@@ -274,14 +289,12 @@ export function buildProblemAnalysisFromModule(
     },
     edge_cases: spec.constraints.slice(0, 3),
     prerequisite_concepts: spec.supportedStrategies.flatMap((s) => s.techniques),
-    subproblem_decomposition: Object.values(mod.solutionGraphs)[0].nodes.map(
-      (n) => ({
-        id: n.id,
-        title: n.title,
-        goal: n.learningGoal,
-        depends_on: [],
-      }),
-    ),
+    subproblem_decomposition: (graph?.nodes ?? []).map((n) => ({
+      id: n.id,
+      title: n.title,
+      goal: n.learningGoal,
+      depends_on: dependenciesByNode.get(n.id) ?? [],
+    })),
     candidate_strategies: spec.supportedStrategies.map((s) => ({
       name: s.name,
       technique: s.techniques.join(' + '),

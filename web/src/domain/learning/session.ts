@@ -10,6 +10,12 @@ export type StageStatus =
 
 export type StageStatusMap = Record<string, StageStatus>;
 
+export interface PredictionMetadata {
+  strategyId?: string;
+  stepAction?: string;
+  stepIndex?: number;
+}
+
 export interface PredictionRecord {
   questionId: string;
   firstAttemptCorrect: boolean;
@@ -17,6 +23,9 @@ export interface PredictionRecord {
   retryCount: number;
   skipped: boolean;
   lastSelectedOptionId: string | null;
+  strategyId?: string;
+  stepAction?: string;
+  stepIndex?: number;
 }
 
 export interface PredictionSummaryStats {
@@ -110,6 +119,7 @@ export function recordPredictionAnswer(
   questionId: string,
   optionId: string,
   isCorrect: boolean,
+  meta?: PredictionMetadata,
 ): Record<string, PredictionRecord> {
   const existing = records[questionId];
 
@@ -123,6 +133,12 @@ export function recordPredictionAnswer(
     return records;
   }
 
+  const mergedMeta: PredictionMetadata = {
+    strategyId: meta?.strategyId ?? existing?.strategyId,
+    stepAction: meta?.stepAction ?? existing?.stepAction,
+    stepIndex: meta?.stepIndex ?? existing?.stepIndex,
+  };
+
   // First real attempt (either brand new or previously only skipped)
   if (!existing || existing.lastSelectedOptionId === null) {
     return {
@@ -134,6 +150,7 @@ export function recordPredictionAnswer(
         retryCount: 0,
         skipped: false,
         lastSelectedOptionId: optionId,
+        ...mergedMeta,
       },
     };
   }
@@ -147,6 +164,7 @@ export function recordPredictionAnswer(
       retryCount: existing.retryCount + 1,
       skipped: false,
       lastSelectedOptionId: optionId,
+      ...mergedMeta,
     },
   };
 }
@@ -154,11 +172,18 @@ export function recordPredictionAnswer(
 export function recordPredictionSkip(
   records: Record<string, PredictionRecord>,
   questionId: string,
+  meta?: PredictionMetadata,
 ): Record<string, PredictionRecord> {
   const existing = records[questionId];
   if (existing?.solved) {
     return records;
   }
+
+  const mergedMeta: PredictionMetadata = {
+    strategyId: meta?.strategyId ?? existing?.strategyId,
+    stepAction: meta?.stepAction ?? existing?.stepAction,
+    stepIndex: meta?.stepIndex ?? existing?.stepIndex,
+  };
 
   if (existing) {
     return {
@@ -166,6 +191,7 @@ export function recordPredictionSkip(
       [questionId]: {
         ...existing,
         skipped: true,
+        ...mergedMeta,
       },
     };
   }
@@ -179,6 +205,7 @@ export function recordPredictionSkip(
       retryCount: 0,
       skipped: true,
       lastSelectedOptionId: null,
+      ...mergedMeta,
     },
   };
 }
