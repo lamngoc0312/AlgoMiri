@@ -112,7 +112,9 @@ describe('AlgoMiri smoke tests', () => {
     unmount();
 
     renderAt('/progress');
-    expect(screen.getByText(/local browser history/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/local browser history/i).length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getByRole('heading', { name: /learning progress/i }),
     ).toBeInTheDocument();

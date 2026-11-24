@@ -110,6 +110,19 @@ const PROBLEM_PRIMARY_SKILLS: Record<string, SkillId[]> = {
   ],
 };
 
+/**
+ * Constraint-compatible edge-case drills tailored to each verified ProblemModule.
+ * Never recommends inputs that violate a problem's input schema (e.g., no negatives for Split Array).
+ */
+const PROBLEM_EDGE_CASE_DRILLS: Record<string, string> = {
+  'two-sum':
+    'try duplicate values like [3, 3] (target 6), negative integers like [-3, 4, 3, 90] (target 0), or a no-solution input like [1, 2, 3] (target 100)',
+  'valid-parentheses':
+    'try crossed brackets like "([)]", unclosed openers like "((", a lonely closing bracket "]", or the empty string ""',
+  'split-array-largest-sum':
+    'try all-zero arrays like [0, 0, 0] (k = 2), exact-k splits like [1, 4, 4] (k = 3), single-element [1] (k = 1), or custom nonnegative arrays (nums[i] >= 0)',
+};
+
 function isReadyPrerequisiteStatus(status: RoadmapSkillStatus): boolean {
   return status === 'Guided Progress' || status === 'Strong Guided Recall';
 }
@@ -491,16 +504,16 @@ export function buildPersonalizedRoadmap(
         id: `rec-resume-${incompleteProblem.problemId}`,
         category: 'resume-lesson',
         title: `Complete Remaining Stages in ${incompleteProblem.problemTitle}`,
-        summary: `You have verified ${incompleteProblem.bestVerifiedStages} of ${incompleteProblem.totalStages} guided stages in ${incompleteProblem.problemTitle}.`,
+        summary: `You have verified ${incompleteProblem.bestVerifiedStages} of ${incompleteProblem.totalStages} guided stages in ${incompleteProblem.problemTitle}. Opening the Studio starts a fresh session where you can jump to any stage from the stepper.`,
         whyBullets: [
           `Your best saved session on ${incompleteProblem.problemTitle} verified ${incompleteProblem.bestVerifiedStages}/${incompleteProblem.totalStages} guided stages.`,
           incompleteProblem.predictionsSkipped > 0
             ? `${incompleteProblem.predictionsSkipped} trace prediction(s) were skipped — answering them directly builds verifiable evidence.`
-            : 'Finishing all guided stages ensures every core concept for this problem has recorded evidence.',
+            : 'Completing all guided stages in a fresh session ensures every core concept for this problem has recorded evidence.',
         ],
         targetProblemId: incompleteProblem.problemId,
         targetPath: incompleteProblem.studioPath,
-        ctaLabel: `Resume ${incompleteProblem.problemTitle}`,
+        ctaLabel: `Practice ${incompleteProblem.problemTitle} Again`,
         focusSkills,
       };
     } else if (skippedOnlyProblem) {
@@ -598,6 +611,10 @@ export function buildPersonalizedRoadmap(
         },
       )[0];
 
+      const drillHint =
+        PROBLEM_EDGE_CASE_DRILLS[lowestPredictionProblem.problemId] ??
+        'try boundary presets and custom valid inputs inside the Studio';
+
       recommendedNext = {
         id: `rec-drill-${lowestPredictionProblem.problemId}`,
         category: 'edge-case-drill',
@@ -607,7 +624,7 @@ export function buildPersonalizedRoadmap(
         whyBullets: [
           `All ${modules.length} currently available verified Studios have completed guided sessions in this browser.`,
           'Guided recall is a strong foundation, though independent mastery still requires solving fresh problems without step-by-step scaffolding.',
-          `${lowestPredictionProblem.problemTitle} is a great next edge-case drill (try negatives, duplicates, empty/minimal inputs, or custom arrays).`,
+          `${lowestPredictionProblem.problemTitle} is a great next edge-case drill (${drillHint}).`,
         ],
         targetProblemId: lowestPredictionProblem.problemId,
         targetPath: `${lowestPredictionProblem.studioPath}?mode=explore`,
@@ -699,7 +716,7 @@ export function buildPersonalizedRoadmap(
         stepStatus === 'Needs Practice'
           ? `Review ${mod.spec.title}`
           : pSum.bestVerifiedStages < pSum.totalStages
-            ? `Resume ${mod.spec.title}`
+            ? `Practice ${mod.spec.title} Again`
             : `Revisit ${mod.spec.title}`;
     }
 

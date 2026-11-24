@@ -126,6 +126,9 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   const [stageStatuses, setStageStatuses] = useState<StageStatusMap>(() =>
     createInitialStageStatuses(lesson.stages),
   );
+  const [previouslySkippedStages, setPreviouslySkippedStages] = useState<
+    Set<string>
+  >(() => new Set());
   const [strategiesExplored, setStrategiesExplored] = useState<Set<string>>(
     () => new Set([initialStrategy]),
   );
@@ -242,9 +245,11 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   const persistCurrentSession = (
     overrideStatuses?: StageStatusMap,
     overrideEvents?: LearningEvent[],
+    overrideSkippedStages?: Set<string>,
   ) => {
     const statusesToUse = overrideStatuses ?? stageStatuses;
     const eventsToUse = overrideEvents ?? sessionEvents;
+    const skippedStagesToUse = overrideSkippedStages ?? previouslySkippedStages;
     const built = buildLearningSession({
       sessionId: sessionUuid,
       problemId: problemModule.id,
@@ -254,6 +259,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       startedAt: sessionStartedAt,
       stageIds: lesson.stages.map((s) => s.id),
       stageStatuses: statusesToUse,
+      previouslySkippedStageIds: skippedStagesToUse,
       hintsByStage,
       predictionRecords,
       events: eventsToUse,
@@ -329,6 +335,9 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     const wasSkipped =
       nextStatuses[currentStageId] === 'skipped' ||
       nextStatuses[currentStageId] === 'skipped-after-attempt';
+    const nextSkippedStages = wasSkipped
+      ? new Set(previouslySkippedStages).add(currentStageId)
+      : previouslySkippedStages;
     const nextEvents = wasSkipped
       ? [
           ...sessionEvents,
@@ -341,12 +350,13 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
         ]
       : sessionEvents;
     if (wasSkipped) {
+      setPreviouslySkippedStages(nextSkippedStages);
       setSessionEvents(nextEvents);
     }
 
     if (destination === 'summary') {
       setShowingSummary(true);
-      persistCurrentSession(nextStatuses, nextEvents);
+      persistCurrentSession(nextStatuses, nextEvents, nextSkippedStages);
     } else {
       navigateToStage(destination);
     }
@@ -448,6 +458,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
     setApplyRevision((rev) => rev + 1);
     setPredictModeEnabled(true);
     setStageStatuses(createInitialStageStatuses(lesson.stages));
+    setPreviouslySkippedStages(new Set());
     setStrategiesExplored(new Set([problemModule.guidedInitialStrategyId]));
     setHintsByStage(createInitialHintsByStage(lesson.stages));
     setPredictionRecords({});

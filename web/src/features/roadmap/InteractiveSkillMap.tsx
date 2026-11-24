@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -93,6 +93,14 @@ export function InteractiveSkillMap({
     nodeById.get(selectedSkillId) ?? skillNodes[0];
 
   const orderedIds = graphValidation.topologicalOrder;
+  const nodeButtonRefs = useRef<Partial<Record<SkillId, HTMLButtonElement | null>>>(
+    {},
+  );
+
+  const selectAndFocusSkill = (nextId: SkillId) => {
+    setSelectedSkillId(nextId);
+    nodeButtonRefs.current[nextId]?.focus();
+  };
 
   const handleNodeKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -102,13 +110,18 @@ export function InteractiveSkillMap({
     if (idx === -1) return;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault();
-      const nextId = orderedIds[(idx + 1) % orderedIds.length];
-      setSelectedSkillId(nextId);
+      selectAndFocusSkill(orderedIds[(idx + 1) % orderedIds.length]);
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       event.preventDefault();
-      const prevId =
-        orderedIds[(idx - 1 + orderedIds.length) % orderedIds.length];
-      setSelectedSkillId(prevId);
+      selectAndFocusSkill(
+        orderedIds[(idx - 1 + orderedIds.length) % orderedIds.length],
+      );
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      selectAndFocusSkill(orderedIds[0]);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      selectAndFocusSkill(orderedIds[orderedIds.length - 1]);
     }
   };
 
@@ -198,7 +211,11 @@ export function InteractiveSkillMap({
                         return (
                           <button
                             key={skillId}
+                            ref={(el) => {
+                              nodeButtonRefs.current[skillId] = el;
+                            }}
                             type="button"
+                            tabIndex={isSelected ? 0 : -1}
                             aria-pressed={isSelected}
                             onClick={() => setSelectedSkillId(skillId)}
                             onKeyDown={(e) => handleNodeKeyDown(e, skillId)}

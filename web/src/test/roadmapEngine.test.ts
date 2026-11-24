@@ -121,6 +121,12 @@ describe('Phase C — Deterministic Personalized Roadmap Engine', () => {
     expect(roadmap.recommendedNext.category).toBe('resume-lesson');
     expect(roadmap.recommendedNext.targetProblemId).toBe('two-sum');
     expect(roadmap.recommendedNext.summary).toMatch(/2 of 4/);
+    // Sprint 10 Phase A: never use misleading "Resume" wording where no mid-session resume exists
+    expect(roadmap.recommendedNext.ctaLabel).not.toMatch(/resume/i);
+    expect(roadmap.recommendedNext.summary).toMatch(/fresh session/i);
+    for (const step of roadmap.learningPath) {
+      expect(step.ctaLabel).not.toMatch(/resume/i);
+    }
   });
 
   it('progresses cleanly on high first-try accuracy and never claims independent mastery', () => {
@@ -242,6 +248,95 @@ describe('Phase C — Deterministic Personalized Roadmap Engine', () => {
       strongSa,
     ]);
     expect(roadmapAllThree.recommendedNext.category).toBe('edge-case-drill');
+    // Sprint 10 Phase A: edge-case drill suggestions must respect each problem's actual constraints
+    const drillText = roadmapAllThree.recommendedNext.whyBullets.join(' ');
+    if (
+      roadmapAllThree.recommendedNext.targetProblemId ===
+      'split-array-largest-sum'
+    ) {
+      expect(drillText).not.toMatch(/try negatives/i);
+      expect(drillText).toMatch(/nonnegative/i);
+    } else if (
+      roadmapAllThree.recommendedNext.targetProblemId === 'valid-parentheses'
+    ) {
+      expect(drillText).toMatch(/brackets/i);
+    } else {
+      expect(drillText).toMatch(/\[3, 3\]/);
+    }
+  });
+
+  it('tailors Split Array edge-case drill strictly to nonnegative arrays without suggesting negatives', () => {
+    const strongTwoSum = buildLearningSession({
+      sessionId: 's-ts',
+      problemId: 'two-sum',
+      problemTitle: 'Two Sum',
+      mode: 'guided',
+      strategiesExplored: ['brute-force', 'hash-map'],
+      startedAt: '2026-11-24T04:00:00.000Z',
+      completedAt: '2026-11-24T04:05:00.000Z',
+      stageIds: twoSumModule.lesson.stages.map((s) => s.id),
+      stageStatuses: {
+        understand: 'completed',
+        'discover-brute-force': 'completed',
+        'discover-optimization': 'completed',
+        'build-solution': 'completed',
+      },
+      hintsByStage: {},
+      predictionRecords: recordPredictionAnswer({}, 'ts-1', 'ok', true, {
+        strategyId: 'hash-map',
+        nextStepAction: 'lookup-hit',
+      }),
+    });
+    const strongVp = buildLearningSession({
+      sessionId: 's-vp',
+      problemId: 'valid-parentheses',
+      problemTitle: 'Valid Parentheses',
+      mode: 'guided',
+      strategiesExplored: ['stack-matching'],
+      startedAt: '2026-11-24T04:06:00.000Z',
+      completedAt: '2026-11-24T04:10:00.000Z',
+      stageIds: validParenthesesModule.lesson.stages.map((s) => s.id),
+      stageStatuses: {
+        'vp-understand': 'completed',
+        'vp-why-stack': 'completed',
+        'vp-trace-ops': 'completed',
+        'vp-build-pseudo': 'completed',
+      },
+      hintsByStage: {},
+      predictionRecords: recordPredictionAnswer({}, 'vp-1', 'ok', true, {
+        strategyId: 'stack-matching',
+        nextStepAction: 'pop',
+      }),
+    });
+    // Split Array has 0 predictions attempted (lowest rate = 0), so it is selected for the edge-case drill
+    const strongSa = buildLearningSession({
+      sessionId: 's-sa',
+      problemId: 'split-array-largest-sum',
+      problemTitle: 'Split Array Largest Sum',
+      mode: 'guided',
+      strategiesExplored: ['bs-greedy-composition'],
+      startedAt: '2026-11-24T04:11:00.000Z',
+      completedAt: '2026-11-24T04:15:00.000Z',
+      stageIds: splitArrayModule.lesson.stages.map((s) => s.id),
+      stageStatuses: {
+        'sa-stage-1-understand': 'completed',
+        'sa-stage-2-feasibility': 'completed',
+        'sa-stage-3-greedy': 'completed',
+        'sa-stage-4-bs-answer': 'completed',
+        'sa-stage-5-compose': 'completed',
+      },
+      hintsByStage: {},
+      predictionRecords: {},
+    });
+
+    const roadmap = buildPersonalizedRoadmap([strongTwoSum, strongVp, strongSa]);
+    expect(roadmap.recommendedNext.category).toBe('edge-case-drill');
+    expect(roadmap.recommendedNext.targetProblemId).toBe(
+      'split-array-largest-sum',
+    );
+    const drillReason = roadmap.recommendedNext.whyBullets.join(' ');
+    expect(drillReason).not.toMatch(/negatives/i);
+    expect(drillReason).toMatch(/nonnegative/i);
   });
 
   it('flags frequent hints and retries as Needs Practice and recommends targeted review', () => {

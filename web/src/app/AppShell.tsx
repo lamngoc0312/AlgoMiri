@@ -53,8 +53,8 @@ export function AppShell() {
                 </span>
               </span>
             </Link>
-            <Badge variant="demo" className="hidden sm:inline-flex">
-              v0.2 Demo
+            <Badge variant="indigo" className="hidden sm:inline-flex">
+              Beta Preview
             </Badge>
           </div>
 
@@ -145,7 +145,7 @@ export function AppShell() {
             <span className="font-semibold text-[#20253B]">AlgoMiri</span> — Understand first. Code second.
           </p>
           <p>
-            Frontend visual learning studio · No backend, login, or external AI API connected.
+            Verified deterministic studios + optional server-side AI conceptual tutor · Local browser history only (no account sync).
           </p>
         </div>
       </footer>

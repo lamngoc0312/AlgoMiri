@@ -686,4 +686,57 @@ describe('Sprint 9 Phase A — Analytics & Prediction Accounting Regressions', (
     expect(sanitized.predictionSummary.unresolvedAttempt).toBe(0);
     expect(sanitized.predictionSummary.totalQuestions).toBe(2);
   });
+
+  it('preserves prior Guided Stage skip history when a skipped stage is revisited and answered correctly (Sprint 10 Phase A)', () => {
+    const stageIds = twoSumModule.lesson.stages.map((s) => s.id);
+    // Stage 1 was skipped first (recording a stage-skipped event), then later revisited and answered correctly
+    const session = buildLearningSession({
+      sessionId: 'revisit-skipped-stage',
+      problemId: 'two-sum',
+      problemTitle: 'Two Sum',
+      mode: 'guided',
+      strategiesExplored: ['brute-force'],
+      startedAt: '2026-11-24T05:00:00.000Z',
+      completedAt: '2026-11-24T05:05:00.000Z',
+      stageIds,
+      stageStatuses: {
+        understand: 'completed',
+        'discover-brute-force': 'completed',
+        'discover-optimization': 'unvisited',
+        'build-solution': 'unvisited',
+      },
+      previouslySkippedStageIds: ['understand'],
+      hintsByStage: {},
+      predictionRecords: {},
+      events: [
+        {
+          id: 'ev-1',
+          type: 'stage-skipped',
+          timestamp: '2026-11-24T05:01:00.000Z',
+          stageId: 'understand',
+        },
+        {
+          id: 'ev-2',
+          type: 'stage-answered',
+          timestamp: '2026-11-24T05:02:00.000Z',
+          stageId: 'understand',
+          correct: true,
+        },
+      ],
+    });
+
+    const revisitedAttempt = session.attempts.find(
+      (a) => a.targetId === 'understand',
+    )!;
+    expect(revisitedAttempt.correct).toBe(true);
+    expect(revisitedAttempt.firstTry).toBe(false);
+    expect(revisitedAttempt.evidenceLevel).toBe('correct-with-assistance');
+
+    // Stage 2 was never skipped and answered cleanly -> still earns first-try-correct
+    const cleanAttempt = session.attempts.find(
+      (a) => a.targetId === 'discover-brute-force',
+    )!;
+    expect(cleanAttempt.firstTry).toBe(true);
+    expect(cleanAttempt.evidenceLevel).toBe('first-try-correct');
+  });
 });

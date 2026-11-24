@@ -58,19 +58,43 @@ describe('Sprint 9 — Functional Personalized Roadmap Page & Interactive Skill 
       within(inspector).getByRole('button', { name: /greedy feasibility/i }),
     ).toBeInTheDocument();
 
-    // Keyboard navigation with ArrowRight moves focus/selection to next skill in topological order
+    // Keyboard navigation with ArrowRight moves BOTH selection AND actual DOM focus
     compBtn.focus();
     await user.keyboard('{ArrowRight}');
+    const arrayIdxBtn = within(visualMap).getByRole('button', {
+      name: /^array indexing/i,
+    });
+    expect(document.activeElement).toBe(arrayIdxBtn);
+    expect(arrayIdxBtn).toHaveAttribute('tabindex', '0');
+    expect(compBtn).toHaveAttribute('tabindex', '-1');
     expect(
       screen.getByRole('complementary', {
         name: /skill details for array indexing/i,
       }),
     ).toBeInTheDocument();
 
+    // End key jumps focus directly to the last skill in topological order
+    await user.keyboard('{End}');
+    expect(document.activeElement).toBe(compBtn);
+
     // Accessible List fallback toggle works cleanly for mobile & screen readers
     await user.click(screen.getByRole('button', { name: /accessible list/i }));
     expect(
       screen.getByRole('region', { name: /accessible skill prerequisite list/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('displays accurate dynamic stage counts on ProblemsPage (4-stage vs 5-stage) and updated Beta footer', () => {
+    render(
+      <MemoryRouter initialEntries={['/problems']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getAllByText(/4-stage guided lesson/i)).toHaveLength(2);
+    expect(screen.getByText(/5-stage guided lesson/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/optional server-side ai conceptual tutor/i),
     ).toBeInTheDocument();
   });
 

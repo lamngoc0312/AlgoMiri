@@ -4,19 +4,18 @@
 
 AlgoMiri is a beginner-first visual learning platform for studying algorithms and data structures. Learners can paste a programming problem for structured AI conceptual analysis and beginner tutoring, or step through verified deterministic visual studios for Two Sum, Valid Parentheses, and Split Array Largest Sum.
 
-## Current Status (Sprint 9 — Personalized Learning Roadmap & Interactive Skill Map)
+## Current Status (Sprint 10 — Beta Readiness & End-to-End UX Polish)
 - **Verified Deterministic Visual Studios (`web/`):**
   1. **Two Sum (`/studio/two-sum`)**: Brute Force (`O(n²)`) vs. Hash Map (`O(n)`), 4-stage Guided Lesson.
   2. **Valid Parentheses (`/studio/valid-parentheses`)**: Stack (`O(n)`) vertical LIFO visualizer, 4-stage Guided Lesson.
   3. **Split Array Largest Sum (`/studio/split-array-largest-sum`)**: Binary Search on Answer + Greedy Composition (`O(n log S)` time, `O(1)` auxiliary space), Iteration Inspector, 5-stage Guided Lesson.
   - Synchronized **Macro View** (Interactive Solution Map DAG + Accessible List) and **Micro View** (Deterministic Execution Trace), enforced Guided Checkpoints, progressive hints, and dynamic predictions.
 - **Personalized Learning Roadmap & Interactive Skill Map (`/roadmap`):**
-  - Replaces the old demo roadmap with a pure, deterministic recommendation engine driven by locally persisted learning sessions.
-  - Validates a genuine 8-skill prerequisite DAG (non-linear roots: `Array Indexing` and `Stack / LIFO`, up through `Brute Force`, `Time and Space Complexity`, `Hash Map Lookup`, `Greedy Feasibility`, `Binary Search on Answer`, and `Algorithm Composition`).
-  - Interactive Skill Prerequisite Map with **Visual Map** + **Accessible List** toggle, keyboard arrow-key navigation, live Skill Inspector, and direct Studio links (never locks learners out of available Studios).
+  - Pure deterministic recommendation engine driven by locally persisted learning sessions with honest fresh-session wording, constraint-compatible edge-case drills, and genuine 8-skill prerequisite DAG validation (`Array Indexing` and `Stack / LIFO` as independent roots up to `Algorithm Composition`).
+  - Interactive Skill Prerequisite Map with **Visual Map** + **Accessible List** toggle, roving-`tabIndex` keyboard focus management (`Arrow`, `Home`, `End`), live Skill Inspector, and direct Studio links (never locks learners out of available Studios).
   - Classifies skills cautiously across 5 transparent states (`Not Started`, `Introduced`, `Needs Practice`, `Guided Progress`, `Strong Guided Recall`) — detecting contradictory evidence and never claiming independent mastery.
 - **Evidence-Based Learning Progress & Local History (`/progress`):**
-  - Real locally persisted learning sessions (`localStorage`, versioned schema with migration and corruption recovery), mutually exclusive prediction outcome breakdowns (no double-counting, Skip & Reveal never counted as first-try, skipping without attempting excluded from active practice), and next-step prediction skill attribution.
+  - Real locally persisted learning sessions (`localStorage`, versioned schema with migration and corruption recovery), mutually exclusive prediction outcome breakdowns (no double-counting, Skip & Reveal never counted as first-try, revisiting skipped guided stages never inflated as first-try, skipping without attempting excluded from active practice), and next-step prediction skill attribution.
   - Deduplicates saves by stable `sessionId`; restarting a lesson creates a fresh session without altering earlier records.
   - Honest empty states (no fabricated stats or fake streaks), rule-based deterministic next-practice suggestions with clear explanations, and confirmed **Clear Local History**.
   - **Privacy & Local-Only Scope:** History is saved **only in the current browser** and is not synchronized across devices. API keys, private pasted problem statements, and AI Tutor conversations are never stored or counted as verified mastery.
@@ -101,6 +100,8 @@ CORS restrictions, prompt delimiters, and in-process rate limits help harden loc
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - [`docs/TEST_CASES.md`](docs/TEST_CASES.md)
 - [`docs/ANTIGRAVITY_PROMPTS.md`](docs/ANTIGRAVITY_PROMPTS.md)
+- [`docs/BETA_USABILITY_PROTOCOL.md`](docs/BETA_USABILITY_PROTOCOL.md)
+- [`docs/RELEASE_READINESS_REPORT.md`](docs/RELEASE_READINESS_REPORT.md)
 
 ## Key Principle
 **Algorithm execution traces must be generated from deterministic, tested code.** AI analysis teaches, decomposes, and tutors conceptually, but unverified AI output is never displayed as real execution.

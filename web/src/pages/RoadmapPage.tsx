@@ -142,7 +142,7 @@ export function RoadmapPage({
                       recommendedNext.category === 'verify-recall'
                     ? 'Targeted Review'
                     : recommendedNext.category === 'resume-lesson'
-                      ? 'Continue In-Progress'
+                      ? 'Incomplete Stages'
                       : 'Next Milestone'}
               </Badge>
             </div>

@@ -9,6 +9,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { SAMPLE_PROBLEMS } from '../domain/problems/demoCatalog';
+import { getProblemModule } from '../domain/problems/registry';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 
@@ -74,7 +75,9 @@ export function ProblemsPage() {
                     {problem.strategiesCount === 1
                       ? 'verified strategy'
                       : 'verified strategies'}{' '}
-                    · 4-stage Guided Lesson
+                    ·{' '}
+                    {getProblemModule(problem.id)?.lesson.stages.length ?? 4}
+                    -stage Guided Lesson
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2.5">

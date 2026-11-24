@@ -43,6 +43,8 @@ export interface BuildSessionParams {
   completedAt?: string;
   stageIds: string[];
   stageStatuses: StageStatusMap;
+  /** Optional explicit set of stage IDs that were skipped at any point in this session (preserved even if later revisited & completed). */
+  previouslySkippedStageIds?: Iterable<string>;
   hintsByStage: Record<string, number>;
   predictionRecords: Record<string, PredictionRecord>;
   events?: LearningEvent[];
@@ -149,6 +151,15 @@ export function buildLearningSession(
     }
   };
 
+  const previouslySkippedSet = new Set<string>(
+    params.previouslySkippedStageIds ?? [],
+  );
+  for (const ev of params.events ?? []) {
+    if (ev.type === 'stage-skipped' && ev.stageId) {
+      previouslySkippedSet.add(ev.stageId);
+    }
+  }
+
   // 1. Guided stage attempts & views (never awards 'independently-demonstrated')
   for (const stageId of params.stageIds) {
     const status = stageStatusesCopy[stageId];
@@ -164,7 +175,10 @@ export function buildLearningSession(
       const wrongAnswersBeforeComplete = stageEvents.filter(
         (e) => e.correct === false,
       ).length;
-      const hadAssistance = stageHints > 0 || wrongAnswersBeforeComplete > 0;
+      const wasPreviouslySkipped = previouslySkippedSet.has(stageId);
+      // Revisiting a previously skipped stage and answering correctly must NOT inflate first-try evidence
+      const hadAssistance =
+        stageHints > 0 || wrongAnswersBeforeComplete > 0 || wasPreviouslySkipped;
       const evidenceLevel: EvidenceLevel = hadAssistance
         ? 'correct-with-assistance'
         : 'first-try-correct';
@@ -176,7 +190,8 @@ export function buildLearningSession(
         skillIds,
         correct: true,
         firstTry: !hadAssistance,
-        retries: wrongAnswersBeforeComplete,
+        retries:
+          wrongAnswersBeforeComplete + (wasPreviouslySkipped ? 1 : 0),
         hintsUsed: stageHints,
         skipped: false,
         evidenceLevel,
