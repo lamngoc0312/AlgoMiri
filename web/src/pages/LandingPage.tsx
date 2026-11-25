@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
@@ -111,6 +111,25 @@ export function LandingPage() {
 
   const analyzeSeqRef = useRef(0);
   const analyzeAbortRef = useRef<AbortController | null>(null);
+  const workspaceTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const handleWorkspaceTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    idx: number,
+  ) => {
+    const order: Array<'analysis' | 'tutor'> = ['analysis', 'tutor'];
+    let nextIdx: number | null = null;
+    if (event.key === 'ArrowRight') nextIdx = (idx + 1) % order.length;
+    else if (event.key === 'ArrowLeft')
+      nextIdx = (idx - 1 + order.length) % order.length;
+    else if (event.key === 'Home') nextIdx = 0;
+    else if (event.key === 'End') nextIdx = order.length - 1;
+    if (nextIdx === null) return;
+
+    event.preventDefault();
+    setActiveWorkspaceTab(order[nextIdx]);
+    workspaceTabRefs.current[nextIdx]?.focus();
+  };
 
   useEffect(() => {
     if (prefillProblem?.originalPrompt) {
@@ -300,10 +319,17 @@ export function LandingPage() {
                   className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
                 >
                   <button
+                    ref={(el) => {
+                      workspaceTabRefs.current[0] = el;
+                    }}
+                    id="landing-workspace-tab-analysis"
                     type="button"
                     role="tab"
                     aria-selected={activeWorkspaceTab === 'analysis'}
+                    aria-controls="landing-workspace-panel-analysis"
+                    tabIndex={activeWorkspaceTab === 'analysis' ? 0 : -1}
                     onClick={() => setActiveWorkspaceTab('analysis')}
+                    onKeyDown={(e) => handleWorkspaceTabKeyDown(e, 0)}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'analysis'
                         ? 'bg-[#2B6CC9] text-white'
@@ -313,10 +339,17 @@ export function LandingPage() {
                     Learn (Analysis)
                   </button>
                   <button
+                    ref={(el) => {
+                      workspaceTabRefs.current[1] = el;
+                    }}
+                    id="landing-workspace-tab-tutor"
                     type="button"
                     role="tab"
                     aria-selected={activeWorkspaceTab === 'tutor'}
+                    aria-controls="landing-workspace-panel-tutor"
+                    tabIndex={activeWorkspaceTab === 'tutor' ? 0 : -1}
                     onClick={() => setActiveWorkspaceTab('tutor')}
+                    onKeyDown={(e) => handleWorkspaceTabKeyDown(e, 1)}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'tutor'
                         ? 'bg-[#2B6CC9] text-white'
@@ -343,21 +376,46 @@ export function LandingPage() {
             </div>
           </div>
 
-          {analysisResult.mode === 'offline-demo' ||
-          activeWorkspaceTab === 'analysis' ? (
-            <div role="tabpanel" aria-label="Problem analysis">
-              <ProblemAnalysisView
-                result={analysisResult}
-                selectedStrategyName={selectedStrategyName}
-                isStale={isAnalysisStale}
-                onReanalyze={() => void runAiAnalysis()}
-                onSelectStrategy={setSelectedStrategyName}
-                onOpenTutor={() => setActiveWorkspaceTab('tutor')}
-              />
-            </div>
-          ) : (
-            <div role="tabpanel" aria-label="AI Tutor" className="space-y-4">
-              {isAnalysisStale && (
+          <div
+            id="landing-workspace-panel-analysis"
+            role="tabpanel"
+            aria-labelledby="landing-workspace-tab-analysis"
+            hidden={
+              analysisResult.mode !== 'offline-demo' &&
+              activeWorkspaceTab !== 'analysis'
+            }
+            className={
+              analysisResult.mode === 'offline-demo' ||
+              activeWorkspaceTab === 'analysis'
+                ? ''
+                : 'hidden'
+            }
+          >
+            <ProblemAnalysisView
+              result={analysisResult}
+              selectedStrategyName={selectedStrategyName}
+              isStale={
+                isAnalysisStale &&
+                (analysisResult.mode === 'offline-demo' ||
+                  activeWorkspaceTab === 'analysis')
+              }
+              onReanalyze={() => void runAiAnalysis()}
+              onSelectStrategy={setSelectedStrategyName}
+              onOpenTutor={() => setActiveWorkspaceTab('tutor')}
+            />
+          </div>
+
+          {analysisResult.mode !== 'offline-demo' && (
+            <div
+              id="landing-workspace-panel-tutor"
+              role="tabpanel"
+              aria-labelledby="landing-workspace-tab-tutor"
+              hidden={activeWorkspaceTab !== 'tutor'}
+              className={
+                activeWorkspaceTab === 'tutor' ? 'space-y-4' : 'hidden'
+              }
+            >
+              {isAnalysisStale && activeWorkspaceTab === 'tutor' && (
                 <div
                   role="alert"
                   className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"

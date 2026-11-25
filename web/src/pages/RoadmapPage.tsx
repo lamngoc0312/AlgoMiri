@@ -77,7 +77,7 @@ export function RoadmapPage({
             </Badge>
             <Badge variant="neutral">Deterministic Rules</Badge>
           </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-[#526075]">
+          <p className="max-w-2xl text-base leading-relaxed text-[#526075]">
             Your next steps and skill prerequisites adapted transparently from your locally recorded Guided Learning and trace prediction evidence. All verified Studios remain open anytime.
           </p>
         </div>

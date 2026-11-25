@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -60,6 +60,44 @@ export function ProblemAnalysisView({
   const [readerTab, setReaderTab] = useState<ReaderTab>('walkthrough');
   const [activeStepIdx, setActiveStepIdx] = useState(0);
   const [activeBeatIdx, setActiveBeatIdx] = useState(0);
+  const readerTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const stepTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const readerTabOrder: ReaderTab[] = ['walkthrough', 'approaches', 'details'];
+  const handleReaderTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    idx: number,
+  ) => {
+    let nextIdx: number | null = null;
+    if (event.key === 'ArrowRight') nextIdx = (idx + 1) % readerTabOrder.length;
+    else if (event.key === 'ArrowLeft')
+      nextIdx = (idx - 1 + readerTabOrder.length) % readerTabOrder.length;
+    else if (event.key === 'Home') nextIdx = 0;
+    else if (event.key === 'End') nextIdx = readerTabOrder.length - 1;
+    if (nextIdx === null) return;
+
+    event.preventDefault();
+    setReaderTab(readerTabOrder[nextIdx]);
+    readerTabRefs.current[nextIdx]?.focus();
+  };
+
+  const handleStepTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    idx: number,
+  ) => {
+    const count = conceptualSteps.length;
+    if (count === 0) return;
+    let nextIdx: number | null = null;
+    if (event.key === 'ArrowRight') nextIdx = (idx + 1) % count;
+    else if (event.key === 'ArrowLeft') nextIdx = (idx - 1 + count) % count;
+    else if (event.key === 'Home') nextIdx = 0;
+    else if (event.key === 'End') nextIdx = count - 1;
+    if (nextIdx === null) return;
+
+    event.preventDefault();
+    setActiveStepIdx(nextIdx);
+    stepTabRefs.current[nextIdx]?.focus();
+  };
 
   // Reset interactive state cleanly whenever a new analysis loads
   useEffect(() => {
@@ -254,17 +292,24 @@ export function ProblemAnalysisView({
             </p>
           </div>
 
-          {/* Pin-UI-Inspired Segmented Reader Tabs */}
+          {/* Pin-UI-Inspired Segmented Reader Tabs with WAI-ARIA roving keyboard nav */}
           <div
             role="tablist"
             aria-label="Analysis sections"
             className="flex flex-wrap sm:inline-flex w-full sm:w-auto gap-1 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
           >
             <button
+              ref={(el) => {
+                readerTabRefs.current[0] = el;
+              }}
+              id="analysis-tab-walkthrough"
               type="button"
               role="tab"
               aria-selected={readerTab === 'walkthrough'}
+              aria-controls="analysis-panel-walkthrough"
+              tabIndex={readerTab === 'walkthrough' ? 0 : -1}
               onClick={() => setReaderTab('walkthrough')}
+              onKeyDown={(e) => handleReaderTabKeyDown(e, 0)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'walkthrough'
                   ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
@@ -278,10 +323,17 @@ export function ProblemAnalysisView({
               Walkthrough
             </button>
             <button
+              ref={(el) => {
+                readerTabRefs.current[1] = el;
+              }}
+              id="analysis-tab-approaches"
               type="button"
               role="tab"
               aria-selected={readerTab === 'approaches'}
+              aria-controls="analysis-panel-approaches"
+              tabIndex={readerTab === 'approaches' ? 0 : -1}
               onClick={() => setReaderTab('approaches')}
+              onKeyDown={(e) => handleReaderTabKeyDown(e, 1)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'approaches'
                   ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
@@ -295,10 +347,17 @@ export function ProblemAnalysisView({
               Approaches ({analysis.candidate_strategies.length})
             </button>
             <button
+              ref={(el) => {
+                readerTabRefs.current[2] = el;
+              }}
+              id="analysis-tab-details"
               type="button"
               role="tab"
               aria-selected={readerTab === 'details'}
+              aria-controls="analysis-panel-details"
+              tabIndex={readerTab === 'details' ? 0 : -1}
               onClick={() => setReaderTab('details')}
+              onKeyDown={(e) => handleReaderTabKeyDown(e, 2)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'details'
                   ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
@@ -317,8 +376,9 @@ export function ProblemAnalysisView({
         {/* TAB 1: Focused Interactive Walkthrough (Default Initial View) */}
         {readerTab === 'walkthrough' && (
           <div
+            id="analysis-panel-walkthrough"
             role="tabpanel"
-            aria-label="Interactive conceptual walkthrough"
+            aria-labelledby="analysis-tab-walkthrough"
             className="p-6 sm:p-8 space-y-7"
           >
             {/* Clear Input -> Output Example with Interactive Beats */}
@@ -421,10 +481,17 @@ export function ProblemAnalysisView({
                       return (
                         <button
                           key={step.id}
+                          ref={(el) => {
+                            stepTabRefs.current[idx] = el;
+                          }}
+                          id={`conceptual-step-tab-${step.id}`}
                           type="button"
                           role="tab"
                           aria-selected={isActive}
+                          aria-controls="conceptual-step-panel"
+                          tabIndex={isActive ? 0 : -1}
                           onClick={() => setActiveStepIdx(idx)}
+                          onKeyDown={(e) => handleStepTabKeyDown(e, idx)}
                           className={`h-8 min-w-[32px] rounded-lg px-2.5 font-mono text-xs font-bold transition-colors cursor-pointer ${
                             isActive
                               ? 'bg-[#2B6CC9] text-white'
@@ -441,6 +508,9 @@ export function ProblemAnalysisView({
                 </div>
 
                 <div
+                  id="conceptual-step-panel"
+                  role="tabpanel"
+                  aria-labelledby={`conceptual-step-tab-${activeStep.id}`}
                   aria-live="polite"
                   className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-5 sm:p-6 space-y-2.5"
                 >
@@ -527,8 +597,9 @@ export function ProblemAnalysisView({
         {/* TAB 2: Compact Selectable Approaches & Complexity */}
         {readerTab === 'approaches' && activeStrategy && (
           <div
+            id="analysis-panel-approaches"
             role="tabpanel"
-            aria-label="Candidate approaches and complexity"
+            aria-labelledby="analysis-tab-approaches"
             className="p-6 sm:p-8 space-y-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -625,8 +696,9 @@ export function ProblemAnalysisView({
         {/* TAB 3: Constraints, Edge Cases, Guiding Question & Prerequisites */}
         {readerTab === 'details' && (
           <div
+            id="analysis-panel-details"
             role="tabpanel"
-            aria-label="Constraints, edge cases, and prerequisites"
+            aria-labelledby="analysis-tab-details"
             className="p-6 sm:p-8 space-y-6 text-sm"
           >
             <div className="rounded-xl border-l-4 border-[#397BDB] bg-[#F7F9FC] px-5 py-4 space-y-1">

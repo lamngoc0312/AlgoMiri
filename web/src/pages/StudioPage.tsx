@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle,
@@ -866,11 +866,34 @@ function StudioSecondaryDock({
   const [activeTab, setActiveTab] = useState<'explanation' | 'tutor'>(
     'explanation',
   );
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const tabs: { id: 'explanation' | 'tutor'; label: string }[] = [
+    { id: 'explanation', label: 'Step Explanation' },
+    { id: 'tutor', label: 'Ask AI Tutor' },
+  ];
+
   const analysis = useMemo(
     () => buildProblemAnalysisFromModule(problemModule, strategy.id),
     [problemModule, strategy.id],
   );
   const executionContext = `Step ${stepIndex + 1} of ${totalSteps}: ${step.actionTitle} — ${step.explanation}`;
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    idx: number,
+  ) => {
+    let nextIdx: number | null = null;
+    if (event.key === 'ArrowRight') nextIdx = (idx + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft')
+      nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') nextIdx = 0;
+    else if (event.key === 'End') nextIdx = tabs.length - 1;
+    if (nextIdx === null) return;
+
+    event.preventDefault();
+    setActiveTab(tabs[nextIdx].id);
+    tabRefs.current[nextIdx]?.focus();
+  };
 
   return (
     <div className="space-y-3">
@@ -879,54 +902,65 @@ function StudioSecondaryDock({
         aria-label="Step details and AI Tutor"
         className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'explanation'}
-          onClick={() => setActiveTab('explanation')}
-          className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
-            activeTab === 'explanation'
-              ? 'bg-[#2B6CC9] text-white'
-              : 'text-[#526075] hover:text-[#202B3B]'
-          }`}
-        >
-          Step Explanation
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'tutor'}
-          onClick={() => setActiveTab('tutor')}
-          className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
-            activeTab === 'tutor'
-              ? 'bg-[#2B6CC9] text-white'
-              : 'text-[#526075] hover:text-[#202B3B]'
-          }`}
-        >
-          Ask AI Tutor
-        </button>
+        {tabs.map((tab, idx) => {
+          const isSelected = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              ref={(el) => {
+                tabRefs.current[idx] = el;
+              }}
+              id={`studio-dock-tab-${tab.id}`}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              aria-controls={`studio-dock-panel-${tab.id}`}
+              tabIndex={isSelected ? 0 : -1}
+              onClick={() => setActiveTab(tab.id)}
+              onKeyDown={(e) => handleTabKeyDown(e, idx)}
+              className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
+                isSelected
+                  ? 'bg-[#2B6CC9] text-white'
+                  : 'text-[#526075] hover:text-[#202B3B]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {activeTab === 'explanation' ? (
-        <div role="tabpanel" aria-label="Step explanation">
-          <WalkthroughPane
-            strategy={strategy}
-            step={step}
-            stepIndex={stepIndex}
-            totalSteps={totalSteps}
-          />
-        </div>
-      ) : (
-        <div role="tabpanel" aria-label="Studio AI Tutor">
-          <AiTutorPanel
-            contextKey={`studio:${problemModule.id}:${strategy.name}`}
-            problemAnalysis={analysis}
-            selectedStrategy={strategy.name}
-            learningStage={learningStage}
-            executionContext={executionContext}
-          />
-        </div>
-      )}
+      {/* Keep both panels mounted so switching tabs preserves AI Tutor replies, drafts, and loading state */}
+      <div
+        id="studio-dock-panel-explanation"
+        role="tabpanel"
+        aria-labelledby="studio-dock-tab-explanation"
+        hidden={activeTab !== 'explanation'}
+        className={activeTab === 'explanation' ? '' : 'hidden'}
+      >
+        <WalkthroughPane
+          strategy={strategy}
+          step={step}
+          stepIndex={stepIndex}
+          totalSteps={totalSteps}
+        />
+      </div>
+
+      <div
+        id="studio-dock-panel-tutor"
+        role="tabpanel"
+        aria-labelledby="studio-dock-tab-tutor"
+        hidden={activeTab !== 'tutor'}
+        className={activeTab === 'tutor' ? '' : 'hidden'}
+      >
+        <AiTutorPanel
+          contextKey={`studio:${problemModule.id}:${strategy.name}`}
+          problemAnalysis={analysis}
+          selectedStrategy={strategy.name}
+          learningStage={learningStage}
+          executionContext={executionContext}
+        />
+      </div>
     </div>
   );
 }

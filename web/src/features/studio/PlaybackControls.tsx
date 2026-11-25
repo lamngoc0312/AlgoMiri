@@ -178,7 +178,7 @@ export function PlaybackControls({
         <div className="flex items-center gap-2">
           <label
             htmlFor="playback-speed"
-            className="text-xs font-semibold text-[#526075]"
+            className="text-sm font-semibold text-[#526075]"
           >
             Speed
           </label>
@@ -187,7 +187,7 @@ export function PlaybackControls({
             value={speed}
             onChange={(e) => onSpeedChange(Number(e.target.value))}
             aria-label="Playback speed"
-            className="h-9 rounded-xl border border-[#D7DCEB] bg-white px-2.5 font-mono text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
+            className="h-9 rounded-xl border border-[#D7DCEB] bg-white px-2.5 font-mono text-sm font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
           >
             {PLAYBACK_SPEEDS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -199,7 +199,7 @@ export function PlaybackControls({
       </div>
 
       {isForwardBlocked && (
-        <p className="text-xs font-medium text-[#925E08]">
+        <p className="text-sm font-medium text-[#925E08]">
           Checkpoint active — answer the prediction below or click Skip &amp; Reveal Next Step to advance.
         </p>
       )}
