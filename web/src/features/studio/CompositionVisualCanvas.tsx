@@ -134,20 +134,10 @@ export function CompositionVisualCanvas({
               </button>
             </div>
           </div>
-          <p className="text-xs text-[#526075]">
-            Watch the Binary Search driver propose candidate caps <code className="font-mono">mid</code> and delegate feasibility checking to the Greedy contiguous packer.
-          </p>
         </CardHeader>
 
         <CardContent className="space-y-5 pt-5">
-          <SplitArrayInputBar
-            key={sessionId}
-            currentInput={currentInput}
-            presets={presets}
-            onApplyInput={onApplyInput}
-          />
-
-          {/* Driver <-> Subroutine Composition Coordination Panel */}
+          {/* Driver <-> Subroutine Composition Coordination Panel — Primary Focal Point */}
           <div
             aria-label="Algorithm composition coordination"
             className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-stretch"
@@ -460,6 +450,14 @@ export function CompositionVisualCanvas({
               Scanning / New Group Cut
             </span>
           </div>
+
+          {/* Custom Input Bar (below composition visualization so the canvas stays primary) */}
+          <SplitArrayInputBar
+            key={sessionId}
+            currentInput={currentInput}
+            presets={presets}
+            onApplyInput={onApplyInput}
+          />
         </CardContent>
       </Card>
 

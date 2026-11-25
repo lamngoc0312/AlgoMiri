@@ -121,20 +121,10 @@ export function StackVisualCanvas({
               </button>
             </div>
           </div>
-          <p className="text-xs text-[#526075]">
-            Watch each opening bracket push onto TOP and each closing bracket verify against TOP in Last-In-First-Out order.
-          </p>
         </CardHeader>
 
         <CardContent className="space-y-5 pt-5">
-          <StackInputBar
-            key={sessionId}
-            currentInput={currentInput}
-            presets={presets}
-            onApplyInput={onApplyInput}
-          />
-
-          {/* Input String Character Strip */}
+          {/* Input String Character Strip — Primary Focal Point */}
           <div aria-label="Bracket input string" className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
@@ -398,6 +388,14 @@ export function StackVisualCanvas({
               Mismatch / Unclosed
             </span>
           </div>
+
+          {/* Custom Bracket Input (below visualization so the Stack stays primary) */}
+          <StackInputBar
+            key={sessionId}
+            currentInput={currentInput}
+            presets={presets}
+            onApplyInput={onApplyInput}
+          />
         </CardContent>
       </Card>
 

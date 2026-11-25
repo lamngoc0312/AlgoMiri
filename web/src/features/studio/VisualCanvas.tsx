@@ -141,20 +141,10 @@ export function VisualCanvas({
               </button>
             </div>
           </div>
-          <p className="text-xs text-[#526075]">
-            Every step is computed deterministically from your input — inspect pointers, complements, and memory updates live.
-          </p>
         </CardHeader>
 
         <CardContent className="space-y-5 pt-5">
-          {/* Custom Input Controls (keyed by sessionId so Restart resets input fields cleanly) */}
-          <CustomInputBar
-            key={sessionId}
-            currentInput={currentInput}
-            onApplyInput={onApplyInput}
-          />
-
-          {/* Array Visualization */}
+          {/* Array Visualization — Primary Focal Point */}
           <div aria-label="Array state visualization" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -413,6 +403,13 @@ export function VisualCanvas({
               Stored / Visited
             </span>
           </div>
+
+          {/* Custom Input Controls (positioned below visualization so visual state stays primary) */}
+          <CustomInputBar
+            key={sessionId}
+            currentInput={currentInput}
+            onApplyInput={onApplyInput}
+          />
         </CardContent>
       </Card>
 

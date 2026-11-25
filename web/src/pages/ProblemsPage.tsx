@@ -90,7 +90,7 @@ export function ProblemsPage() {
               Problem Library
             </h1>
           </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-[#526075]">
+          <p className="max-w-2xl text-base leading-relaxed text-[#526075]">
             Practice in verified deterministic visual studios, explore original AI-guided practice problems, or paste your own problem statement on the Home page.
           </p>
         </div>
