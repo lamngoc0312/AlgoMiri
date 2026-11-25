@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   ArrowDown,
   ArrowRight,
@@ -87,6 +88,7 @@ export function StackVisualCanvas({
   onSeek,
   onOpenMacroView,
 }: StackVisualCanvasProps) {
+  const { t } = useTranslation();
   const { visualState } = step;
   const chars = visualState.input.split('');
   const activeNodeIds = getActiveNodeIdsForStep(solutionGraph, step);
@@ -100,8 +102,11 @@ export function StackVisualCanvas({
         <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-              <CardTitle>Stack Execution Canvas</CardTitle>
+              <Eye
+                className="h-4 w-4 text-[var(--accent-blue-link)]"
+                aria-hidden="true"
+              />
+              <CardTitle>{t('visualization.stack.title')}</CardTitle>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="indigo">{strategy.shortLabel}</Badge>
@@ -117,7 +122,9 @@ export function StackVisualCanvas({
                 }`}
               >
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
-                Predict Next Step: {predictModeEnabled ? 'On' : 'Off'}
+                {predictModeEnabled
+                  ? t('visualization.predictToggleOn')
+                  : t('visualization.predictToggleOff')}
               </button>
             </div>
           </div>
@@ -125,25 +132,31 @@ export function StackVisualCanvas({
 
         <CardContent className="space-y-5 pt-5">
           {/* Input String Character Strip — Primary Focal Point */}
-          <div aria-label="Bracket input string" className="space-y-2.5">
+          <div
+            aria-label={t('visualization.stack.inputRegion')}
+            className="space-y-2.5"
+          >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                Input String ({chars.length}{' '}
-                {chars.length === 1 ? 'char' : 'chars'})
+                {t('visualization.stack.inputHeader', { count: chars.length })}
               </h3>
               {visualState.currentChar && (
                 <span className="rounded-full bg-[var(--accent-amber-soft)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--accent-amber-text)] border border-[var(--accent-amber-border)]">
-                  Current: &quot;{visualState.currentChar}&quot; (idx{' '}
-                  {visualState.currentIndex})
+                  {t('visualization.stack.currentChar', {
+                    char: visualState.currentChar,
+                    index: visualState.currentIndex ?? 0,
+                  })}
                 </span>
               )}
             </div>
 
             {chars.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#15A897] bg-[var(--accent-teal-soft)]/60 px-4 py-5 text-center text-xs text-[var(--accent-teal-deep)]">
-                <p className="font-bold text-sm">Empty String (&quot;&quot;)</p>
+                <p className="font-bold text-sm">
+                  {t('visualization.stack.emptyTitle')}
+                </p>
                 <p className="mt-1">
-                  Zero brackets means zero mismatches and an empty stack — valid (true)!
+                  {t('visualization.stack.emptyDescription')}
                 </p>
               </div>
             ) : (
@@ -154,7 +167,8 @@ export function StackVisualCanvas({
                     visualState.currentIndex !== null &&
                     idx < visualState.currentIndex;
 
-                  let tileStyle = 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]';
+                  let tileStyle =
+                    'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]';
                   if (isCurrent && visualState.operation === 'mismatch') {
                     tileStyle =
                       'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)] scale-105 shadow-xs';
@@ -200,17 +214,22 @@ export function StackVisualCanvas({
 
           {/* Vertical Stack Visualization */}
           <div
-            aria-label="Vertical stack visualization"
+            aria-label={t('visualization.stack.stackRegion')}
             className="grid gap-4 sm:grid-cols-[1fr_220px] sm:items-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4"
           >
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <Layers
+                  className="h-4 w-4 text-[var(--accent-blue-link)]"
+                  aria-hidden="true"
+                />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
-                  Stack State (LIFO)
+                  {t('visualization.stack.stackTitle')}
                 </h3>
                 <Badge variant="neutral">
-                  size: {visualState.stack.length}
+                  {t('visualization.stack.stackSize', {
+                    count: visualState.stack.length,
+                  })}
                 </Badge>
               </div>
 
@@ -218,32 +237,44 @@ export function StackVisualCanvas({
                 <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
                   {visualState.operation === 'push' && (
                     <>
-                      <ArrowDown className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
-                      <span>Push onto TOP</span>
+                      <ArrowDown
+                        className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
+                        aria-hidden="true"
+                      />
+                      <span>{t('visualization.stack.opPush')}</span>
                     </>
                   )}
                   {visualState.operation === 'pop' && (
                     <>
-                      <ArrowUp className="h-3.5 w-3.5 text-[var(--accent-teal-text)]" aria-hidden="true" />
-                      <span>Pop from TOP</span>
+                      <ArrowUp
+                        className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"
+                        aria-hidden="true"
+                      />
+                      <span>{t('visualization.stack.opPop')}</span>
                     </>
                   )}
                   {visualState.operation === 'check-match' && (
                     <span>
-                      Comparing &quot;{visualState.currentChar}&quot; with TOP &quot;
-                      {visualState.comparingWith}&quot;
+                      {t('visualization.stack.opCheckMatch', {
+                        char: visualState.currentChar ?? '',
+                        top: visualState.comparingWith ?? '',
+                      })}
                     </span>
                   )}
                   {visualState.operation === 'mismatch' && (
-                    <span className="text-[var(--accent-amber-text)]">Mismatch Detected</span>
+                    <span className="text-[var(--accent-amber-text)]">
+                      {t('visualization.stack.opMismatch')}
+                    </span>
                   )}
                   {visualState.operation === 'unclosed' && (
                     <span className="text-[var(--accent-amber-text)]">
-                      Unclosed Brackets Remain
+                      {t('visualization.stack.opUnclosed')}
                     </span>
                   )}
                   {visualState.operation === 'valid' && (
-                    <span className="text-[var(--accent-teal-text)]">Balanced &amp; Empty Stack</span>
+                    <span className="text-[var(--accent-teal-text)]">
+                      {t('visualization.stack.opValid')}
+                    </span>
                   )}
                 </div>
                 <p className="text-[var(--text-secondary)] leading-relaxed">
@@ -255,17 +286,18 @@ export function StackVisualCanvas({
             {/* Vertical U-Shaped Stack Frame */}
             <div className="flex flex-col items-center">
               <span className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue-link)]">
-                &darr; Push / Pop at TOP &uarr;
+                {t('visualization.stack.topHint')}
               </span>
               <div className="flex min-h-[168px] w-full max-w-[200px] flex-col-reverse justify-start gap-2 rounded-b-2xl border-x-2 border-b-2 border-[var(--border-control)] bg-[var(--surface-card)] px-3 pb-3 pt-4">
                 {visualState.stack.length === 0 ? (
                   <div className="my-auto py-8 text-center text-xs font-medium text-[var(--text-secondary)]">
-                    Stack is empty
+                    {t('visualization.stack.stackEmpty')}
                   </div>
                 ) : (
                   visualState.stack.map((item, idx) => {
                     const isTop = idx === visualState.stack.length - 1;
-                    let itemStyle = 'border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-primary)]';
+                    let itemStyle =
+                      'border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-primary)]';
                     if (item.highlight === 'new') {
                       itemStyle =
                         'border-[#397BDB] bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)] shadow-xs';
@@ -299,7 +331,7 @@ export function StackVisualCanvas({
                 )}
               </div>
               <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                Bottom
+                {t('visualization.stack.bottomLabel')}
               </span>
             </div>
           </div>
@@ -315,9 +347,11 @@ export function StackVisualCanvas({
                 aria-hidden="true"
               />
               <div>
-                <p className="font-bold">Valid Parentheses (true)</p>
+                <p className="font-bold">
+                  {t('visualization.stack.validTitle')}
+                </p>
                 <p className="text-xs mt-0.5">
-                  Every bracket closed in proper Last-In-First-Out order and the stack ended empty.
+                  {t('visualization.stack.validDescription')}
                 </p>
               </div>
             </div>
@@ -330,11 +364,13 @@ export function StackVisualCanvas({
             >
               <XCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
-                <p className="font-bold">Invalid Parentheses (false)</p>
+                <p className="font-bold">
+                  {t('visualization.stack.invalidTitle')}
+                </p>
                 <p className="text-xs mt-0.5 text-[var(--text-secondary)]">
                   {visualState.operation === 'unclosed'
-                    ? 'Opening brackets remained unclosed on the stack when the string ended.'
-                    : 'A closing bracket failed to match the TOP of the stack (or the stack was empty).'}
+                    ? t('visualization.stack.invalidUnclosed')
+                    : t('visualization.stack.invalidMismatch')}
                 </p>
               </div>
             </div>
@@ -371,25 +407,36 @@ export function StackVisualCanvas({
 
           {/* Accessible Color + Label Legend */}
           <div
-            aria-label="Stack highlight color legend"
+            aria-label={t('visualization.stack.legendLabel')}
             className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border-subtle)] pt-3.5 text-xs text-[var(--text-secondary)]"
           >
-            <span className="font-bold text-[var(--text-primary)]">Legend:</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#397BDB]" aria-hidden="true" />
-              Current / Pushed
+            <span className="font-bold text-[var(--text-primary)]">
+              {t('visualization.legend')}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#15A897]" aria-hidden="true" />
-              Matched / Valid
+              <span
+                className="h-3 w-3 rounded-full bg-[#397BDB]"
+                aria-hidden="true"
+              />
+              {t('visualization.stack.legendCurrent')}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#F2B84B]" aria-hidden="true" />
-              Mismatch / Unclosed
+              <span
+                className="h-3 w-3 rounded-full bg-[#15A897]"
+                aria-hidden="true"
+              />
+              {t('visualization.stack.legendMatched')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-3 w-3 rounded-full bg-[#F2B84B]"
+                aria-hidden="true"
+              />
+              {t('visualization.stack.legendMismatch')}
             </span>
           </div>
 
-          {/* Custom Bracket Input (below visualization so the Stack stays primary) */}
+          {/* Custom Bracket Input */}
           <StackInputBar
             key={sessionId}
             currentInput={currentInput}
@@ -401,13 +448,13 @@ export function StackVisualCanvas({
 
       {/* Synchronized Macro Goal Link Banner */}
       <div
-        aria-label="Synchronized Macro conceptual goal"
+        aria-label={t('visualization.macroBannerLabel')}
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/45 px-4 py-3"
       >
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-blue-text)]">
             <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
-            Current Step Supports Conceptual Goal:
+            {t('visualization.currentStepGoal')}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {activeNodes.map((node) => (
@@ -418,7 +465,7 @@ export function StackVisualCanvas({
           </div>
         </div>
         <Button variant="secondary" size="sm" onClick={onOpenMacroView}>
-          Open Solution Map
+          {t('visualization.openSolutionMap')}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </div>

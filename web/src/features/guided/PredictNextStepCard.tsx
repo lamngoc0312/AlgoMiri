@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, CheckCircle2, FastForward, Sparkles } from 'lucide-react';
 import type { PredictionPrompt } from '../../domain/learning/predictions';
 import type { PredictionRecord } from '../../domain/learning/session';
@@ -22,6 +23,7 @@ export function PredictNextStepCard({
   onSkipAndReveal,
   onStepForward,
 }: PredictNextStepCardProps) {
+  const { t } = useTranslation();
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(
     record?.lastSelectedOptionId ?? null,
   );
@@ -34,7 +36,7 @@ export function PredictNextStepCard({
   if (!prompt) {
     return (
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--text-secondary)]">
-        Reached the final step of this trace. Reset or try a custom input to practice more predictions!
+        {t('guided.predict.reachedEnd')}
       </div>
     );
   }
@@ -51,20 +53,22 @@ export function PredictNextStepCard({
 
   return (
     <section
-      aria-label="Predict the next step"
+      aria-label={t('guided.predict.sectionLabel')}
       className="rounded-xl border border-[var(--accent-blue-border)] border-l-4 border-l-[#397BDB] bg-[var(--surface-subtle)] p-5 space-y-3.5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue-text)]">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
-          Predict the Next Step
+          {t('guided.predict.title')}
         </div>
         <div className="flex items-center gap-1.5">
           {isCheckpointPaused && !isSolved && (
-            <Badge variant="amber">Checkpoint Paused</Badge>
+            <Badge variant="amber">{t('guided.predict.checkpointPaused')}</Badge>
           )}
           <Badge variant={isSolved ? 'mint' : 'indigo'}>
-            {isSolved ? 'Verified' : 'Active Recall'}
+            {isSolved
+              ? t('guided.predict.verified')
+              : t('guided.predict.activeRecall')}
           </Badge>
         </div>
       </div>
@@ -73,7 +77,11 @@ export function PredictNextStepCard({
         {prompt.question}
       </p>
 
-      <div className="space-y-2" role="radiogroup" aria-label="Prediction choices">
+      <div
+        className="space-y-2"
+        role="radiogroup"
+        aria-label={t('guided.predict.choicesLabel')}
+      >
         {prompt.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
           let style =
@@ -83,7 +91,8 @@ export function PredictNextStepCard({
             style =
               'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)] font-semibold';
           } else if (isSelected && !option.isCorrect) {
-            style = 'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)]';
+            style =
+              'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)]';
           }
 
           return (
@@ -116,8 +125,8 @@ export function PredictNextStepCard({
             )}
             <span>
               {selectedOption.isCorrect
-                ? 'Correct prediction!'
-                : 'Not quite — try again without penalty, or skip & reveal the verified next step.'}
+                ? t('guided.predict.correct')
+                : t('guided.predict.incorrect')}
             </span>
           </div>
           <p className="mt-1">{selectedOption.feedback}</p>
@@ -127,7 +136,7 @@ export function PredictNextStepCard({
       <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
         {isSolved ? (
           <Button variant="mint" size="sm" onClick={onStepForward}>
-            Step to Verified State
+            {t('guided.predict.stepToVerified')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         ) : (
@@ -137,7 +146,7 @@ export function PredictNextStepCard({
             onClick={() => onSkipAndReveal(prompt.id)}
           >
             <FastForward className="h-4 w-4" aria-hidden="true" />
-            Skip &amp; Reveal Next Step
+            {t('guided.predict.skipAndReveal')}
           </Button>
         )}
       </div>

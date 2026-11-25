@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, Clock, Database, MessageSquareText } from 'lucide-react';
 import type { SolutionStrategy } from '../../domain/problems/types';
 import type { GenericExecutionStep } from '../../domain/core/types';
@@ -17,14 +18,22 @@ export function WalkthroughPane({
   stepIndex,
   totalSteps,
 }: WalkthroughPaneProps) {
+  const { t } = useTranslation();
+
   const statusBadge =
     step.visualState.status === 'found'
-      ? { variant: 'mint' as const, label: 'Completed · Valid' }
+      ? { variant: 'mint' as const, label: t('studio.walkthrough.completedValid') }
       : step.visualState.status === 'not-found'
-        ? { variant: 'amber' as const, label: 'Completed · Stopped' }
+        ? {
+            variant: 'amber' as const,
+            label: t('studio.walkthrough.completedStopped'),
+          }
         : {
             variant: 'indigo' as const,
-            label: `Step ${stepIndex + 1} / ${totalSteps}`,
+            label: t('studio.walkthrough.stepCounter', {
+              current: stepIndex + 1,
+              total: totalSteps,
+            }),
           };
 
   return (
@@ -36,7 +45,9 @@ export function WalkthroughPane({
               className="h-4 w-4 text-[var(--accent-blue-link)]"
               aria-hidden="true"
             />
-            <CardTitle className="text-lg">Step Explanation</CardTitle>
+            <CardTitle className="text-lg">
+              {t('studio.walkthrough.title')}
+            </CardTitle>
           </div>
           <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
         </div>
@@ -66,7 +77,7 @@ export function WalkthroughPane({
           {/* Synchronized Variables Readout */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              Execution State
+              {t('studio.walkthrough.executionState')}
             </h3>
             <dl className="mt-2 grid grid-cols-2 gap-2.5">
               {Object.entries(step.variables).map(([name, val]) => (
@@ -90,9 +101,16 @@ export function WalkthroughPane({
         <details className="group rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-bold text-[var(--text-primary)]">
             <span className="flex flex-wrap items-center gap-2.5">
-              <span>Complexity &amp; Why {strategy.shortLabel}?</span>
+              <span>
+                {t('studio.walkthrough.complexityAndWhy', {
+                  strategy: strategy.shortLabel,
+                })}
+              </span>
               <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                <Clock className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <Clock
+                  className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
+                  aria-hidden="true"
+                />
                 {strategy.timeComplexity}
               </span>
               <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--text-primary)] border border-[var(--border-subtle)]">

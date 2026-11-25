@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ClipboardCheck, FastForward } from 'lucide-react';
 import type { GuidedStage } from '../../domain/core/types';
 import type { StageStatusMap } from '../../domain/learning/session';
@@ -19,9 +20,11 @@ export function GuidedLessonBar({
   onSelectStage,
   onOpenSummary,
 }: GuidedLessonBarProps) {
+  const { t } = useTranslation();
+
   return (
     <nav
-      aria-label="Guided lesson stages"
+      aria-label={t('guided.stagesNavLabel')}
       className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-2.5 shadow-[0_1px_3px_rgba(32,37,59,0.04)]"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -91,7 +94,7 @@ export function GuidedLessonBar({
           }`}
         >
           <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
-          Summary
+          {t('guided.summaryButton')}
         </button>
       </div>
     </nav>

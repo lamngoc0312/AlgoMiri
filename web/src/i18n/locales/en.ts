@@ -1,3 +1,5 @@
+import { learningEn } from './learningEn';
+
 export const en = {
   common: {
     language: 'Language',
@@ -5,6 +7,7 @@ export const en = {
     vietnamese: 'Vietnamese',
     retry: 'Retry',
     clear: 'Clear',
+    cancel: 'Cancel',
     resetFilters: 'Reset filters',
     analyze: 'Analyze Problem (AI)',
     openStudio: 'Open Studio',
@@ -13,6 +16,7 @@ export const en = {
     verifiedStudio: 'Verified Studio',
     beginner: 'Beginner',
     intermediate: 'Intermediate',
+    advanced: 'Advanced',
     switchToDark: 'Switch to dark mode',
     switchToLight: 'Switch to light mode',
     darkMode: 'Dark Mode',
@@ -239,5 +243,6 @@ export const en = {
       hashingFrequency: 'Hashing & Frequency',
     },
   },
+  ...learningEn,
 } as const;
 

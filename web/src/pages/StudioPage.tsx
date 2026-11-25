@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   ArrowRight,
@@ -66,10 +67,14 @@ type StudioMode = 'guided' | 'explore';
 type PerspectiveView = 'micro' | 'macro';
 type MobileTab = 'problem' | 'canvas' | 'walkthrough';
 
-const MOBILE_TABS: { id: MobileTab; label: string; icon: typeof Eye }[] = [
-  { id: 'problem', label: 'Guide & Problem', icon: BookOpen },
-  { id: 'canvas', label: 'Visual Canvas', icon: Eye },
-  { id: 'walkthrough', label: 'Walkthrough', icon: MessageSquareText },
+const MOBILE_TABS: {
+  id: MobileTab;
+  labelKey: 'studio.mobileTabs.problem' | 'studio.mobileTabs.canvas' | 'studio.mobileTabs.walkthrough';
+  icon: typeof Eye;
+}[] = [
+  { id: 'problem', labelKey: 'studio.mobileTabs.problem', icon: BookOpen },
+  { id: 'canvas', labelKey: 'studio.mobileTabs.canvas', icon: Eye },
+  { id: 'walkthrough', labelKey: 'studio.mobileTabs.walkthrough', icon: MessageSquareText },
 ];
 
 interface StudioWorkspaceProps {
@@ -78,6 +83,7 @@ interface StudioWorkspaceProps {
 }
 
 function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
+  const { t } = useTranslation();
   const { spec, lesson } = problemModule;
   const firstStageId = lesson.stages[0]?.id ?? '';
 
@@ -269,7 +275,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       setSaveWarning(null);
     } else {
       setSaveWarning(
-        res.warningMessage ?? 'Session could not be saved to local storage.',
+        res.warningMessage ?? t('studio.saveSessionError'),
       );
     }
   };
@@ -474,7 +480,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-primary)]">
-            Learning Studio
+            {t('studio.title')}
           </h1>
           <Badge variant="indigo">{spec.title}</Badge>
         </div>
@@ -482,7 +488,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
         <div className="flex flex-wrap items-center gap-2">
           {/* Quick Problem Switcher */}
           <nav
-            aria-label="Switch problem"
+            aria-label={t('studio.switchProblem')}
             className="inline-flex items-center gap-1 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-1"
           >
             {allModules.map((mod) => {
@@ -504,17 +510,17 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
             <Link
               to="/problems"
               className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              title="Open Problem Library"
+              title={t('studio.openProblemLibrary')}
             >
               <Library className="h-3.5 w-3.5" aria-hidden="true" />
-              All
+              {t('studio.allProblems')}
             </Link>
           </nav>
 
           {/* Mode Switcher */}
           <div
             role="group"
-            aria-label="Learning mode switcher"
+            aria-label={t('studio.modeSwitcher')}
             className="inline-flex rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-1 shadow-[0_1px_2px_rgba(32,37,59,0.04)]"
           >
             <button
@@ -528,7 +534,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               }`}
             >
               <GraduationCap className="h-4 w-4" aria-hidden="true" />
-              Guided Learning
+              {t('studio.guidedLearning')}
             </button>
             <button
               type="button"
@@ -541,7 +547,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               }`}
             >
               <Compass className="h-4 w-4" aria-hidden="true" />
-              Free Exploration
+              {t('studio.freeExploration')}
             </button>
           </div>
         </div>
@@ -581,10 +587,10 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           {/* Mobile Tab Bar (< 1024px) */}
           <div
             role="tablist"
-            aria-label="Learning Studio panes"
+            aria-label={t('studio.panesLabel')}
             className="grid grid-cols-3 gap-1.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-1.5 lg:hidden"
           >
-            {MOBILE_TABS.map(({ id, label, icon: Icon }) => {
+            {MOBILE_TABS.map(({ id, labelKey, icon: Icon }) => {
               const isActive = mobileTab === id;
               return (
                 <button
@@ -600,7 +606,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{label}</span>
+                  <span className="truncate">{t(labelKey)}</span>
                 </button>
               );
             })}
@@ -609,7 +615,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           {/* Responsive 2-Column Canvas-First Desktop Grid / Mobile Tabbed Panes */}
           <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start">
             <section
-              aria-label="Problem and guided lesson panel"
+              aria-label={t('studio.panelLabels.problemAndGuide')}
               className={`space-y-4 ${
                 mobileTab === 'problem' ? 'block' : 'hidden lg:block'
               }`}
@@ -639,7 +645,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
             <div className="space-y-4">
               <section
-                aria-label="Visual execution canvas panel"
+                aria-label={t('studio.panelLabels.visualCanvas')}
                 className={`space-y-4 ${
                   mobileTab === 'canvas' ? 'block' : 'hidden lg:block'
                 }`}
@@ -647,11 +653,11 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               {/* Synchronized Micro / Macro Perspective Switcher */}
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3.5 py-2.5">
                 <span className="text-xs font-bold text-[var(--text-secondary)]">
-                  Perspective:
+                  {t('studio.perspective')}
                 </span>
                 <div
                   role="group"
-                  aria-label="Micro and Macro view switcher"
+                  aria-label={t('studio.perspectiveSwitcher')}
                   className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-0.5"
                 >
                   <button
@@ -665,7 +671,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                     }`}
                   >
                     <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                    Micro View (Execution)
+                    {t('studio.microView')}
                   </button>
                   <button
                     type="button"
@@ -678,7 +684,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                     }`}
                   >
                     <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
-                    Macro View (Solution Map)
+                    {t('studio.macroView')}
                   </button>
                 </div>
               </div>
@@ -824,7 +830,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
             </section>
 
             <section
-              aria-label="Step walkthrough and explanation panel"
+              aria-label={t('studio.panelLabels.walkthrough')}
               className={`space-y-3 ${
                 mobileTab === 'walkthrough' ? 'block' : 'hidden lg:block'
               }`}
@@ -863,13 +869,14 @@ function StudioSecondaryDock({
   totalSteps: number;
   learningStage: string;
 }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'explanation' | 'tutor'>(
     'explanation',
   );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const tabs: { id: 'explanation' | 'tutor'; label: string }[] = [
-    { id: 'explanation', label: 'Step Explanation' },
-    { id: 'tutor', label: 'Ask AI Tutor' },
+    { id: 'explanation', label: t('studio.dockTabs.explanation') },
+    { id: 'tutor', label: t('studio.dockTabs.tutor') },
   ];
 
   const analysis = useMemo(
@@ -899,7 +906,7 @@ function StudioSecondaryDock({
     <div className="space-y-3">
       <div
         role="tablist"
-        aria-label="Step details and AI Tutor"
+        aria-label={t('studio.dockLabel')}
         className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-1"
       >
         {tabs.map((tab, idx) => {
@@ -966,6 +973,7 @@ function StudioSecondaryDock({
 }
 
 export function StudioPage() {
+  const { t } = useTranslation();
   const { problemId } = useParams<{ problemId: string }>();
   const [searchParams] = useSearchParams();
   const initialMode: StudioMode =
@@ -982,21 +990,17 @@ export function StudioPage() {
             <div className="flex items-center gap-2 text-[var(--accent-amber-text)]">
               <AlertCircle className="h-5 w-5" aria-hidden="true" />
               <h1 className="text-lg font-extrabold text-[var(--text-primary)]">
-                Problem Not Available Yet
+                {t('studio.notAvailableTitle')}
               </h1>
             </div>
             <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-              We don&apos;t have a verified deterministic visual engine for{' '}
-              <code className="font-mono font-semibold text-[var(--text-primary)]">
-                {resolvedId}
-              </code>{' '}
-              yet. Choose a supported interactive problem from the Problem Library.
+              {t('studio.notAvailableDescription', { problemId: resolvedId })}
             </p>
             <Link
               to="/problems"
               className="inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-blue-hover)]"
             >
-              Browse Problem Library
+              {t('studio.browseProblemLibrary')}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </CardContent>

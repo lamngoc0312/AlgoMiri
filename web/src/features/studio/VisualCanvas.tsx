@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   CheckCircle2,
@@ -104,6 +105,7 @@ export function VisualCanvas({
   onSeek,
   onOpenMacroView,
 }: VisualCanvasProps) {
+  const { t } = useTranslation();
   const { visualState } = step;
 
   const getHighlightForIndex = (index: number) =>
@@ -120,8 +122,11 @@ export function VisualCanvas({
         <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-              <CardTitle>Visual Execution Canvas</CardTitle>
+              <Eye
+                className="h-4 w-4 text-[var(--accent-blue-link)]"
+                aria-hidden="true"
+              />
+              <CardTitle>{t('visualization.arrayHash.title')}</CardTitle>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="indigo">{strategy.shortLabel}</Badge>
@@ -137,7 +142,9 @@ export function VisualCanvas({
                 }`}
               >
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
-                Predict Next Step: {predictModeEnabled ? 'On' : 'Off'}
+                {predictModeEnabled
+                  ? t('visualization.predictToggleOn')
+                  : t('visualization.predictToggleOff')}
               </button>
             </div>
           </div>
@@ -145,12 +152,16 @@ export function VisualCanvas({
 
         <CardContent className="space-y-5 pt-5">
           {/* Array Visualization — Primary Focal Point */}
-          <div aria-label="Array state visualization" className="space-y-3">
+          <div
+            aria-label={t('visualization.arrayHash.arrayRegion')}
+            className="space-y-3"
+          >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Array ({visualState.nums.length}{' '}
-                  {visualState.nums.length === 1 ? 'item' : 'items'})
+                  {t('visualization.arrayHash.arrayHeader', {
+                    count: visualState.nums.length,
+                  })}
                 </h3>
                 <span className="rounded-md bg-[var(--accent-blue-soft)] px-2 py-0.5 font-mono text-xs font-semibold text-[var(--accent-blue-text)]">
                   target = {visualState.target}
@@ -161,7 +172,9 @@ export function VisualCanvas({
                 {visualState.complement !== undefined &&
                   visualState.complement !== null && (
                     <span className="rounded-full bg-[var(--accent-amber-soft)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--accent-amber-text)] border border-[var(--accent-amber-border)]">
-                      Need complement: {visualState.complement}
+                      {t('visualization.arrayHash.needComplement', {
+                        value: visualState.complement,
+                      })}
                     </span>
                   )}
                 {visualState.pairSum !== undefined &&
@@ -173,7 +186,9 @@ export function VisualCanvas({
                           : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border-control)]'
                       }`}
                     >
-                      Pair sum: {visualState.pairSum}
+                      {t('visualization.arrayHash.pairSum', {
+                        value: visualState.pairSum,
+                      })}
                     </span>
                   )}
               </div>
@@ -186,12 +201,12 @@ export function VisualCanvas({
                   aria-hidden="true"
                 />
                 <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
-                  Empty Array ([])
+                  {t('visualization.arrayHash.emptyTitle')}
                 </p>
                 <p className="mt-1 max-w-sm text-xs text-[var(--text-secondary)]">
-                  With 0 elements, no two distinct indices can sum to{' '}
-                  <span className="font-mono font-semibold">{visualState.target}</span>.
-                  Try a preset or enter at least two integers above.
+                  {t('visualization.arrayHash.emptyDescription', {
+                    target: visualState.target,
+                  })}
                 </p>
               </div>
             ) : (
@@ -252,8 +267,10 @@ export function VisualCanvas({
               />
               <div>
                 <p className="font-bold">
-                  Solution found: indices [{visualState.foundPair[0]},{' '}
-                  {visualState.foundPair[1]}]
+                  {t('visualization.arrayHash.solutionFound', {
+                    first: visualState.foundPair[0],
+                    second: visualState.foundPair[1],
+                  })}
                 </p>
                 <p className="text-xs mt-0.5">
                   <span className="font-mono">
@@ -275,13 +292,13 @@ export function VisualCanvas({
             >
               <SearchX className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
-                <p className="font-bold">No valid pair found</p>
+                <p className="font-bold">
+                  {t('visualization.arrayHash.noPairFound')}
+                </p>
                 <p className="text-xs mt-0.5 text-[var(--text-secondary)]">
-                  No two distinct indices in this array sum to{' '}
-                  <span className="font-mono font-semibold text-[var(--text-primary)]">
-                    {visualState.target}
-                  </span>
-                  .
+                  {t('visualization.arrayHash.noPairDescription', {
+                    target: visualState.target,
+                  })}
                 </p>
               </div>
             </div>
@@ -290,18 +307,23 @@ export function VisualCanvas({
           {/* Hash Map Panel (Hash Map strategy only) */}
           {strategy.id === 'hash-map' && (
             <div
-              aria-label="Seen hash map visualization"
+              aria-label={t('visualization.arrayHash.hashMapRegion')}
               className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Hash className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                  <Hash
+                    className="h-4 w-4 text-[var(--accent-blue-link)]"
+                    aria-hidden="true"
+                  />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
-                    Seen Hash Map (value &rarr; index)
+                    {t('visualization.arrayHash.hashMapTitle')}
                   </h3>
                 </div>
                 <span className="font-mono text-xs text-[var(--text-secondary)]">
-                  size: {visualState.hashMap?.length ?? 0}
+                  {t('visualization.arrayHash.hashMapSize', {
+                    count: visualState.hashMap?.length ?? 0,
+                  })}
                 </span>
               </div>
 
@@ -323,12 +345,12 @@ export function VisualCanvas({
                       <span>idx {entry.value}</span>
                       {entry.isMatched && (
                         <Badge variant="mint" className="ml-1">
-                          Hit
+                          {t('visualization.arrayHash.hashMapHit')}
                         </Badge>
                       )}
                       {entry.isNew && (
                         <Badge variant="indigo" className="ml-1">
-                          Added
+                          {t('visualization.arrayHash.hashMapAdded')}
                         </Badge>
                       )}
                     </div>
@@ -336,7 +358,7 @@ export function VisualCanvas({
                 </div>
               ) : (
                 <p className="mt-2.5 text-xs text-[var(--text-secondary)]">
-                  Map is empty — no elements have been stored yet.
+                  {t('visualization.arrayHash.hashMapEmpty')}
                 </p>
               )}
             </div>
@@ -376,35 +398,53 @@ export function VisualCanvas({
             aria-live="polite"
             className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3.5 text-xs leading-relaxed text-[var(--text-primary)] lg:hidden"
           >
-            <p className="font-bold text-[var(--accent-blue-text)]">{step.actionTitle}</p>
-            <p className="mt-1 text-[var(--text-secondary)]">{step.explanation}</p>
+            <p className="font-bold text-[var(--accent-blue-text)]">
+              {step.actionTitle}
+            </p>
+            <p className="mt-1 text-[var(--text-secondary)]">
+              {step.explanation}
+            </p>
           </div>
 
           {/* Accessible Color + Label Legend */}
           <div
-            aria-label="Highlight color legend"
+            aria-label={t('visualization.arrayHash.legendLabel')}
             className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border-subtle)] pt-3.5 text-xs text-[var(--text-secondary)]"
           >
-            <span className="font-bold text-[var(--text-primary)]">Legend:</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#F2B84B]" aria-hidden="true" />
-              Current / Anchor
+            <span className="font-bold text-[var(--text-primary)]">
+              {t('visualization.legend')}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#397BDB]" aria-hidden="true" />
-              Partner / Lookup
+              <span
+                className="h-3 w-3 rounded-full bg-[#F2B84B]"
+                aria-hidden="true"
+              />
+              {t('visualization.arrayHash.legendCurrent')}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#15A897]" aria-hidden="true" />
-              Confirmed Match
+              <span
+                className="h-3 w-3 rounded-full bg-[#397BDB]"
+                aria-hidden="true"
+              />
+              {t('visualization.arrayHash.legendPartner')}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-[#526075]" aria-hidden="true" />
-              Stored / Visited
+              <span
+                className="h-3 w-3 rounded-full bg-[#15A897]"
+                aria-hidden="true"
+              />
+              {t('visualization.arrayHash.legendMatch')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-3 w-3 rounded-full bg-[#526075]"
+                aria-hidden="true"
+              />
+              {t('visualization.arrayHash.legendVisited')}
             </span>
           </div>
 
-          {/* Custom Input Controls (positioned below visualization so visual state stays primary) */}
+          {/* Custom Input Controls */}
           <CustomInputBar
             key={sessionId}
             currentInput={currentInput}
@@ -415,13 +455,13 @@ export function VisualCanvas({
 
       {/* Synchronized Macro Goal Link Banner */}
       <div
-        aria-label="Synchronized Macro conceptual goal"
+        aria-label={t('visualization.macroBannerLabel')}
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/45 px-4 py-3"
       >
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-blue-text)]">
             <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
-            Current Step Supports Conceptual Goal:
+            {t('visualization.currentStepGoal')}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {activeNodes.map((node) => (
@@ -432,7 +472,7 @@ export function VisualCanvas({
           </div>
         </div>
         <Button variant="secondary" size="sm" onClick={onOpenMacroView}>
-          Open Solution Map
+          {t('visualization.openSolutionMap')}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </div>

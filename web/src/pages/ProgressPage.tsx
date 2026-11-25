@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ArrowRight,
@@ -16,18 +17,25 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react';
-import {
-  aggregateLearningProgress,
-  formatOutcomeLabel,
-} from '../domain/learning/analytics';
+import { aggregateLearningProgress } from '../domain/learning/analytics';
 import type {
   LearningSession,
+  ProblemProgressSummary,
   SkillProgressLabel,
+  SkillProgressSummary,
 } from '../domain/learning/types';
 import {
   defaultLearningRepository,
   type LearningRepository,
 } from '../services/learningRepository';
+import {
+  localizePracticeSuggestion,
+  localizeSessionOutcome,
+  localizeSkillCategory,
+  localizeSkillEvidenceNote,
+  localizeSkillName,
+  localizeSkillProgressLabel,
+} from '../i18n/learningLocalization';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -68,10 +76,14 @@ function barColorForSkillLabel(label: SkillProgressLabel): string {
   }
 }
 
-function formatSessionTimestamp(iso: string): string {
+function formatSessionTimestamp(
+  iso: string,
+  locale: string,
+  fallback: string,
+): string {
   const parsed = new Date(iso);
-  if (Number.isNaN(parsed.getTime())) return 'Saved locally';
-  return parsed.toLocaleString(undefined, {
+  if (Number.isNaN(parsed.getTime())) return fallback;
+  return parsed.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -82,6 +94,7 @@ function formatSessionTimestamp(iso: string): string {
 export function ProgressPage({
   repository = defaultLearningRepository,
 }: ProgressPageProps) {
+  const { t, i18n } = useTranslation();
   const [loadState, setLoadState] = useState(() => repository.loadSessions());
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [clearFeedback, setClearFeedback] = useState<string | null>(null);
@@ -102,10 +115,10 @@ export function ProgressPage({
         migratedFromVersion: null,
         warningMessage: null,
       });
-      setClearFeedback('Local learning history cleared from this browser.');
+      setClearFeedback(t('progress.clearedFeedback'));
     } else {
       setClearFeedback(
-        res.warningMessage ?? 'Could not clear local browser history.',
+        res.warningMessage ?? t('progress.clearFailedFeedback'),
       );
     }
   };
@@ -160,17 +173,20 @@ export function ProgressPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+            <TrendingUp
+              className="h-5 w-5 text-[var(--accent-blue-link)]"
+              aria-hidden="true"
+            />
             <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-primary)] sm:text-3xl">
-              Learning Progress
+              {t('progress.title')}
             </h1>
             <Badge variant="indigo">
               <HardDrive className="h-3 w-3" aria-hidden="true" />
-              Local Browser History
+              {t('progress.localHistoryBadge')}
             </Badge>
           </div>
           <p className="text-sm text-[var(--text-secondary)]">
-            Evidence-based activity recorded from your Guided Learning sessions and deterministic trace predictions.
+            {t('progress.subtitle')}
           </p>
         </div>
 
@@ -179,7 +195,7 @@ export function ProgressPage({
             to="/problems"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
           >
-            Practice a Problem
+            {t('progress.practiceProblem')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
           {sessions.length > 0 && !confirmingClear && (
@@ -192,7 +208,7 @@ export function ProgressPage({
               }}
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-              Clear Local History
+              {t('progress.clearLocalHistory')}
             </Button>
           )}
         </div>
@@ -202,15 +218,17 @@ export function ProgressPage({
       {confirmingClear && (
         <div
           role="alertdialog"
-          aria-label="Confirm clearing local learning history"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#E05252]/60 bg-[#FDF2F2] px-4 py-3.5 text-xs text-[var(--text-primary)]"
+          aria-label={t('progress.confirmClearAria')}
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#E05252]/60 bg-[var(--accent-coral-soft)] px-4 py-3.5 text-xs text-[var(--text-primary)]"
         >
           <div className="space-y-0.5">
-            <p className="font-bold text-[#9B2C2C]">
-              Clear all saved learning sessions from this browser?
+            <p className="font-bold text-[var(--accent-coral-text)]">
+              {t('progress.confirmClearTitle')}
             </p>
             <p className="text-[var(--text-secondary)]">
-              This permanently removes your {sessions.length} locally saved session(s) and resets all skill evidence counts.
+              {t('progress.confirmClearDescription', {
+                count: sessions.length,
+              })}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -219,7 +237,7 @@ export function ProgressPage({
               size="sm"
               onClick={() => setConfirmingClear(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -227,7 +245,7 @@ export function ProgressPage({
               className="bg-[#C53030] hover:bg-[#9B2C2C]"
               onClick={handleConfirmClear}
             >
-              Confirm Clear History
+              {t('progress.confirmClearButton')}
             </Button>
           </div>
         </div>
@@ -243,11 +261,7 @@ export function ProgressPage({
           aria-hidden="true"
         />
         <p>
-          <strong>Saved only in this browser:</strong> Learning history is stored
-          locally on this device and is <strong>not synchronized across devices</strong>{' '}
-          (no account or database is connected yet). Viewing a visualization or
-          chatting with the AI Tutor never counts as verified mastery, and private
-          pasted problem text or API keys are never stored.
+          <strong>{t('progress.noticeLead')}</strong> {t('progress.noticeBody')}
         </p>
       </div>
 
@@ -256,7 +270,10 @@ export function ProgressPage({
           role="alert"
           className="flex items-start gap-2 rounded-xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-4 py-3 text-xs text-[var(--accent-amber-text)]"
         >
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
+          <AlertTriangle
+            className="h-4 w-4 shrink-0 mt-0.5"
+            aria-hidden="true"
+          />
           <span>{loadState.warningMessage}</span>
         </div>
       )}
@@ -280,12 +297,10 @@ export function ProgressPage({
               </div>
               <div className="space-y-1.5 max-w-lg mx-auto">
                 <h2 className="text-lg font-extrabold text-[var(--text-primary)]">
-                  No learning sessions recorded yet
+                  {t('progress.emptyTitle')}
                 </h2>
                 <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                  Complete or finalize a Guided Learning session in any verified Studio
-                  to record real prediction accuracy, stage checks, hints used, and
-                  skill evidence here. We never show fabricated stats or fake streaks.
+                  {t('progress.emptyDescription')}
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
@@ -293,39 +308,48 @@ export function ProgressPage({
                   to="/studio/two-sum"
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-blue-hover)]"
                 >
-                  Start Two Sum
+                  {t('progress.startProblem', { problem: 'Two Sum' })}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
                   to="/studio/valid-parentheses"
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 >
-                  Start Valid Parentheses
+                  {t('progress.startProblem', { problem: 'Valid Parentheses' })}
                 </Link>
                 <Link
                   to="/studio/split-array-largest-sum"
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 >
-                  Start Split Array Largest Sum
+                  {t('progress.startProblem', {
+                    problem: 'Split Array Largest Sum',
+                  })}
                 </Link>
               </div>
             </CardContent>
           </Card>
 
           {/* Starter deterministic suggestions */}
-          <SuggestionsCard suggestions={summary.suggestions} />
+          <SuggestionsCard
+            suggestions={summary.suggestions}
+            skillSummaries={summary.skillSummaries}
+            problemSummaries={summary.problemSummaries}
+          />
         </div>
       ) : (
         <>
           {/* KPI Overview Grid */}
-          <section aria-label="Progress summary statistics">
+          <section aria-label={t('progress.statsAria')}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Learning Sessions
+                    {t('progress.kpi.learningSessions')}
                   </span>
-                  <Clock className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                  <Clock
+                    className="h-4 w-4 text-[var(--accent-blue-link)]"
+                    aria-hidden="true"
+                  />
                 </div>
                 <p
                   data-testid="progress-total-sessions"
@@ -334,34 +358,41 @@ export function ProgressPage({
                   {summary.totalSessions}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-                  Saved in this browser
+                  {t('progress.kpi.savedInBrowser')}
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Problems Practiced
+                    {t('progress.kpi.problemsPracticed')}
                   </span>
-                  <BookOpen className="h-4 w-4 text-[var(--accent-teal-text)]" aria-hidden="true" />
+                  <BookOpen
+                    className="h-4 w-4 text-[var(--accent-teal-text)]"
+                    aria-hidden="true"
+                  />
                 </div>
                 <p
                   data-testid="progress-problems-practiced"
                   className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
-                  {summary.problemsPracticedCount} / {summary.totalAvailableProblems}
+                  {summary.problemsPracticedCount} /{' '}
+                  {summary.totalAvailableProblems}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-                  Verified visual studios
+                  {t('progress.kpi.verifiedVisualStudios')}
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Strategies Explored
+                    {t('progress.kpi.strategiesExplored')}
                   </span>
-                  <Award className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                  <Award
+                    className="h-4 w-4 text-[var(--accent-blue-link)]"
+                    aria-hidden="true"
+                  />
                 </div>
                 <p
                   data-testid="progress-strategies-explored"
@@ -371,16 +402,19 @@ export function ProgressPage({
                   {summary.totalAvailableStrategies}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-                  Across all verified studios
+                  {t('progress.kpi.acrossAllStudios')}
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Prediction Accuracy
+                    {t('progress.kpi.predictionAccuracy')}
                   </span>
-                  <Target className="h-4 w-4 text-[var(--accent-teal-text)]" aria-hidden="true" />
+                  <Target
+                    className="h-4 w-4 text-[var(--accent-teal-text)]"
+                    aria-hidden="true"
+                  />
                 </div>
                 <p
                   data-testid="progress-prediction-accuracy"
@@ -392,17 +426,23 @@ export function ProgressPage({
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   {summary.totalPredictionsAttempted > 0
-                    ? `${summary.totalPredictionsFirstTry}/${summary.totalPredictionsAttempted} first-try`
-                    : 'No predictions attempted yet'}
+                    ? t('progress.kpi.firstTryRatio', {
+                        firstTry: summary.totalPredictionsFirstTry,
+                        attempted: summary.totalPredictionsAttempted,
+                      })
+                    : t('progress.kpi.noPredictionsAttempted')}
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Hints Used
+                    {t('progress.kpi.hintsUsed')}
                   </span>
-                  <Lightbulb className="h-4 w-4 text-[#F2B84B]" aria-hidden="true" />
+                  <Lightbulb
+                    className="h-4 w-4 text-[#F2B84B]"
+                    aria-hidden="true"
+                  />
                 </div>
                 <p
                   data-testid="progress-hints-used"
@@ -411,8 +451,10 @@ export function ProgressPage({
                   {summary.totalHintsUsed}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-                  {summary.skillsPracticedCount} of {summary.skillSummaries.length}{' '}
-                  skills practiced
+                  {t('progress.kpi.skillsPracticedOf', {
+                    practiced: summary.skillsPracticedCount,
+                    total: summary.skillSummaries.length,
+                  })}
                 </p>
               </Card>
             </div>
@@ -422,11 +464,13 @@ export function ProgressPage({
           <Card>
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle>Trace Prediction Breakdown</CardTitle>
+                <CardTitle>{t('progress.predictionBreakdown.title')}</CardTitle>
                 <Badge variant="neutral">
-                  {summary.totalPredictionQuestions} total ·{' '}
-                  {summary.totalPredictionsAttempted} attempted ·{' '}
-                  {summary.totalPredictionsSkipped} skipped
+                  {t('progress.predictionBreakdown.summaryBadge', {
+                    total: summary.totalPredictionQuestions,
+                    attempted: summary.totalPredictionsAttempted,
+                    skipped: summary.totalPredictionsSkipped,
+                  })}
                 </Badge>
               </div>
             </CardHeader>
@@ -435,35 +479,44 @@ export function ProgressPage({
                 <>
                   <div
                     role="img"
-                    aria-label={`Prediction outcomes across ${totalPredictionEvents} question(s): ${summary.totalPredictionsFirstTry} first-try correct, ${summary.totalPredictionsSolvedAfterRetry} solved after retry, ${summary.totalPredictionsSkippedAfterAttempt} skipped after attempt, ${summary.totalPredictionsSkippedWithoutAttempt} skipped without attempt, ${summary.totalPredictionsUnresolved} unresolved`}
+                    aria-label={t('progress.predictionBreakdown.chartAria', {
+                      total: totalPredictionEvents,
+                      firstTry: summary.totalPredictionsFirstTry,
+                      retry: summary.totalPredictionsSolvedAfterRetry,
+                      skippedAttempt:
+                        summary.totalPredictionsSkippedAfterAttempt,
+                      skippedUnattempted:
+                        summary.totalPredictionsSkippedWithoutAttempt,
+                      unresolved: summary.totalPredictionsUnresolved,
+                    })}
                     className="flex h-4 w-full overflow-hidden rounded-full bg-[var(--accent-blue-soft)]"
                   >
                     {firstTryBarPct > 0 && (
                       <div
                         className="h-full bg-[#15A897] transition-all"
                         style={{ width: `${firstTryBarPct}%` }}
-                        title={`First-try correct: ${summary.totalPredictionsFirstTry}`}
+                        title={`${t('progress.predictionBreakdown.firstTryCorrect')} ${summary.totalPredictionsFirstTry}`}
                       />
                     )}
                     {retryBarPct > 0 && (
                       <div
                         className="h-full bg-[#397BDB] transition-all"
                         style={{ width: `${retryBarPct}%` }}
-                        title={`Solved after retry/reveal: ${summary.totalPredictionsSolvedAfterRetry}`}
+                        title={`${t('progress.predictionBreakdown.solvedAfterRetry')} ${summary.totalPredictionsSolvedAfterRetry}`}
                       />
                     )}
                     {skippedAfterAttemptBarPct > 0 && (
                       <div
                         className="h-full bg-[#E08A2E] transition-all"
                         style={{ width: `${skippedAfterAttemptBarPct}%` }}
-                        title={`Skipped after wrong attempt: ${summary.totalPredictionsSkippedAfterAttempt}`}
+                        title={`${t('progress.predictionBreakdown.skippedAfterAttempt')} ${summary.totalPredictionsSkippedAfterAttempt}`}
                       />
                     )}
                     {skippedWithoutAttemptBarPct > 0 && (
                       <div
                         className="h-full bg-[#F2B84B] transition-all"
                         style={{ width: `${skippedWithoutAttemptBarPct}%` }}
-                        title={`Skipped without attempting: ${summary.totalPredictionsSkippedWithoutAttempt}`}
+                        title={`${t('progress.predictionBreakdown.skippedUnattempted')} ${summary.totalPredictionsSkippedWithoutAttempt}`}
                       />
                     )}
                     {summary.totalPredictionsUnresolved > 0 &&
@@ -471,35 +524,35 @@ export function ProgressPage({
                         <div
                           className="h-full bg-[#9AA2BE] transition-all"
                           style={{ width: `${unresolvedBarPct}%` }}
-                          title={`Unresolved attempt: ${summary.totalPredictionsUnresolved}`}
+                          title={`${t('progress.predictionBreakdown.unresolved')} ${summary.totalPredictionsUnresolved}`}
                         />
                       )}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[var(--text-secondary)]">
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#15A897]" />
-                      First-try correct:{' '}
+                      {t('progress.predictionBreakdown.firstTryCorrect')}{' '}
                       <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsFirstTry}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#397BDB]" />
-                      Solved after retry/reveal:{' '}
+                      {t('progress.predictionBreakdown.solvedAfterRetry')}{' '}
                       <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSolvedAfterRetry}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#E08A2E]" />
-                      Skipped after attempt:{' '}
+                      {t('progress.predictionBreakdown.skippedAfterAttempt')}{' '}
                       <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSkippedAfterAttempt}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#F2B84B]" />
-                      Skipped (unattempted):{' '}
+                      {t('progress.predictionBreakdown.skippedUnattempted')}{' '}
                       <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSkippedWithoutAttempt}
                       </strong>
@@ -507,7 +560,7 @@ export function ProgressPage({
                     {summary.totalPredictionsUnresolved > 0 && (
                       <span className="inline-flex items-center gap-1.5">
                         <span className="h-2.5 w-2.5 rounded-full bg-[#9AA2BE]" />
-                        Unresolved:{' '}
+                        {t('progress.predictionBreakdown.unresolved')}{' '}
                         <strong className="text-[var(--text-primary)]">
                           {summary.totalPredictionsUnresolved}
                         </strong>
@@ -515,14 +568,16 @@ export function ProgressPage({
                     )}
                     {summary.overallSolvedPercent !== null && (
                       <span className="ml-auto font-mono text-xs font-semibold text-[var(--accent-blue-text)]">
-                        Eventually solved: {summary.overallSolvedPercent}%
+                        {t('progress.predictionBreakdown.eventuallySolved', {
+                          percent: summary.overallSolvedPercent,
+                        })}
                       </span>
                     )}
                   </div>
                 </>
               ) : (
                 <p className="text-xs text-[var(--text-secondary)]">
-                  No trace predictions recorded yet. Keep Predict Mode enabled during Guided Learning to test your intuition step by step.
+                  {t('progress.predictionBreakdown.empty')}
                 </p>
               )}
             </CardContent>
@@ -533,15 +588,19 @@ export function ProgressPage({
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between gap-2">
-                  <CardTitle>Areas Needing More Practice</CardTitle>
+                  <CardTitle>
+                    {t('progress.areasNeedingPractice.title')}
+                  </CardTitle>
                   <Badge
                     variant={
                       summary.areasNeedingPractice.length > 0 ? 'amber' : 'mint'
                     }
                   >
                     {summary.areasNeedingPractice.length > 0
-                      ? `${summary.areasNeedingPractice.length} flagged`
-                      : 'Looking steady'}
+                      ? t('progress.areasNeedingPractice.flaggedCount', {
+                          count: summary.areasNeedingPractice.length,
+                        })
+                      : t('progress.areasNeedingPractice.lookingSteady')}
                   </Badge>
                 </div>
               </CardHeader>
@@ -555,18 +614,20 @@ export function ProgressPage({
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="text-sm font-bold text-[var(--text-primary)]">
-                            {item.skill.name}
+                            {localizeSkillName(t, item.skill.id)}
                           </span>
-                          <Badge variant="amber">{item.label}</Badge>
+                          <Badge variant="amber">
+                            {localizeSkillProgressLabel(t, item.label)}
+                          </Badge>
                         </div>
                         <p className="text-xs text-[var(--text-secondary)]">
-                          {item.evidenceNote}
+                          {localizeSkillEvidenceNote(t, item)}
                         </p>
                         <Link
                           to={item.skill.recommendedStudioPath}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent-amber-text)] hover:underline"
                         >
-                          Practice in Studio
+                          {t('progress.areasNeedingPractice.practiceInStudio')}
                           <ArrowRight className="h-3 w-3" aria-hidden="true" />
                         </Link>
                       </li>
@@ -574,13 +635,17 @@ export function ProgressPage({
                   </ul>
                 ) : (
                   <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                    No specific skills are currently flagged for mistakes or heavy hint reliance. Continue exploring unpracticed skills or trying harder edge cases in Free Exploration.
+                    {t('progress.areasNeedingPractice.empty')}
                   </p>
                 )}
               </CardContent>
             </Card>
 
-            <SuggestionsCard suggestions={summary.suggestions} />
+            <SuggestionsCard
+              suggestions={summary.suggestions}
+              skillSummaries={summary.skillSummaries}
+              problemSummaries={summary.problemSummaries}
+            />
           </div>
 
           {/* Evidence-Based Skill Tracking */}
@@ -588,78 +653,93 @@ export function ProgressPage({
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <CardTitle>Evidence-Based Skill Tracking</CardTitle>
+                  <CardTitle>{t('progress.skillTracking.title')}</CardTitle>
                   <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                    Distinguishes viewing, attempting, assisted answers, and first-try recall. Guided lessons cap below 100% because independent mastery requires an unassisted assessment.
+                    {t('progress.skillTracking.subtitle')}
                   </p>
                 </div>
                 <Badge variant="indigo">
-                  {summary.skillsPracticedCount} / {summary.skillSummaries.length}{' '}
-                  Practiced
+                  {t('progress.skillTracking.practicedBadge', {
+                    practiced: summary.skillsPracticedCount,
+                    total: summary.skillSummaries.length,
+                  })}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              {summary.skillSummaries.map((item) => (
-                <div
-                  key={item.skill.id}
-                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/70 p-4 space-y-2"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-bold text-[var(--text-primary)]">
-                        {item.skill.name}
-                      </p>
-                      <p className="text-xs text-[var(--text-secondary)]">
-                        {item.skill.category}
-                      </p>
-                    </div>
-                    <Badge variant={badgeVariantForSkillLabel(item.label)}>
-                      {item.label}
-                    </Badge>
-                  </div>
-
+              {summary.skillSummaries.map((item) => {
+                const localizedSkillName = localizeSkillName(t, item.skill.id);
+                return (
                   <div
-                    role="progressbar"
-                    aria-label={`${item.skill.name} evidence indicator`}
-                    aria-valuenow={item.indicatorPercent}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    className="h-2 w-full overflow-hidden rounded-full bg-[#E2E8F0]"
+                    key={item.skill.id}
+                    className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/70 p-4 space-y-2"
                   >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-bold text-[var(--text-primary)]">
+                          {localizedSkillName}
+                        </p>
+                        <p className="text-xs text-[var(--text-secondary)]">
+                          {localizeSkillCategory(t, item.skill.category)}
+                        </p>
+                      </div>
+                      <Badge variant={badgeVariantForSkillLabel(item.label)}>
+                        {localizeSkillProgressLabel(t, item.label)}
+                      </Badge>
+                    </div>
+
                     <div
-                      className={`h-full rounded-full transition-all ${barColorForSkillLabel(item.label)}`}
-                      style={{ width: `${item.indicatorPercent}%` }}
-                    />
-                  </div>
+                      role="progressbar"
+                      aria-label={t('progress.skillTracking.indicatorAria', {
+                        skill: localizedSkillName,
+                      })}
+                      aria-valuenow={item.indicatorPercent}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="h-2 w-full overflow-hidden rounded-full bg-[var(--border-subtle)]"
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all ${barColorForSkillLabel(item.label)}`}
+                        style={{ width: `${item.indicatorPercent}%` }}
+                      />
+                    </div>
 
-                  <div className="flex flex-wrap gap-1.5 text-xs font-mono text-[var(--text-secondary)]">
-                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
-                      First-try: {item.counts['first-try-correct']}
-                    </span>
-                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
-                      Assisted: {item.counts['correct-with-assistance']}
-                    </span>
-                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
-                      Attempted: {item.counts.attempted}
-                    </span>
-                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
-                      Viewed: {item.counts.viewed}
-                    </span>
-                  </div>
+                    <div className="flex flex-wrap gap-1.5 text-xs font-mono text-[var(--text-secondary)]">
+                      <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
+                        {t('progress.skillTracking.firstTry', {
+                          count: item.counts['first-try-correct'],
+                        })}
+                      </span>
+                      <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
+                        {t('progress.skillTracking.assisted', {
+                          count: item.counts['correct-with-assistance'],
+                        })}
+                      </span>
+                      <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
+                        {t('progress.skillTracking.attempted', {
+                          count: item.counts.attempted,
+                        })}
+                      </span>
+                      <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
+                        {t('progress.skillTracking.viewed', {
+                          count: item.counts.viewed,
+                        })}
+                      </span>
+                    </div>
 
-                  <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                    {item.evidenceNote}
-                  </p>
-                </div>
-              ))}
+                    <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
+                      {localizeSkillEvidenceNote(t, item)}
+                    </p>
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
 
           {/* Individual Problem Progress */}
           <Card>
             <CardHeader>
-              <CardTitle>Individual Problem Progress</CardTitle>
+              <CardTitle>{t('progress.problemProgress.title')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-3">
               {summary.problemSummaries.map((prob) => (
@@ -676,14 +756,16 @@ export function ProgressPage({
                         variant={prob.totalSessions > 0 ? 'mint' : 'neutral'}
                       >
                         {prob.totalSessions > 0
-                          ? `${prob.totalSessions} session${prob.totalSessions === 1 ? '' : 's'}`
-                          : 'Not started'}
+                          ? t('progress.problemProgress.sessionsCount', {
+                              count: prob.totalSessions,
+                            })
+                          : t('progress.problemProgress.notStarted')}
                       </Badge>
                     </div>
                     <dl className="grid grid-cols-2 gap-2 text-xs">
                       <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
                         <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
-                          Best Stages
+                          {t('progress.problemProgress.bestStages')}
                         </dt>
                         <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.bestVerifiedStages} / {prob.totalStages}
@@ -691,7 +773,7 @@ export function ProgressPage({
                       </div>
                       <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
                         <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
-                          Strategies
+                          {t('progress.problemProgress.strategies')}
                         </dt>
                         <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.strategiesExplored.length} /{' '}
@@ -700,18 +782,18 @@ export function ProgressPage({
                       </div>
                       <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
                         <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
-                          Predictions
+                          {t('progress.problemProgress.predictions')}
                         </dt>
                         <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.predictionsFirstTry}/{prob.predictionsAttempted}{' '}
                           <span className="font-sans text-xs font-normal text-[var(--text-secondary)]">
-                            1st try
+                            {t('progress.problemProgress.firstTryShort')}
                           </span>
                         </dd>
                       </div>
                       <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
                         <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
-                          Hints Used
+                          {t('progress.problemProgress.hintsUsed')}
                         </dt>
                         <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.hintsUsed}
@@ -724,7 +806,9 @@ export function ProgressPage({
                     to={prob.studioPath}
                     className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)]"
                   >
-                    {prob.totalSessions > 0 ? 'Practice Again' : 'Start Lesson'}
+                    {prob.totalSessions > 0
+                      ? t('progress.problemProgress.practiceAgain')
+                      : t('progress.problemProgress.startLesson')}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </div>
@@ -736,9 +820,11 @@ export function ProgressPage({
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-2">
-                <CardTitle>Recent Learning Sessions</CardTitle>
+                <CardTitle>{t('progress.recentSessions.title')}</CardTitle>
                 <Badge variant="neutral">
-                  {summary.recentSessions.length} recorded
+                  {t('progress.recentSessions.recordedCount', {
+                    count: summary.recentSessions.length,
+                  })}
                 </Badge>
               </div>
             </CardHeader>
@@ -767,28 +853,38 @@ export function ProgressPage({
                                 : 'neutral'
                           }
                         >
-                          {formatOutcomeLabel(session.outcome)}
+                          {localizeSessionOutcome(t, session.outcome)}
                         </Badge>
                       </div>
                       <p className="text-xs text-[var(--text-secondary)]">
-                        Verified stages:{' '}
+                        {t('progress.recentSessions.verifiedStages')}{' '}
                         <strong>
                           {session.completedStagesCount}/{session.totalStages}
                         </strong>
                         {session.skippedStagesCount > 0 &&
-                          ` (${session.skippedStagesCount} skipped)`}{' '}
-                        · Predictions:{' '}
+                          t('progress.recentSessions.skippedParen', {
+                            count: session.skippedStagesCount,
+                          })}{' '}
+                        · {t('progress.recentSessions.predictions')}{' '}
                         <strong>
                           {session.predictionSummary.firstTryCorrect}/
-                          {session.predictionSummary.questionsAttempted} first-try
+                          {session.predictionSummary.questionsAttempted}
+                          {t('progress.recentSessions.firstTrySuffix')}
                         </strong>
                         {session.predictionSummary.skippedCount > 0 &&
-                          ` (${session.predictionSummary.skippedCount} skipped)`}{' '}
-                        · Hints: <strong>{session.hintsUsed}</strong>
+                          t('progress.recentSessions.skippedParen', {
+                            count: session.predictionSummary.skippedCount,
+                          })}{' '}
+                        · {t('progress.recentSessions.hints')}{' '}
+                        <strong>{session.hintsUsed}</strong>
                       </p>
                     </div>
                     <span className="text-xs font-medium text-[var(--text-secondary)]">
-                      {formatSessionTimestamp(session.completedAt)}
+                      {formatSessionTimestamp(
+                        session.completedAt,
+                        i18n.resolvedLanguage ?? 'en',
+                        t('progress.savedLocallyFallback'),
+                      )}
                     </span>
                   </li>
                 ))}
@@ -803,48 +899,72 @@ export function ProgressPage({
 
 function SuggestionsCard({
   suggestions,
+  skillSummaries,
+  problemSummaries,
 }: {
   suggestions: ReturnType<typeof aggregateLearningProgress>['suggestions'];
+  skillSummaries: SkillProgressSummary[];
+  problemSummaries: ProblemProgressSummary[];
 }) {
+  const { t } = useTranslation();
+
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-            <CardTitle>Next Practice Suggestions</CardTitle>
+            <Sparkles
+              className="h-4 w-4 text-[var(--accent-blue-link)]"
+              aria-hidden="true"
+            />
+            <CardTitle>{t('progress.suggestionsCard.title')}</CardTitle>
           </div>
-          <Badge variant="neutral">Rule-Based · Deterministic</Badge>
+          <Badge variant="neutral">
+            {t('progress.suggestionsCard.badge')}
+          </Badge>
         </div>
         <p className="text-xs text-[var(--text-secondary)]">
-          Simple suggestions derived directly from your recorded local evidence (not an AI recommendation model).
+          {t('progress.suggestionsCard.subtitle')}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        {suggestions.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 space-y-2"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-bold text-[var(--text-primary)]">{item.title}</h3>
-              {item.priority === 'high' && (
-                <Badge variant="amber">Recommended Review</Badge>
-              )}
-            </div>
-            <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-              <strong>Why:</strong> {item.reason}
-            </p>
-            <Link
-              to={item.targetPath}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-blue-link)] hover:text-[var(--accent-blue-text)]"
+        {suggestions.map((item) => {
+          const localized = localizePracticeSuggestion(
+            t,
+            item,
+            skillSummaries,
+            problemSummaries,
+          );
+          return (
+            <div
+              key={item.id}
+              className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 space-y-2"
             >
-              <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              {item.ctaLabel}
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          </div>
-        ))}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                  {localized.title}
+                </h3>
+                {item.priority === 'high' && (
+                  <Badge variant="amber">
+                    {t('progress.suggestionsCard.recommendedReview')}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
+                <strong>{t('progress.suggestionsCard.whyPrefix')}</strong>{' '}
+                {localized.reason}
+              </p>
+              <Link
+                to={item.targetPath}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-blue-link)] hover:text-[var(--accent-blue-text)]"
+              >
+                <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+                {localized.ctaLabel}
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );

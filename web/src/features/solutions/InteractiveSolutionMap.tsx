@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   GitBranch,
@@ -33,15 +34,6 @@ interface InteractiveSolutionMapProps {
   onSwitchToMicro?: () => void;
 }
 
-const CATEGORY_LABELS: Record<SolutionNodeCategory, string> = {
-  'input-model': 'Input Model',
-  invariant: 'Invariant',
-  operation: 'Operation',
-  decision: 'Decision',
-  technique: 'Technique',
-  termination: 'Termination',
-};
-
 const NODE_WIDTH = 176;
 const NODE_HEIGHT = 76;
 const COL_GAP = 56;
@@ -57,9 +49,15 @@ export function InteractiveSolutionMap({
   onSelectStep,
   onSwitchToMicro,
 }: InteractiveSolutionMapProps) {
+  const { t } = useTranslation();
   const [displayMode, setDisplayMode] = useState<'graph' | 'list'>('graph');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [showWhy, setShowWhy] = useState(false);
+
+  const getCategoryLabel = (category: SolutionNodeCategory) =>
+    t(`visualization.solutionMap.categories.${category}`, {
+      defaultValue: category,
+    });
 
   const layout = useMemo(() => computeDagLayers(graph), [graph]);
   const activeNodeIds = useMemo(
@@ -131,14 +129,19 @@ export function InteractiveSolutionMap({
       <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+            <GitBranch
+              className="h-4 w-4 text-[var(--accent-blue-link)]"
+              aria-hidden="true"
+            />
             <CardTitle>{graph.title}</CardTitle>
-            <Badge variant="indigo">Macro View · Conceptual DAG</Badge>
+            <Badge variant="indigo">
+              {t('visualization.solutionMap.macroBadge')}
+            </Badge>
           </div>
 
           <div
             role="group"
-            aria-label="Solution map display mode"
+            aria-label={t('visualization.solutionMap.displayModeLabel')}
             className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-0.5"
           >
             <button
@@ -152,7 +155,7 @@ export function InteractiveSolutionMap({
               }`}
             >
               <Network className="h-3.5 w-3.5" aria-hidden="true" />
-              Graph
+              {t('visualization.solutionMap.graphMode')}
             </button>
             <button
               type="button"
@@ -165,19 +168,21 @@ export function InteractiveSolutionMap({
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden="true" />
-              List Fallback
+              {t('visualization.solutionMap.listMode')}
             </button>
           </div>
         </div>
         <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-          {graph.summary} Click any node to inspect why it is necessary, what it depends on, and which verified trace steps support it.
+          {t('visualization.solutionMap.summaryPrompt', {
+            summary: graph.summary,
+          })}
         </p>
       </CardHeader>
 
       <CardContent className="space-y-5 pt-5">
         {displayMode === 'graph' ? (
           <div
-            aria-label="Interactive solution dependency graph"
+            aria-label={t('visualization.solutionMap.graphRegion')}
             className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3"
           >
             <div
@@ -280,11 +285,11 @@ export function InteractiveSolutionMap({
                   >
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] truncate">
-                        {CATEGORY_LABELS[node.category]}
+                        {getCategoryLabel(node.category)}
                       </span>
                       {isActiveForStep && (
                         <span className="rounded-full bg-[var(--accent-teal-solid)] px-1.5 py-0.5 text-[9px] font-bold text-white shrink-0">
-                          Active Step
+                          {t('visualization.solutionMap.activeStep')}
                         </span>
                       )}
                     </div>
@@ -299,7 +304,7 @@ export function InteractiveSolutionMap({
         ) : (
           /* Accessible List Fallback */
           <ol
-            aria-label="Accessible solution dependency list"
+            aria-label={t('visualization.solutionMap.listRegion')}
             className="space-y-2.5"
           >
             {layout.layers.flat().map((node) => {
@@ -325,10 +330,12 @@ export function InteractiveSolutionMap({
                       </span>
                       <div className="flex items-center gap-1.5">
                         <Badge variant="neutral">
-                          {CATEGORY_LABELS[node.category]}
+                          {getCategoryLabel(node.category)}
                         </Badge>
                         {isActiveForStep && (
-                          <Badge variant="mint">Active Step</Badge>
+                          <Badge variant="mint">
+                            {t('visualization.solutionMap.activeStep')}
+                          </Badge>
                         )}
                       </div>
                     </div>
@@ -337,7 +344,7 @@ export function InteractiveSolutionMap({
                     </p>
                     {deps.length > 0 && (
                       <p className="mt-1.5 text-xs font-medium text-[var(--accent-blue-text)]">
-                        Depends on:{' '}
+                        {t('visualization.solutionMap.dependsOnInline')}{' '}
                         {deps
                           .map((d) => nodeById.get(d.source)?.title ?? d.source)
                           .join(', ')}
@@ -353,17 +360,19 @@ export function InteractiveSolutionMap({
         {/* Selected Node Interactive Inspector */}
         {selectedNode && (
           <section
-            aria-label="Selected reasoning node details"
+            aria-label={t('visualization.solutionMap.selectedRegion')}
             className="rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-4 space-y-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="indigo">
-                    {CATEGORY_LABELS[selectedNode.category]}
+                    {getCategoryLabel(selectedNode.category)}
                   </Badge>
                   {activeNodeIds.includes(selectedNode.id) && (
-                    <Badge variant="mint">Supports Current Step</Badge>
+                    <Badge variant="mint">
+                      {t('visualization.solutionMap.supportsCurrentStep')}
+                    </Badge>
                   )}
                 </div>
                 <h3 className="mt-1.5 text-base font-extrabold text-[var(--text-primary)]">
@@ -378,7 +387,7 @@ export function InteractiveSolutionMap({
                 onClick={() => setShowWhy((prev) => !prev)}
               >
                 <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                Why is this step necessary?
+                {t('visualization.solutionMap.whyButton')}
               </Button>
             </div>
 
@@ -389,11 +398,11 @@ export function InteractiveSolutionMap({
             {showWhy && (
               <div
                 role="region"
-                aria-label="Step rationale"
+                aria-label={t('visualization.solutionMap.rationaleRegion')}
                 className="rounded-xl border border-[#397BDB]/40 bg-[var(--accent-blue-soft)]/70 p-3 text-xs leading-relaxed text-[var(--text-primary)]"
               >
                 <p className="font-bold text-[var(--accent-blue-text)]">
-                  Why this reasoning step matters:
+                  {t('visualization.solutionMap.whyHeading')}
                 </p>
                 <p className="mt-1">{selectedNode.rationale}</p>
               </div>
@@ -403,7 +412,7 @@ export function InteractiveSolutionMap({
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 space-y-1.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Depends On
+                  {t('visualization.solutionMap.dependsOn')}
                 </p>
                 {incomingEdges.length > 0 ? (
                   <ul className="space-y-1.5 text-xs">
@@ -427,14 +436,14 @@ export function InteractiveSolutionMap({
                   </ul>
                 ) : (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Entry reasoning goal (no upstream graph dependency).
+                    {t('visualization.solutionMap.entryGoal')}
                   </p>
                 )}
               </div>
 
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 space-y-1.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Enables
+                  {t('visualization.solutionMap.enables')}
                 </p>
                 {outgoingEdges.length > 0 ? (
                   <ul className="space-y-1.5 text-xs">
@@ -458,7 +467,7 @@ export function InteractiveSolutionMap({
                   </ul>
                 ) : (
                   <p className="text-xs text-[var(--text-secondary)]">
-                    Final outcome goal for this strategy.
+                    {t('visualization.solutionMap.finalGoal')}
                   </p>
                 )}
               </div>
@@ -467,11 +476,16 @@ export function InteractiveSolutionMap({
             {/* Optional Data Contract */}
             {selectedNode.ioContract && (
               <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-2.5 text-xs">
-                <span className="font-bold text-[var(--text-primary)]">Data Flow:</span>
+                <span className="font-bold text-[var(--text-primary)]">
+                  {t('visualization.solutionMap.dataFlow')}
+                </span>
                 <span className="font-mono text-[var(--text-secondary)]">
                   {selectedNode.ioContract.inputs.join(' + ')}
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <ArrowRight
+                  className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
+                  aria-hidden="true"
+                />
                 <span className="font-mono font-semibold text-[var(--accent-teal-text)]">
                   {selectedNode.ioContract.outputs.join(', ')}
                 </span>
@@ -486,7 +500,7 @@ export function InteractiveSolutionMap({
                     className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
                     aria-hidden="true"
                   />
-                  Relevant Verified Execution Steps
+                  {t('visualization.solutionMap.relevantSteps')}
                 </div>
                 {onSwitchToMicro && (
                   <button
@@ -494,7 +508,7 @@ export function InteractiveSolutionMap({
                     onClick={onSwitchToMicro}
                     className="text-xs font-semibold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                   >
-                    Inspect in Micro View &rarr;
+                    {t('visualization.solutionMap.inspectMicro')} &rarr;
                   </button>
                 )}
               </div>
@@ -512,8 +526,10 @@ export function InteractiveSolutionMap({
                         disabled={isLockedByCheckpoint}
                         title={
                           isLockedByCheckpoint
-                            ? 'Complete or skip earlier guided checkpoints to jump here'
-                            : `Jump to verified Step ${idx + 1}`
+                            ? t('visualization.solutionMap.stepLockedTitle')
+                            : t('visualization.solutionMap.jumpToStepTitle', {
+                                step: idx + 1,
+                              })
                         }
                         onClick={() => onSelectStep(idx)}
                         className={`rounded-lg px-2.5 py-1 font-mono text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -522,14 +538,16 @@ export function InteractiveSolutionMap({
                             : 'border border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-primary)] hover:border-[#397BDB] hover:text-[var(--accent-blue-text)]'
                         }`}
                       >
-                        Step {idx + 1}
+                        {t('visualization.solutionMap.stepButton', {
+                          step: idx + 1,
+                        })}
                       </button>
                     );
                   })}
                 </div>
               ) : (
                 <p className="text-xs text-[var(--text-secondary)]">
-                  No steps in the current input trace trigger this node (try another preset to observe it).
+                  {t('visualization.solutionMap.noMatchingSteps')}
                 </p>
               )}
             </div>
@@ -537,8 +555,13 @@ export function InteractiveSolutionMap({
             {/* Skills & Prerequisites + Honest Non-Mastery Disclaimer */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
               <div className="flex flex-wrap items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
-                <span className="font-semibold text-[var(--text-primary)]">Skills:</span>
+                <Layers
+                  className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
+                  aria-hidden="true"
+                />
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {t('visualization.solutionMap.skillsLabel')}
+                </span>
                 {selectedNode.skills.map((skill) => (
                   <Badge key={skill} variant="neutral">
                     {skill}
@@ -546,8 +569,11 @@ export function InteractiveSolutionMap({
                 ))}
               </div>
               <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-                <Info className="h-3.5 w-3.5 text-[var(--text-secondary)]" aria-hidden="true" />
-                Viewing a node builds intuition; it does not count as skill mastery.
+                <Info
+                  className="h-3.5 w-3.5 text-[var(--text-secondary)]"
+                  aria-hidden="true"
+                />
+                {t('visualization.solutionMap.disclaimer')}
               </span>
             </div>
           </section>

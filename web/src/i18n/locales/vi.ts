@@ -1,3 +1,5 @@
+import { learningVi } from './learningVi';
+
 export const vi = {
   common: {
     language: 'Ngôn ngữ',
@@ -5,6 +7,7 @@ export const vi = {
     vietnamese: 'Tiếng Việt',
     retry: 'Thử lại',
     clear: 'Xóa',
+    cancel: 'Hủy',
     resetFilters: 'Đặt lại bộ lọc',
     analyze: 'Phân tích bài toán (AI)',
     openStudio: 'Mở Studio',
@@ -13,6 +16,7 @@ export const vi = {
     verifiedStudio: 'Studio đã kiểm chứng',
     beginner: 'Cơ bản',
     intermediate: 'Trung cấp',
+    advanced: 'Nâng cao',
     switchToDark: 'Chuyển sang giao diện tối',
     switchToLight: 'Chuyển sang giao diện sáng',
     darkMode: 'Giao diện tối',
@@ -237,5 +241,6 @@ export const vi = {
       hashingFrequency: 'Hashing & tần suất',
     },
   },
+  ...learningVi,
 } as const;
 

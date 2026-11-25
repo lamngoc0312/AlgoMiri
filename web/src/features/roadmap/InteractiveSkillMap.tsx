@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ArrowRight,
@@ -25,9 +26,17 @@ import {
   getPrerequisiteRationale,
   type SkillGraphValidationResult,
 } from '../../domain/learning/skillGraph';
-import { getSkillDefinition } from '../../domain/learning/skills';
 import type { SkillId } from '../../domain/learning/types';
 import { getProblemModule } from '../../domain/problems/registry';
+import {
+  localizePrerequisiteRationale,
+  localizeRoadmapContradictionNote,
+  localizeRoadmapSkillStatusReason,
+  localizeRoadmapStatus,
+  localizeSkillCategory,
+  localizeSkillDescription,
+  localizeSkillName,
+} from '../../i18n/learningLocalization';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
@@ -43,14 +52,6 @@ interface ConnectorLine {
   target: SkillId;
   path: string;
 }
-
-const LAYER_TITLES = [
-  'Foundations',
-  'Core Patterns',
-  'Optimization',
-  'Answer Search',
-  'Composition',
-];
 
 function badgeVariantForStatus(
   status: RoadmapSkillStatus,
@@ -95,6 +96,7 @@ export function InteractiveSkillMap({
   graphValidation,
   recommendedSkillIds,
 }: InteractiveSkillMapProps) {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const defaultSelectedId: SkillId =
     recommendedSkillIds[0] ?? skillNodes[0]?.skill.id ?? 'array-indexing';
@@ -107,9 +109,9 @@ export function InteractiveSkillMap({
   });
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const nodeButtonRefs = useRef<Partial<Record<SkillId, HTMLButtonElement | null>>>(
-    {},
-  );
+  const nodeButtonRefs = useRef<
+    Partial<Record<SkillId, HTMLButtonElement | null>>
+  >({});
 
   const nodeById = new Map<SkillId, RoadmapSkillNode>(
     skillNodes.map((n) => [n.skill.id, n]),
@@ -199,24 +201,36 @@ export function InteractiveSkillMap({
     }
   };
 
+  const getLayerTitle = (layerIndex: number) =>
+    t(`roadmap.skillMap.layers.${layerIndex}`, {
+      defaultValue: t('roadmap.skillMap.layers.fallback'),
+    });
+
+  const selectedContradiction = selectedNode
+    ? localizeRoadmapContradictionNote(t, selectedNode)
+    : null;
+
   return (
     <Card>
       <CardHeader className="border-b border-[var(--border-subtle)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <GitBranch className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-              <CardTitle>Interactive Skill Prerequisite Map</CardTitle>
-              <Badge variant="neutral">Conceptual Dependencies</Badge>
+              <GitBranch
+                className="h-4 w-4 text-[var(--accent-blue-link)]"
+                aria-hidden="true"
+              />
+              <CardTitle>{t('roadmap.skillMap.title')}</CardTitle>
+              <Badge variant="neutral">{t('roadmap.skillMap.badge')}</Badge>
             </div>
             <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-              Shows genuine learning prerequisites between concepts (not an algorithm execution trace). Select any skill with mouse or arrow keys to highlight its connections, evidence, and linked Studios.
+              {t('roadmap.skillMap.description')}
             </p>
           </div>
 
           <div
             role="group"
-            aria-label="Skill map view mode"
+            aria-label={t('roadmap.skillMap.viewModeLabel')}
             className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1"
           >
             <button
@@ -230,7 +244,7 @@ export function InteractiveSkillMap({
               }`}
             >
               <Network className="h-3.5 w-3.5" aria-hidden="true" />
-              Visual Map
+              {t('roadmap.skillMap.visualMap')}
             </button>
             <button
               type="button"
@@ -243,19 +257,19 @@ export function InteractiveSkillMap({
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden="true" />
-              Accessible List
+              {t('roadmap.skillMap.accessibleList')}
             </button>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="pt-5 space-y-5">
-        {/* Top: Full-width 5-layer Prerequisite Flow (no awkward 5th-layer wrap on desktop!) or Accessible List */}
+        {/* Top: Full-width 5-layer Prerequisite Flow or Accessible List */}
         {viewMode === 'map' ? (
           <div
             ref={mapContainerRef}
             role="region"
-            aria-label="Layered skill prerequisite map"
+            aria-label={t('roadmap.skillMap.layeredRegion')}
             className="relative"
           >
             {/* Subtle SVG prerequisite connectors on multi-column desktop layouts */}
@@ -322,7 +336,7 @@ export function InteractiveSkillMap({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                      {layerIndex + 1}. {LAYER_TITLES[layerIndex] ?? 'Advanced'}
+                      {layerIndex + 1}. {getLayerTitle(layerIndex)}
                     </span>
                   </div>
 
@@ -360,35 +374,40 @@ export function InteractiveSkillMap({
                         >
                           <div className="flex items-start justify-between gap-1.5">
                             <span className="text-xs font-bold text-[var(--text-primary)] leading-snug">
-                              {node.skill.name}
+                              {localizeSkillName(t, node.skill.id)}
                             </span>
                             {isRecommended && (
                               <Sparkles
                                 className="h-3.5 w-3.5 shrink-0 text-[var(--accent-blue-link)]"
-                                aria-label="Recommended goal"
+                                aria-label={t(
+                                  'roadmap.skillMap.recommendedGoalAria',
+                                )}
                               />
                             )}
                           </div>
 
                           <div className="mt-2 flex flex-wrap items-center gap-1.5">
                             <Badge variant={badgeVariantForStatus(node.status)}>
-                              {node.status}
+                              {localizeRoadmapStatus(t, node.status)}
                             </Badge>
                             {isRecommended && (
-                              <Badge variant="indigo">Goal</Badge>
+                              <Badge variant="indigo">
+                                {t('roadmap.skillMap.goalBadge')}
+                              </Badge>
                             )}
                           </div>
 
                           {node.prerequisites.length > 0 ? (
                             <p className="mt-2 text-xs text-[var(--text-secondary)] leading-snug">
-                              Needs:{' '}
-                              {node.prerequisites
-                                .map((id) => getSkillDefinition(id).name)
-                                .join(', ')}
+                              {t('roadmap.skillMap.needs', {
+                                skills: node.prerequisites
+                                  .map((id) => localizeSkillName(t, id))
+                                  .join(', '),
+                              })}
                             </p>
                           ) : (
                             <p className="mt-2 text-xs text-[var(--accent-teal-text)] font-medium">
-                              Independent foundation
+                              {t('roadmap.skillMap.independentFoundation')}
                             </p>
                           )}
                         </button>
@@ -402,7 +421,7 @@ export function InteractiveSkillMap({
         ) : (
           <div
             role="region"
-            aria-label="Accessible skill prerequisite list"
+            aria-label={t('roadmap.skillMap.listRegion')}
             className="space-y-2.5"
           >
             <ol className="space-y-2.5">
@@ -423,13 +442,15 @@ export function InteractiveSkillMap({
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-bold text-[var(--text-primary)]">
-                          {node.skill.name}
+                          {localizeSkillName(t, node.skill.id)}
                         </span>
                         <Badge variant={badgeVariantForStatus(node.status)}>
-                          {node.status}
+                          {localizeRoadmapStatus(t, node.status)}
                         </Badge>
                         {node.isRecommendedGoal && (
-                          <Badge variant="indigo">Recommended Goal</Badge>
+                          <Badge variant="indigo">
+                            {t('roadmap.skillMap.recommendedGoalBadge')}
+                          </Badge>
                         )}
                       </div>
                       <button
@@ -437,25 +458,27 @@ export function InteractiveSkillMap({
                         onClick={() => setSelectedSkillId(skillId)}
                         className="inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-xs font-semibold text-[var(--accent-blue-link)] hover:bg-[var(--accent-blue-soft)] cursor-pointer"
                       >
-                        {isSelected ? 'Inspecting' : 'Inspect details'}
+                        {isSelected
+                          ? t('roadmap.skillMap.inspecting')
+                          : t('roadmap.skillMap.inspectDetails')}
                       </button>
                     </div>
                     <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                      {node.skill.description}
+                      {localizeSkillDescription(t, node.skill.id)}
                     </p>
                     <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
-                      <strong>Prerequisites:</strong>{' '}
+                      <strong>{t('roadmap.skillMap.prerequisitesLabel')}</strong>{' '}
                       {node.prerequisites.length > 0
                         ? node.prerequisites
-                            .map((id) => getSkillDefinition(id).name)
+                            .map((id) => localizeSkillName(t, id))
                             .join(', ')
-                        : 'None (independent foundation)'}
+                        : t('roadmap.skillMap.noneIndependent')}
                       {node.dependents.length > 0 && (
                         <>
                           {' · '}
-                          <strong>Unlocks:</strong>{' '}
+                          <strong>{t('roadmap.skillMap.unlocksLabel')}</strong>{' '}
                           {node.dependents
-                            .map((id) => getSkillDefinition(id).name)
+                            .map((id) => localizeSkillName(t, id))
                             .join(', ')}
                         </>
                       )}
@@ -470,59 +493,72 @@ export function InteractiveSkillMap({
         {/* Bottom: Clean Horizontal Live Skill Inspector Panel */}
         {selectedNode && (
           <aside
-            aria-label={`Skill details for ${selectedNode.skill.name}`}
+            aria-label={t('roadmap.skillMap.detailsAria', {
+              skill: localizeSkillName(t, selectedNode.skill.id),
+            })}
             className="rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-4 sm:p-5 grid gap-5 lg:grid-cols-[1.15fr_1fr]"
           >
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    {selectedNode.skill.category}
+                    {localizeSkillCategory(t, selectedNode.skill.category)}
                   </span>
                   <Badge variant={badgeVariantForStatus(selectedNode.status)}>
-                    {selectedNode.status}
+                    {localizeRoadmapStatus(t, selectedNode.status)}
                   </Badge>
                 </div>
                 <h3 className="text-base font-extrabold text-[var(--text-primary)]">
-                  {selectedNode.skill.name}
+                  {localizeSkillName(t, selectedNode.skill.id)}
                 </h3>
                 <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                  {selectedNode.skill.description}
+                  {localizeSkillDescription(t, selectedNode.skill.id)}
                 </p>
               </div>
 
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3.5 space-y-2 text-xs">
-                <p className="font-semibold text-[var(--text-primary)]">Recorded Evidence</p>
+                <p className="font-semibold text-[var(--text-primary)]">
+                  {t('roadmap.skillMap.recordedEvidence')}
+                </p>
                 <p className="text-[var(--text-secondary)] leading-relaxed">
-                  {selectedNode.statusReason}
+                  {localizeRoadmapSkillStatusReason(t, selectedNode)}
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-1 font-mono text-xs text-[var(--text-secondary)]">
                   <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
-                    First-try: {selectedNode.firstTryCount}
+                    {t('roadmap.skillMap.firstTry', {
+                      count: selectedNode.firstTryCount,
+                    })}
                   </span>
                   <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
-                    Assisted: {selectedNode.assistedCount}
+                    {t('roadmap.skillMap.assisted', {
+                      count: selectedNode.assistedCount,
+                    })}
                   </span>
                   <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
-                    Mistakes: {selectedNode.unresolvedOrWrongCount}
+                    {t('roadmap.skillMap.mistakes', {
+                      count: selectedNode.unresolvedOrWrongCount,
+                    })}
                   </span>
                   <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
-                    Skips: {selectedNode.skippedCount}
+                    {t('roadmap.skillMap.skips', {
+                      count: selectedNode.skippedCount,
+                    })}
                   </span>
                   <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
-                    Hints: {selectedNode.hintsAssociated}
+                    {t('roadmap.skillMap.hints', {
+                      count: selectedNode.hintsAssociated,
+                    })}
                   </span>
                 </div>
-                {selectedNode.hasContradictoryEvidence &&
-                  selectedNode.contradictionNote && (
-                    <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F2B84B] bg-[var(--accent-amber-soft)] p-2.5 text-xs text-[var(--accent-amber-text)]">
-                      <AlertTriangle
-                        className="h-4 w-4 shrink-0 mt-0.5"
-                        aria-hidden="true"
-                      />
-                      <span>{selectedNode.contradictionNote}</span>
-                    </div>
-                  )}
+                {selectedContradiction && (
+                  <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F2B84B] bg-[var(--accent-amber-soft)] p-2.5 text-xs text-[var(--accent-amber-text)]">
+                    <AlertTriangle
+                      className="h-4 w-4 shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
+                    <span>{selectedContradiction}</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2 pt-1">
@@ -534,7 +570,9 @@ export function InteractiveSkillMap({
                       to={`/studio/${problemId}`}
                       className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
                     >
-                      Open {mod?.spec.title ?? problemId}
+                      {t('roadmap.skillMap.openProblem', {
+                        problem: mod?.spec.title ?? problemId,
+                      })}
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                     </Link>
                   );
@@ -546,15 +584,22 @@ export function InteractiveSkillMap({
               {/* Prerequisites with Rationale */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Prerequisites ({selectedNode.prerequisites.length})
+                  {t('roadmap.skillMap.prerequisitesCount', {
+                    count: selectedNode.prerequisites.length,
+                  })}
                 </h4>
                 {selectedNode.prerequisites.length > 0 ? (
                   <ul className="space-y-2">
                     {selectedNode.prerequisites.map((prereqId) => {
                       const preNode = nodeById.get(prereqId);
-                      const rationale = getPrerequisiteRationale(
+                      const rationale = localizePrerequisiteRationale(
+                        t,
                         prereqId,
                         selectedNode.skill.id,
+                        getPrerequisiteRationale(
+                          prereqId,
+                          selectedNode.skill.id,
+                        ),
                       );
                       return (
                         <li
@@ -567,11 +612,13 @@ export function InteractiveSkillMap({
                               onClick={() => selectAndFocusSkill(prereqId)}
                               className="inline-flex min-h-[34px] items-center font-bold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                             >
-                              {getSkillDefinition(prereqId).name}
+                              {localizeSkillName(t, prereqId)}
                             </button>
                             {preNode && (
-                              <Badge variant={badgeVariantForStatus(preNode.status)}>
-                                {preNode.status}
+                              <Badge
+                                variant={badgeVariantForStatus(preNode.status)}
+                              >
+                                {localizeRoadmapStatus(t, preNode.status)}
                               </Badge>
                             )}
                           </div>
@@ -587,7 +634,7 @@ export function InteractiveSkillMap({
                 ) : (
                   <p className="flex items-center gap-1.5 text-xs text-[var(--accent-teal-text)]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                    Independent foundation — no prerequisites required.
+                    {t('roadmap.skillMap.independentNoPrereqs')}
                   </p>
                 )}
               </div>
@@ -596,7 +643,7 @@ export function InteractiveSkillMap({
               {selectedNode.dependents.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Prepares You For
+                    {t('roadmap.skillMap.preparesYouFor')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedNode.dependents.map((depId) => (
@@ -606,7 +653,7 @@ export function InteractiveSkillMap({
                         onClick={() => selectAndFocusSkill(depId)}
                         className="inline-flex min-h-[36px] items-center rounded-xl border border-[var(--accent-blue-border)] bg-[var(--surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)] cursor-pointer"
                       >
-                        {getSkillDefinition(depId).name} &rarr;
+                        {localizeSkillName(t, depId)} &rarr;
                       </button>
                     ))}
                   </div>
@@ -617,9 +664,13 @@ export function InteractiveSkillMap({
         )}
 
         <div className="flex items-start gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2.5 text-xs text-[var(--text-secondary)]">
-          <Info className="h-4 w-4 shrink-0 text-[var(--accent-blue-link)] mt-0.5" aria-hidden="true" />
+          <Info
+            className="h-4 w-4 shrink-0 text-[var(--accent-blue-link)] mt-0.5"
+            aria-hidden="true"
+          />
           <p>
-            <strong>Cautious labels:</strong> &ldquo;Strong Guided Recall&rdquo; reflects consistent first-try answers inside Guided Learning and trace predictions — it does <strong>not</strong> claim independent mastery without a future unassisted assessment.
+            <strong>{t('roadmap.skillMap.cautiousLead')}</strong>{' '}
+            {t('roadmap.skillMap.cautiousBody')}
           </p>
         </div>
       </CardContent>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, GitBranch } from 'lucide-react';
 import type { SolutionGraph } from '../../domain/problems/types';
 import { Badge } from '../../components/ui/Badge';
@@ -11,6 +12,7 @@ export function SolutionMapPreview({
   graph,
   activeGoalIndex,
 }: SolutionMapPreviewProps) {
+  const { t } = useTranslation();
   const clampedGoalIndex = Math.max(
     0,
     Math.min(activeGoalIndex, graph.nodes.length - 1),
@@ -18,17 +20,22 @@ export function SolutionMapPreview({
 
   return (
     <section
-      aria-label="Conceptual Solution Map"
+      aria-label={t('visualization.solutionMap.previewTitle')}
       className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/80 p-4"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <GitBranch className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+          <GitBranch
+            className="h-4 w-4 text-[var(--accent-blue-link)]"
+            aria-hidden="true"
+          />
           <h3 className="text-sm font-bold text-[var(--text-primary)]">
-            Conceptual Solution Map
+            {t('visualization.solutionMap.previewTitle')}
           </h3>
         </div>
-        <Badge variant="indigo">Reasoning Flow</Badge>
+        <Badge variant="indigo">
+          {t('visualization.solutionMap.previewBadge')}
+        </Badge>
       </div>
 
       <ol className="grid gap-3 sm:grid-cols-3">

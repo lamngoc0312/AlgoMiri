@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Lightbulb } from 'lucide-react';
 import type { ProgressiveHint } from '../../domain/learning/hints';
 import { Button } from '../../components/ui/Button';
@@ -13,11 +14,12 @@ export function HintPanel({
   revealedCount,
   onRevealNextHint,
 }: HintPanelProps) {
+  const { t } = useTranslation();
   const hasMoreHints = revealedCount < hints.length;
 
   return (
     <div
-      aria-label="Progressive hints"
+      aria-label={t('guided.hintsRegion')}
       className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 space-y-3"
     >
       {revealedCount > 0 && (
@@ -27,7 +29,9 @@ export function HintPanel({
               key={hint.level}
               className="rounded-lg border-l-4 border-[#F2B84B] bg-[var(--surface-card)] px-3.5 py-2.5 text-sm leading-relaxed text-[var(--text-primary)]"
             >
-              <p className="font-bold text-[var(--accent-amber-text)]">{hint.label}</p>
+              <p className="font-bold text-[var(--accent-amber-text)]">
+                {hint.label}
+              </p>
               <p className="mt-0.5 text-[var(--text-secondary)]">{hint.text}</p>
             </li>
           ))}
@@ -43,15 +47,21 @@ export function HintPanel({
         >
           <span className="inline-flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-[#C28219]" aria-hidden="true" />
-            Reveal Hint {revealedCount + 1} of {hints.length}
+            {t('guided.revealHint', {
+              next: revealedCount + 1,
+              total: hints.length,
+            })}
           </span>
           <span className="text-xs font-medium text-[var(--text-secondary)]">
-            {revealedCount} / {hints.length} revealed
+            {t('guided.hintsRevealedCount', {
+              revealed: revealedCount,
+              total: hints.length,
+            })}
           </span>
         </Button>
       ) : (
         <p className="text-xs font-medium text-[var(--accent-amber-text)]">
-          All {hints.length} hints revealed for this stage.
+          {t('guided.allHintsRevealed', { total: hints.length })}
         </p>
       )}
     </div>

@@ -35,8 +35,21 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
       .poll(() => page.evaluate(() => window.localStorage.getItem('algomiri.language')))
       .toBe('vi');
 
+    // Verify localized Learning Studio, Roadmap, and Progress in Vietnamese
+    await page.goto('/studio/two-sum', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: 'Studio học tập' })).toBeVisible();
+    await expect(page.getByText('Khung trực quan hóa thực thi')).toBeVisible();
+
+    await page.goto('/roadmap', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: 'Lộ trình học thuật toán' })).toBeVisible();
+    await expect(page.getByText('Bản đồ kỹ năng tiên quyết tương tác')).toBeVisible();
+
+    await page.goto('/progress', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: 'Tiến độ học tập' })).toBeVisible();
+    await expect(page.getByText('Chưa có phiên học nào được ghi nhận')).toBeVisible();
+
     await page.setViewportSize({ width: 320, height: 640 });
-    for (const route of ['/', '/problems']) {
+    for (const route of ['/', '/problems', '/studio/two-sum', '/roadmap', '/progress']) {
       await page.goto(route, { waitUntil: 'networkidle' });
       const overflowPx = await page.evaluate(() =>
         Math.max(0, document.documentElement.scrollWidth - window.innerWidth),

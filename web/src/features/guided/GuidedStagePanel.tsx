@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   ArrowRight,
@@ -43,6 +44,7 @@ export function GuidedStagePanel({
   onNavigateStage,
   onSkipOrContinue,
 }: GuidedStagePanelProps) {
+  const { t } = useTranslation();
   const [selectedOptionByStage, setSelectedOptionByStage] = useState<
     Record<string, string>
   >({});
@@ -81,33 +83,38 @@ export function GuidedStagePanel({
               aria-hidden="true"
             />
             <Badge variant="indigo">
-              Stage {stage.stageNumber} of {lesson.stages.length}
+              {t('guided.stageProgress', {
+                current: stage.stageNumber,
+                total: lesson.stages.length,
+              })}
             </Badge>
           </div>
           {isCompleted && (
             <Badge variant="mint">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              Completed
+              {t('guided.stageStatus.completed')}
             </Badge>
           )}
           {stageStatus === 'skipped' && (
             <Badge variant="amber">
               <FastForward className="h-3.5 w-3.5" aria-hidden="true" />
-              Skipped
+              {t('guided.stageStatus.skipped')}
             </Badge>
           )}
           {stageStatus === 'skipped-after-attempt' && (
             <Badge variant="amber">
               <FastForward className="h-3.5 w-3.5" aria-hidden="true" />
-              Skipped After Attempt
+              {t('guided.stageStatus.skippedAfterAttempt')}
             </Badge>
           )}
           {stageStatus === 'attempted' && (
-            <Badge variant="neutral">Attempted</Badge>
+            <Badge variant="neutral">{t('guided.stageStatus.attempted')}</Badge>
           )}
         </div>
         <CardTitle className="text-xl mt-2">{stage.title}</CardTitle>
-        <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{stage.goal}</p>
+        <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+          {stage.goal}
+        </p>
       </CardHeader>
 
       <CardContent className="space-y-5 pt-5">
@@ -167,8 +174,8 @@ export function GuidedStagePanel({
             >
               <p className="font-bold">
                 {selectedOption.isCorrect
-                  ? 'Great reasoning!'
-                  : 'Not quite — try another option (no penalty):'}
+                  ? t('guided.feedbackCorrect')
+                  : t('guided.feedbackIncorrect')}
               </p>
               <p className="mt-1">{selectedOption.feedback}</p>
             </div>
@@ -178,22 +185,25 @@ export function GuidedStagePanel({
         {/* Progressive Pseudocode Reveal (hidden until requested) */}
         {showPseudocode && lesson.pseudocodeBlocks.length > 0 && (
           <div
-            aria-label="Progressive pseudocode reveal"
+            aria-label={t('guided.pseudocodeRegion')}
             className="rounded-xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-4 space-y-3"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue-text)]">
                 <Code2 className="h-4 w-4" aria-hidden="true" />
-                Progressive Pseudocode
+                {t('guided.pseudocodeTitle')}
               </div>
               <Badge variant="indigo">
-                {revealedPseudoCount} / {lesson.pseudocodeBlocks.length} steps
+                {t('guided.pseudocodeSteps', {
+                  revealed: revealedPseudoCount,
+                  total: lesson.pseudocodeBlocks.length,
+                })}
               </Badge>
             </div>
 
             {revealedPseudoCount === 0 ? (
               <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                Pseudocode stays hidden until you ask for it. Sketch the steps in your head first, then reveal one logical block at a time.
+                {t('guided.pseudocodeHidden')}
               </p>
             ) : (
               <div className="space-y-3">
@@ -207,7 +217,9 @@ export function GuidedStagePanel({
                       <p className="text-sm font-bold text-[var(--text-primary)]">
                         {block.title}
                       </p>
-                      <p className="text-xs text-[var(--text-secondary)]">{block.reason}</p>
+                      <p className="text-xs text-[var(--text-secondary)]">
+                        {block.reason}
+                      </p>
                       <pre className="overflow-x-auto rounded-lg bg-[var(--surface-code)] px-3.5 py-2.5 font-mono text-xs leading-relaxed text-[var(--text-code)]">
                         {block.lines.join('\n')}
                       </pre>
@@ -228,7 +240,7 @@ export function GuidedStagePanel({
                   }
                 >
                   <Eye className="h-4 w-4" aria-hidden="true" />
-                  Reveal Next Pseudocode Step
+                  {t('guided.revealNextPseudocode')}
                 </Button>
               )}
               {revealedPseudoCount > 0 && (
@@ -237,7 +249,7 @@ export function GuidedStagePanel({
                   size="sm"
                   onClick={() => setRevealedPseudoCount(0)}
                 >
-                  Hide Pseudocode
+                  {t('guided.hidePseudocode')}
                 </Button>
               )}
             </div>
@@ -262,7 +274,7 @@ export function GuidedStagePanel({
               onClick={() => onNavigateStage(prevStage.id)}
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Stage {prevStage.stageNumber}
+              {t('guided.stageButton', { number: prevStage.stageNumber })}
             </Button>
           ) : (
             <span />
@@ -275,8 +287,8 @@ export function GuidedStagePanel({
               onClick={() => onSkipOrContinue(stage.id, nextStage.id)}
             >
               {isCompleted
-                ? `Continue to Stage ${nextStage.stageNumber}`
-                : `Skip to Stage ${nextStage.stageNumber}`}
+                ? t('guided.continueToStage', { number: nextStage.stageNumber })
+                : t('guided.skipToStage', { number: nextStage.stageNumber })}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           ) : (
@@ -285,7 +297,9 @@ export function GuidedStagePanel({
               size="sm"
               onClick={() => onSkipOrContinue(stage.id, 'summary')}
             >
-              {isCompleted ? 'Finish & View Summary' : 'Skip & View Summary'}
+              {isCompleted
+                ? t('guided.finishAndViewSummary')
+                : t('guided.skipAndViewSummary')}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   Award,
@@ -19,8 +20,10 @@ import type {
   StageStatusMap,
 } from '../../domain/learning/session';
 import type { LearningSession } from '../../domain/learning/types';
-import { formatOutcomeLabel } from '../../domain/learning/analytics';
-import { getSkillDefinition } from '../../domain/learning/skills';
+import {
+  localizeSessionOutcome,
+  localizeSkillName,
+} from '../../i18n/learningLocalization';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -52,6 +55,8 @@ export function SessionSummaryCard({
   onSwitchToExplore,
   onRestartLesson,
 }: SessionSummaryCardProps) {
+  const { t } = useTranslation();
+
   const verifiedStages = lesson.stages.filter(
     (s) => stageStatuses[s.id] === 'completed',
   );
@@ -80,9 +85,12 @@ export function SessionSummaryCard({
       <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--accent-teal-soft)]/50">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-[var(--accent-teal-text)]" aria-hidden="true" />
+            <Award
+              className="h-5 w-5 text-[var(--accent-teal-text)]"
+              aria-hidden="true"
+            />
             <CardTitle className="text-lg">
-              Local Session Summary · {problem.title}
+              {t('guided.summary.title', { problem: problem.title })}
             </CardTitle>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -90,19 +98,21 @@ export function SessionSummaryCard({
               <>
                 <Badge variant="mint">
                   <HardDrive className="h-3 w-3" aria-hidden="true" />
-                  Saved to This Browser
+                  {t('guided.summary.savedToBrowser')}
                 </Badge>
                 <Badge variant="indigo">
-                  {formatOutcomeLabel(savedSession.outcome)}
+                  {localizeSessionOutcome(t, savedSession.outcome)}
                 </Badge>
               </>
             ) : (
-              <Badge variant="demo">Local Session Only</Badge>
+              <Badge variant="demo">
+                {t('guided.summary.localOnlyBadge')}
+              </Badge>
             )}
           </div>
         </div>
         <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-          Verified activity from this browser session. Skipped stages, viewing visuals alone, and repeated clicks are never counted as completed.
+          {t('guided.summary.subtitle')}
         </p>
       </CardHeader>
 
@@ -120,16 +130,17 @@ export function SessionSummaryCard({
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              Strategies Explored
+              {t('guided.summary.strategiesExplored')}
             </p>
             <p className="mt-1 font-mono text-xl font-extrabold text-[var(--text-primary)]">
-              {exploredStrategyObjects.length} / {problem.supportedStrategies.length}
+              {exploredStrategyObjects.length} /{' '}
+              {problem.supportedStrategies.length}
             </p>
           </div>
 
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              Predictions Attempted
+              {t('guided.summary.predictionsAttempted')}
             </p>
             <p
               data-testid="summary-predictions-attempted"
@@ -139,20 +150,32 @@ export function SessionSummaryCard({
             </p>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
               <span className="font-semibold text-[var(--accent-teal-text)]">
-                {predictionStats.firstTryCorrect} first-try
+                {t('guided.summary.firstTryCount', {
+                  count: predictionStats.firstTryCorrect,
+                })}
               </span>
               {predictionStats.solvedAfterRetry > 0 && (
-                <> · {predictionStats.solvedAfterRetry} after retry</>
+                <>
+                  {' · '}
+                  {t('guided.summary.afterRetryCount', {
+                    count: predictionStats.solvedAfterRetry,
+                  })}
+                </>
               )}
               {predictionStats.skippedCount > 0 && (
-                <> · {predictionStats.skippedCount} skipped</>
+                <>
+                  {' · '}
+                  {t('guided.summary.skippedCount', {
+                    count: predictionStats.skippedCount,
+                  })}
+                </>
               )}
             </p>
           </div>
 
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
             <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              Hints Used
+              {t('guided.summary.hintsUsed')}
             </p>
             <p
               data-testid="summary-hints-used"
@@ -170,7 +193,7 @@ export function SessionSummaryCard({
         {/* Strategies Explored List */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-            Strategies Explored
+            {t('guided.summary.strategiesExplored')}
           </h3>
           <ul className="mt-2 space-y-1.5">
             {exploredStrategyObjects.map((strat) => (
@@ -182,8 +205,11 @@ export function SessionSummaryCard({
                   className="h-4 w-4 shrink-0 text-[var(--accent-teal-text)]"
                   aria-hidden="true"
                 />
-                {strat.name} · {strat.timeComplexity} time /{' '}
-                {strat.spaceComplexity} space
+                {t('guided.summary.strategyComplexity', {
+                  name: strat.name,
+                  time: strat.timeComplexity,
+                  space: strat.spaceComplexity,
+                })}
               </li>
             ))}
           </ul>
@@ -192,8 +218,10 @@ export function SessionSummaryCard({
         {/* Verified Concepts Completed */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-            Verified Concepts Completed ({verifiedStages.length} /{' '}
-            {lesson.stages.length})
+            {t('guided.summary.verifiedConcepts', {
+              completed: verifiedStages.length,
+              total: lesson.stages.length,
+            })}
           </h3>
           {verifiedStages.length > 0 ? (
             <ul className="mt-2 flex flex-wrap gap-2">
@@ -205,19 +233,25 @@ export function SessionSummaryCard({
             </ul>
           ) : (
             <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
-              No guided stage checks completed yet. Answer a stage check correctly to record it here.
+              {t('guided.summary.noVerifiedStages')}
             </p>
           )}
           {skippedStages.length > 0 && (
             <p className="mt-2 text-xs text-[var(--accent-amber-text)]">
-              Skipped stages ({skippedStages.length}):{' '}
-              {skippedStages.map((s) => s.shortTitle).join(', ')} — revisit anytime to complete them.
+              {t('guided.summary.skippedStagesNote', {
+                count: skippedStages.length,
+                stages: skippedStages.map((s) => s.shortTitle).join(', '),
+              })}
             </p>
           )}
           {skippedAfterAttemptStages.length > 0 && (
             <p className="mt-1 text-xs text-[var(--accent-amber-text)]">
-              Skipped after attempt ({skippedAfterAttemptStages.length}):{' '}
-              {skippedAfterAttemptStages.map((s) => s.shortTitle).join(', ')} — retry anytime for verified completion.
+              {t('guided.summary.skippedAfterAttemptNote', {
+                count: skippedAfterAttemptStages.length,
+                stages: skippedAfterAttemptStages
+                  .map((s) => s.shortTitle)
+                  .join(', '),
+              })}
             </p>
           )}
         </div>
@@ -226,13 +260,13 @@ export function SessionSummaryCard({
         {uniquePracticedSkillIds.length > 0 && (
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              Skills with Recorded Practice Evidence
+              {t('guided.summary.skillsPracticed')}
             </h3>
             <ul className="mt-2 flex flex-wrap gap-2">
               {uniquePracticedSkillIds.map((skillId) => (
                 <li key={skillId}>
                   <Badge variant="indigo">
-                    {getSkillDefinition(skillId).name}
+                    {localizeSkillName(t, skillId)}
                   </Badge>
                 </li>
               ))}
@@ -243,8 +277,11 @@ export function SessionSummaryCard({
         {/* Suggested Next Learning Activities */}
         <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4 space-y-2.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
-            <Sparkles className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-            Suggested Next Learning Activity
+            <Sparkles
+              className="h-4 w-4 text-[var(--accent-blue-link)]"
+              aria-hidden="true"
+            />
+            {t('guided.summary.suggestedNextTitle')}
           </div>
           <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
             {lesson.suggestedNextActivity}
@@ -253,7 +290,7 @@ export function SessionSummaryCard({
             {!savedSession && onSaveSession && (
               <Button variant="primary" size="sm" onClick={onSaveSession}>
                 <Save className="h-3.5 w-3.5" aria-hidden="true" />
-                Save Session to Local History
+                {t('guided.summary.saveToLocalHistory')}
               </Button>
             )}
             <Link
@@ -261,22 +298,22 @@ export function SessionSummaryCard({
               className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
             >
               <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-              View Learning Progress
+              {t('guided.summary.viewLearningProgress')}
             </Link>
             <Button variant="outline" size="sm" onClick={onSwitchToExplore}>
-              Try Edge Cases in Free Exploration
+              {t('guided.summary.tryFreeExploration')}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
             <Button variant="outline" size="sm" onClick={onRestartLesson}>
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Restart Guided Lesson
+              {t('guided.summary.restartLesson')}
             </Button>
             <Link
               to="/problems"
               className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)]"
             >
               <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              Try Another Problem
+              {t('guided.summary.tryAnotherProblem')}
             </Link>
           </div>
         </div>
@@ -291,10 +328,8 @@ export function SessionSummaryCard({
             aria-hidden="true"
           />
           <p>
-            <strong>Local browser history only:</strong> Saved sessions are stored
-            only in this browser and are not synced across devices. Finishing a
-            guided lesson records guided progress, not independent mastery. Restarting
-            begins a fresh session without altering previously saved records.
+            <strong>{t('guided.summary.localDisclaimerLead')}</strong>{' '}
+            {t('guided.summary.localDisclaimerBody')}
           </p>
         </div>
       </CardContent>

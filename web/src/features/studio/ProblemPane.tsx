@@ -1,5 +1,14 @@
-import { CheckCircle2, ChevronDown, Clock, Database, Layers, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import {
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  Database,
+  Layers,
+  Lock,
+} from 'lucide-react';
 import type { ProblemSpec } from '../../domain/problems/types';
+import { localizeDifficulty } from '../../i18n/learningLocalization';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 
@@ -21,20 +30,27 @@ export function ProblemPane({
   lockedStrategyIds = [],
   defaultStatementExpanded = true,
 }: ProblemPaneProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-4">
       {!hideStrategySelector && (
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
-              <CardTitle className="text-lg">Strategy</CardTitle>
+              <Layers
+                className="h-4 w-4 text-[var(--accent-blue-link)]"
+                aria-hidden="true"
+              />
+              <CardTitle className="text-lg">
+                {t('studio.problemPane.strategyTitle')}
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <div
               role="radiogroup"
-              aria-label="Solution strategy selector"
+              aria-label={t('studio.problemPane.strategySelector')}
               className="flex flex-col gap-2.5"
             >
               {problem.supportedStrategies.map((strategy) => {
@@ -49,15 +65,15 @@ export function ProblemPane({
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-bold text-[var(--text-secondary)]">
-                          Optimized Strategy
+                          {t('studio.problemPane.optimizedStrategy')}
                         </span>
                         <Badge variant="neutral">
                           <Lock className="h-3 w-3" aria-hidden="true" />
-                          Stage 3
+                          {t('studio.problemPane.stageUnlockBadge')}
                         </Badge>
                       </div>
                       <p className="mt-1 text-sm text-[var(--text-secondary)] leading-relaxed">
-                        Unlocks in Stage 3 (Discover Optimization) — or switch to Free Exploration anytime.
+                        {t('studio.problemPane.lockedHint')}
                       </p>
                     </div>
                   );
@@ -92,11 +108,17 @@ export function ProblemPane({
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-xs">
                       <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                        <Clock className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                        <Clock
+                          className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
+                          aria-hidden="true"
+                        />
                         {strategy.timeComplexity}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                        <Database className="h-3.5 w-3.5 text-[var(--accent-teal-text)]" aria-hidden="true" />
+                        <Database
+                          className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"
+                          aria-hidden="true"
+                        />
                         {strategy.spaceComplexity}
                       </span>
                     </div>
@@ -113,8 +135,14 @@ export function ProblemPane({
         <details open={defaultStatementExpanded} className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-6 py-4 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-2xl">
             <span className="flex items-center gap-2">
-              <span>{problem.title} — Problem &amp; Rules</span>
-              <Badge variant="mint">{problem.difficulty}</Badge>
+              <span>
+                {t('studio.problemPane.problemAndRules', {
+                  title: problem.title,
+                })}
+              </span>
+              <Badge variant="mint">
+                {localizeDifficulty(t, problem.difficulty)}
+              </Badge>
             </span>
             <ChevronDown
               className="h-4 w-4 shrink-0 text-[var(--text-secondary)] transition-transform group-open:rotate-180"
@@ -129,7 +157,7 @@ export function ProblemPane({
 
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                Examples
+                {t('studio.problemPane.examples')}
               </h3>
               <div className="mt-2.5 space-y-2.5">
                 {problem.examples.map((ex, idx) => (
@@ -141,7 +169,9 @@ export function ProblemPane({
                       {ex.input}
                     </p>
                     <p className="mt-1 font-mono text-[var(--accent-teal-text)] font-semibold">
-                      Output: {ex.output}
+                      {t('studio.problemPane.outputPrefix', {
+                        output: ex.output,
+                      })}
                     </p>
                     <p className="mt-1 text-[var(--text-secondary)] leading-relaxed">
                       {ex.explanation}
@@ -153,7 +183,7 @@ export function ProblemPane({
 
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                Key Rules
+                {t('studio.problemPane.keyRules')}
               </h3>
               <ul className="mt-2.5 space-y-2 text-sm text-[var(--text-secondary)]">
                 {problem.constraints.map((rule) => (
