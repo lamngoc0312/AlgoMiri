@@ -61,6 +61,10 @@ import { InteractiveSolutionMap } from '../features/solutions/InteractiveSolutio
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { buildProblemAnalysisFromModule } from '../services/aiClient';
 import { localizeLesson } from '../i18n/learningLocalization';
+import {
+  localizeExecutionStep,
+  localizePredictionPrompt,
+} from '../i18n/traceLocalization';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
 
@@ -211,6 +215,13 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   });
 
   const currentStep = trace.steps[playback.stepIndex] ?? trace.steps[0];
+  const localizedStep = useMemo(
+    () =>
+      localizeExecutionStep(t, problemModule.id, strategy.id, currentStep),
+    // Localize step at presentation time without regenerating the deterministic trace
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, i18n.resolvedLanguage, problemModule.id, strategy.id, currentStep],
+  );
   const solutionGraph =
     problemModule.solutionGraphs[strategy.id] ??
     Object.values(problemModule.solutionGraphs)[0];
@@ -224,6 +235,30 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
         traceContextId,
       ),
     [problemModule, trace.steps, playback.stepIndex, strategy.id, traceContextId],
+  );
+  const localizedPredictionPrompt = useMemo(
+    () =>
+      predictionPrompt
+        ? localizePredictionPrompt(
+            t,
+            problemModule.id,
+            strategy.id,
+            trace.steps,
+            playback.stepIndex,
+            predictionPrompt,
+          )
+        : null,
+    // Localize active checkpoint without changing prompt.id or invalidating predictionRecords
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      t,
+      i18n.resolvedLanguage,
+      problemModule.id,
+      strategy.id,
+      trace.steps,
+      playback.stepIndex,
+      predictionPrompt,
+    ],
   );
 
   const currentPredictionRecord = predictionPrompt
@@ -732,14 +767,14 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   sessionId={sessionId}
                   strategy={strategy}
                   currentInput={currentInput as TwoSumInput}
-                  step={currentStep as GenericExecutionStep<ArrayHashVisualState>}
+                  step={localizedStep as GenericExecutionStep<ArrayHashVisualState>}
                   stepIndex={playback.stepIndex}
                   totalSteps={trace.steps.length}
                   isPlaying={playback.isPlaying}
                   speed={playback.speed}
                   solutionGraph={solutionGraph}
                   predictModeEnabled={predictModeEnabled}
-                  predictionPrompt={predictionPrompt}
+                  predictionPrompt={localizedPredictionPrompt}
                   predictionRecord={currentPredictionRecord}
                   checkpointPaused={isPredictionCheckpointActive}
                   maxAllowedStepIndex={maxReachableStepIndex}
@@ -768,14 +803,14 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   strategy={strategy}
                   currentInput={currentInput as ValidParenthesesInput}
                   presets={problemModule.presets}
-                  step={currentStep as GenericExecutionStep<StackVisualState>}
+                  step={localizedStep as GenericExecutionStep<StackVisualState>}
                   stepIndex={playback.stepIndex}
                   totalSteps={trace.steps.length}
                   isPlaying={playback.isPlaying}
                   speed={playback.speed}
                   solutionGraph={solutionGraph}
                   predictModeEnabled={predictModeEnabled}
-                  predictionPrompt={predictionPrompt}
+                  predictionPrompt={localizedPredictionPrompt}
                   predictionRecord={currentPredictionRecord}
                   checkpointPaused={isPredictionCheckpointActive}
                   maxAllowedStepIndex={maxReachableStepIndex}
@@ -802,7 +837,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   currentInput={currentInput as SplitArrayInput}
                   presets={problemModule.presets}
                   step={
-                    currentStep as GenericExecutionStep<BinarySearchGreedyVisualState>
+                    localizedStep as GenericExecutionStep<BinarySearchGreedyVisualState>
                   }
                   stepIndex={playback.stepIndex}
                   totalSteps={trace.steps.length}
@@ -810,7 +845,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   speed={playback.speed}
                   solutionGraph={solutionGraph}
                   predictModeEnabled={predictModeEnabled}
-                  predictionPrompt={predictionPrompt}
+                  predictionPrompt={localizedPredictionPrompt}
                   predictionRecord={currentPredictionRecord}
                   checkpointPaused={isPredictionCheckpointActive}
                   maxAllowedStepIndex={maxReachableStepIndex}
@@ -845,7 +880,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               <StudioSecondaryDock
                 problemModule={problemModule}
                 strategy={strategy}
-                step={currentStep}
+                step={localizedStep}
                 stepIndex={playback.stepIndex}
                 totalSteps={trace.steps.length}
                 learningStage={

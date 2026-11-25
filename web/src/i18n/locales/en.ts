@@ -1,5 +1,6 @@
 import { learningEn } from './learningEn';
 import { lessonsEn } from './lessonsEn';
+import { tracesEn } from './tracesEn';
 
 export const en = {
   common: {
@@ -246,5 +247,6 @@ export const en = {
   },
   ...learningEn,
   ...lessonsEn,
+  ...tracesEn,
 } as const;
 

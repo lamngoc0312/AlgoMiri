@@ -1,5 +1,6 @@
 import { learningVi } from './learningVi';
 import { lessonsVi } from './lessonsVi';
+import { tracesVi } from './tracesVi';
 
 export const vi = {
   common: {
@@ -244,5 +245,6 @@ export const vi = {
   },
   ...learningVi,
   ...lessonsVi,
+  ...tracesVi,
 } as const;
 

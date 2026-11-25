@@ -35,20 +35,30 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
       .poll(() => page.evaluate(() => window.localStorage.getItem('algomiri.language')))
       .toBe('vi');
 
-    // Verify localized Learning Studio, Guided Lesson content, Roadmap, and Progress in Vietnamese
+    // Verify localized Learning Studio, Guided Lesson, Trace, and Prediction content in Vietnamese
     await page.goto('/studio/two-sum', { waitUntil: 'networkidle' });
     await expect(page.getByRole('heading', { name: 'Studio học tập' })).toBeVisible();
     await expect(page.getByText('Khung trực quan hóa thực thi')).toBeVisible();
     await expect(page.getByText('Giai đoạn 1: Hiểu rõ bài toán')).toBeVisible();
+    await expect(page.getByText('Chọn mốc i = 0').last()).toBeVisible();
+    await expect(
+      page.getByText(/Con trỏ ghép j sẽ kiểm tra chỉ số nào tiếp theo/i),
+    ).toBeVisible();
 
     await page.goto('/studio/valid-parentheses', { waitUntil: 'networkidle' });
     await expect(
       page.getByText('Giai đoạn 1: Hiểu quy tắc dấu ngoặc cân bằng'),
     ).toBeVisible();
+    await expect(
+      page.getByText('Chỉ số 0: Đẩy "{" vào ngăn xếp'),
+    ).toBeVisible();
 
     await page.goto('/studio/split-array-largest-sum', { waitUntil: 'networkidle' });
     await expect(
       page.getByText('Giai đoạn 1: Mảng con liên tiếp & Mục tiêu Minimax'),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Khởi tạo các biên tìm kiếm [10, 32]'),
     ).toBeVisible();
 
     await page.goto('/roadmap', { waitUntil: 'networkidle' });

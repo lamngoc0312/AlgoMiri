@@ -315,8 +315,10 @@ export function CompositionVisualCanvas({
                     >
                       {isScanning
                         ? group?.justCreated
-                          ? `Cut G${group.groupIndex}`
-                          : 'Scan'
+                          ? t('traces.highlights.cutGroup', {
+                              group: group.groupIndex,
+                            })
+                          : t('traces.highlights.scan')
                         : group
                           ? `G${group.groupIndex}`
                           : 'idle'}
