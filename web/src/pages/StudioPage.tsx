@@ -60,6 +60,7 @@ import { SessionSummaryCard } from '../features/guided/SessionSummaryCard';
 import { InteractiveSolutionMap } from '../features/solutions/InteractiveSolutionMap';
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { buildProblemAnalysisFromModule } from '../services/aiClient';
+import { localizeLesson } from '../i18n/learningLocalization';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
 
@@ -83,8 +84,14 @@ interface StudioWorkspaceProps {
 }
 
 function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
-  const { t } = useTranslation();
-  const { spec, lesson } = problemModule;
+  const { t, i18n } = useTranslation();
+  const { spec } = problemModule;
+  const lesson = useMemo(
+    () => localizeLesson(t, problemModule.id, problemModule.lesson),
+    // Recompute localized lesson copy whenever active language changes without resetting session state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, i18n.resolvedLanguage, problemModule.id, problemModule.lesson],
+  );
   const firstStageId = lesson.stages[0]?.id ?? '';
 
   const [sessionId, setSessionId] = useState(1);

@@ -35,10 +35,21 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
       .poll(() => page.evaluate(() => window.localStorage.getItem('algomiri.language')))
       .toBe('vi');
 
-    // Verify localized Learning Studio, Roadmap, and Progress in Vietnamese
+    // Verify localized Learning Studio, Guided Lesson content, Roadmap, and Progress in Vietnamese
     await page.goto('/studio/two-sum', { waitUntil: 'networkidle' });
     await expect(page.getByRole('heading', { name: 'Studio học tập' })).toBeVisible();
     await expect(page.getByText('Khung trực quan hóa thực thi')).toBeVisible();
+    await expect(page.getByText('Giai đoạn 1: Hiểu rõ bài toán')).toBeVisible();
+
+    await page.goto('/studio/valid-parentheses', { waitUntil: 'networkidle' });
+    await expect(
+      page.getByText('Giai đoạn 1: Hiểu quy tắc dấu ngoặc cân bằng'),
+    ).toBeVisible();
+
+    await page.goto('/studio/split-array-largest-sum', { waitUntil: 'networkidle' });
+    await expect(
+      page.getByText('Giai đoạn 1: Mảng con liên tiếp & Mục tiêu Minimax'),
+    ).toBeVisible();
 
     await page.goto('/roadmap', { waitUntil: 'networkidle' });
     await expect(page.getByRole('heading', { name: 'Lộ trình học thuật toán' })).toBeVisible();

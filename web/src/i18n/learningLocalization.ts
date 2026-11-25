@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import type { ProblemLesson } from '../domain/core/types';
 import type {
   PracticeSuggestion,
   ProblemProgressSummary,
@@ -548,6 +549,85 @@ export function localizePlannedMilestone(
     }),
     description: t(`roadmap.plannedTopics.${milestone.id}.description`, {
       defaultValue: milestone.description,
+    }),
+  };
+}
+
+/**
+ * Localizes a curated ProblemLesson strictly by stable problem/stage/option/hint/block IDs.
+ * Preserves all IDs, ordering, isCorrect flags, recommendedStrategy, lockedStrategyIds,
+ * and exact pseudocode syntax lines without modifying domain logic.
+ */
+export function localizeLesson(
+  t: TFunction,
+  problemId: string,
+  lesson: ProblemLesson,
+): ProblemLesson {
+  const base = `lessons.${problemId}`;
+
+  const localizedStages = lesson.stages.map((stage) => {
+    const stageBase = `${base}.stages.${stage.id}`;
+    return {
+      ...stage,
+      shortTitle: t(`${stageBase}.shortTitle`, {
+        defaultValue: stage.shortTitle,
+      }),
+      title: t(`${stageBase}.title`, { defaultValue: stage.title }),
+      goal: t(`${stageBase}.goal`, { defaultValue: stage.goal }),
+      conceptLearned: t(`${stageBase}.conceptLearned`, {
+        defaultValue: stage.conceptLearned,
+      }),
+      narrative: t(`${stageBase}.narrative`, { defaultValue: stage.narrative }),
+      question: {
+        prompt: t(`${stageBase}.question.prompt`, {
+          defaultValue: stage.question.prompt,
+        }),
+        options: stage.question.options.map((opt) => ({
+          ...opt,
+          label: t(`${stageBase}.question.options.${opt.id}.label`, {
+            defaultValue: opt.label,
+          }),
+          feedback: t(`${stageBase}.question.options.${opt.id}.feedback`, {
+            defaultValue: opt.feedback,
+          }),
+        })),
+      },
+    };
+  });
+
+  const localizedHintsByStage: ProblemLesson['hintsByStage'] = {};
+  for (const [stageId, hints] of Object.entries(lesson.hintsByStage)) {
+    const hintsBase = `${base}.stages.${stageId}.hints`;
+    localizedHintsByStage[stageId] = hints.map((hint) => ({
+      ...hint,
+      label: t(`${hintsBase}.${hint.level}.label`, {
+        defaultValue: hint.label,
+      }),
+      text: t(`${hintsBase}.${hint.level}.text`, {
+        defaultValue: hint.text,
+      }),
+    }));
+  }
+
+  const localizedPseudocodeBlocks = lesson.pseudocodeBlocks.map((block) => ({
+    ...block,
+    title: t(`${base}.pseudocode.${block.id}.title`, {
+      defaultValue: block.title,
+    }),
+    reason: t(`${base}.pseudocode.${block.id}.reason`, {
+      defaultValue: block.reason,
+    }),
+    // Never translate code/pseudocode syntax lines
+    lines: block.lines,
+  }));
+
+  return {
+    ...lesson,
+    stages: localizedStages,
+    hintsByStage: localizedHintsByStage,
+    pseudocodeBlocks: localizedPseudocodeBlocks,
+    suggestedNextActivity: t(`${base}.suggestedNextActivity`, {
+      defaultValue: lesson.suggestedNextActivity,
     }),
   };
 }
