@@ -17,9 +17,11 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "i18next": "^27.2.9",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^18.0.3",
     "react-router-dom": "^7.1.0",
     "tailwind-merge": "^3.0.1"
   },

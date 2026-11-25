@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight,
   Layers,
@@ -82,6 +83,7 @@ function matchCuratedStudioRoute(text: string): string | null {
 }
 
 export function LandingPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const prefillId = searchParams.get('prefill');
@@ -155,8 +157,7 @@ export function LandingPage() {
     if (trimmed.length < 10) {
       setFeedback({
         type: 'empty',
-        message:
-          'Paste at least 10 characters describing a programming problem (or load a sample below).',
+        message: t('landing.validation.minimumLength'),
       });
       return;
     }
@@ -195,8 +196,12 @@ export function LandingPage() {
       }
       const message =
         err instanceof AiClientError
-          ? `${err.message}${err.retryAfterSeconds ? ` (Suggested wait: ~${err.retryAfterSeconds}s)` : ''}`
-          : 'Could not complete problem analysis. Please retry.';
+          ? `${err.message}${
+              err.retryAfterSeconds
+                ? ` (${t('landing.validation.suggestedWait', { seconds: err.retryAfterSeconds })})`
+                : ''
+            }`
+          : t('landing.validation.analysisFailed');
       setFeedback({
         type: 'error',
         message,
@@ -216,8 +221,7 @@ export function LandingPage() {
     if (!trimmed) {
       setFeedback({
         type: 'empty',
-        message:
-          'Paste a problem statement first, or choose a curated Studio below.',
+        message: t('landing.validation.statementRequired'),
       });
       return;
     }
@@ -231,8 +235,7 @@ export function LandingPage() {
 
     setFeedback({
       type: 'unsupported',
-      message:
-        'Not supported in current demo for direct deterministic Studio playback (curated Studios only run built-in verified modules). Click "Analyze Problem (AI)" for a conceptual breakdown.',
+      message: t('landing.validation.unsupported'),
     });
   };
 
@@ -265,6 +268,11 @@ export function LandingPage() {
   };
 
   const verifiedStudios = getVerifiedLibraryItems();
+  const studioSummaryKeys = {
+    'two-sum': 'library.problemSummaries.twoSum',
+    'valid-parentheses': 'library.problemSummaries.validParentheses',
+    'split-array-largest-sum': 'library.problemSummaries.splitArray',
+  } as const;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 space-y-16">
@@ -272,12 +280,11 @@ export function LandingPage() {
       <section className="mx-auto max-w-3xl space-y-7 text-center">
         <div className="space-y-3.5">
           <h1 className="text-4xl font-extrabold tracking-tight text-[#202B3B] sm:text-5xl leading-[1.12]">
-            Understand the logic{' '}
-            <span className="text-[#2664C2]">before you code.</span>
+            {t('landing.heroPrefix')}{' '}
+            <span className="text-[#2664C2]">{t('landing.heroAccent')}</span>
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#526075] sm:text-lg">
-            Paste any programming problem for a step-by-step conceptual breakdown,
-            or practice interactively in a verified visual studio.
+            {t('landing.heroDescription')}
           </p>
         </div>
 
@@ -307,15 +314,15 @@ export function LandingPage() {
               className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#202B3B]"
             >
               {analysisResult.mode === 'offline-demo'
-                ? 'Analysis Status'
-                : 'Problem Breakdown'}
+                ? t('landing.analysisStatus')
+                : t('landing.problemBreakdown')}
             </h2>
 
             <div className="flex items-center gap-2">
               {analysisResult.mode !== 'offline-demo' && (
                 <div
                   role="tablist"
-                  aria-label="Analysis and AI Tutor views"
+                  aria-label={t('landing.workspaceLabel')}
                   className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
                 >
                   <button
@@ -336,7 +343,7 @@ export function LandingPage() {
                         : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
-                    Learn (Analysis)
+                    {t('landing.analysisTab')}
                   </button>
                   <button
                     ref={(el) => {
@@ -356,7 +363,7 @@ export function LandingPage() {
                         : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
-                    Ask AI Tutor
+                    {t('landing.tutorTab')}
                   </button>
                 </div>
               )}
@@ -371,7 +378,7 @@ export function LandingPage() {
                   setActiveWorkspaceTab('analysis');
                 }}
               >
-                Clear
+                {t('common.clear')}
               </Button>
             </div>
           </div>
@@ -421,7 +428,7 @@ export function LandingPage() {
                   className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"
                 >
                   <span className="font-bold">
-                    Outdated Analysis — Problem Statement Changed
+                    {t('landing.staleTitle')}
                   </span>
                   <Button
                     variant="primary"
@@ -429,7 +436,7 @@ export function LandingPage() {
                     onClick={() => void runAiAnalysis()}
                   >
                     <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                    Re-analyze Updated Text
+                    {t('landing.reanalyze')}
                   </Button>
                 </div>
               )}
@@ -451,17 +458,17 @@ export function LandingPage() {
               id="curated-studios-heading"
               className="text-2xl font-extrabold tracking-tight text-[#202B3B]"
             >
-              Curated Visual Studios
+              {t('landing.curatedTitle')}
             </h2>
             <p className="mt-1 text-base text-[#526075]">
-              Step through verified, deterministic visualizations before writing code.
+              {t('landing.curatedDescription')}
             </p>
           </div>
           <Link
             to="/problems"
             className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
           >
-            Browse Problem Library
+            {t('landing.browseLibrary')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
@@ -480,25 +487,27 @@ export function LandingPage() {
                 />
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between gap-2">
-                    <Badge variant="teal">Verified Studio</Badge>
+                    <Badge variant="teal">{t('common.verifiedStudio')}</Badge>
                     <Badge variant={topicStyle.badgeVariant}>{studio.topic}</Badge>
                   </div>
                   <CardTitle className="mt-2.5 text-xl">{studio.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-between gap-5">
                   <p className="text-sm leading-relaxed text-[#526075]">
-                    {studio.summary}
+                    {studioSummaryKeys[studio.id as keyof typeof studioSummaryKeys]
+                      ? t(studioSummaryKeys[studio.id as keyof typeof studioSummaryKeys])
+                      : studio.summary}
                   </p>
                   <div className="flex items-center justify-between border-t border-[#E2E8F0] pt-3.5">
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#526075]">
                       <Layers className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
-                      {studio.stagesCount}-stage lesson
+                      {t('landing.stageLesson', { count: studio.stagesCount ?? 0 })}
                     </span>
                     <Link
                       to={studio.studioPath ?? `/studio/${studio.id}`}
                       className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
                     >
-                      Open Studio
+                      {t('common.openStudio')}
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </div>

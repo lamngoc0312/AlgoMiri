@@ -1,0 +1,239 @@
+export const en = {
+  common: {
+    language: 'Language',
+    english: 'English',
+    vietnamese: 'Vietnamese',
+    retry: 'Retry',
+    clear: 'Clear',
+    resetFilters: 'Reset filters',
+    analyze: 'Analyze Problem (AI)',
+    openStudio: 'Open Studio',
+    apply: 'Apply',
+    presets: 'Presets:',
+    verifiedStudio: 'Verified Studio',
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+  },
+  shell: {
+    skipToContent: 'Skip to main content',
+    productTagline: 'Visual Algorithm Studio',
+    beta: 'Beta Preview',
+    primaryNavigation: 'Primary navigation',
+    mobileNavigation: 'Mobile navigation',
+    openMenu: 'Open navigation menu',
+    closeMenu: 'Close navigation menu',
+    browseProblems: 'Browse Problems',
+    nav: {
+      home: 'Home',
+      problems: 'Problems',
+      studio: 'Learning Studio',
+      roadmap: 'Roadmap',
+      progress: 'Progress',
+    },
+    footerPrimary: 'Understand first. Code second.',
+    footerSecondary:
+      'Verified deterministic studios + optional server-side AI conceptual tutor · Local browser history only (no account sync).',
+  },
+  studioInputs: {
+    customInput: 'Custom Input',
+    customBrackets: 'Custom Brackets Input',
+    twoSumHelp: 'Up to 12 integers · negatives & duplicates supported',
+    nums: 'Array (nums)',
+    numsPlaceholder: 'e.g. 2, 7, 11, 15 (or leave blank for [])',
+    target: 'Target',
+    bracketsHelp: 'Allowed: ( ) [ ] { } · up to 16 chars',
+    brackets: 'Bracket string (s)',
+    bracketsPlaceholder: 'e.g. {[]} or ([)] (leave blank for "")',
+    splitHelp: 'Nonnegative integers (≥ 0) · 1 ≤ k ≤ length (max 10)',
+    splitNums: 'Array (nums ≥ 0)',
+    subarrays: 'Subarrays (k)',
+    validation: {
+      targetRequired: 'Please enter an integer target value (for example: 9).',
+      targetWhole: 'Target “{{value}}” must be a whole integer (no decimals or letters).',
+      targetSafe: 'Target must be a safe finite integer.',
+      arrayTooLong: 'Please enter at most {{max}} numbers so the visualization stays clear and smooth.',
+      invalidInteger: '“{{value}}” is not a valid integer. Use comma-separated whole numbers like 2, 7, 11, 15.',
+      unsafeInteger: '“{{value}}” is outside the safe integer range.',
+      bracketsTooLong: 'Please enter at most {{max}} bracket characters so the stack visualization stays clear.',
+      invalidBrackets: 'Unsupported characters: {{characters}}. Only (), [], and {} are supported.',
+      splitRequired: 'Please enter at least 1 nonnegative integer for nums (for example: 7, 2, 5, 10, 8).',
+      splitTooLong: 'Please enter at most {{max}} integers so the nested Binary Search + Greedy trace remains clear and easy to follow.',
+      splitInvalidInteger: '“{{value}}” is not a valid whole integer. Use comma-separated nonnegative integers like 7, 2, 5, 10, 8.',
+      splitUnsafeInteger: '“{{value}}” exceeds JavaScript’s safe integer range.',
+      negative: 'Negative value {{value}} is not allowed. Binary Search + Greedy partitioning relies on nonnegative numbers so adding an element never decreases a subarray sum.',
+      sumOverflow: 'The sum of nums exceeds the safe integer limit, which would risk overflow when computing search bounds.',
+      kInvalid: 'Please enter a valid whole integer for k (number of subarrays).',
+      kUnsafe: 'Subarray count k must be a safe integer.',
+      kRange: 'Subarray count k must satisfy 1 <= k <= nums.length (got k = {{k}} for {{length}} elements).',
+    },
+  },
+  landing: {
+    heroPrefix: 'Understand the logic',
+    heroAccent: 'before you code.',
+    heroDescription:
+      'Paste any programming problem for a step-by-step conceptual breakdown, or practice interactively in a verified visual studio.',
+    analysisStatus: 'Analysis Status',
+    problemBreakdown: 'Problem Breakdown',
+    workspaceLabel: 'Analysis and AI Tutor views',
+    analysisTab: 'Learn (Analysis)',
+    tutorTab: 'Ask AI Tutor',
+    staleTitle: 'Outdated Analysis — Problem Statement Changed',
+    reanalyze: 'Re-analyze Updated Text',
+    curatedTitle: 'Curated Visual Studios',
+    curatedDescription:
+      'Step through verified, deterministic visualizations before writing code.',
+    browseLibrary: 'Browse Problem Library',
+    stageLesson: '{{count}}-stage lesson',
+    validation: {
+      minimumLength:
+        'Paste at least 10 characters describing a programming problem (or load a sample below).',
+      statementRequired:
+        'Paste a problem statement first, or choose a curated Studio below.',
+      unsupported:
+        'Not supported in current demo for direct deterministic Studio playback (curated Studios only run built-in verified modules). Click “Analyze Problem (AI)” for a conceptual breakdown.',
+      analysisFailed: 'Could not complete problem analysis. Please retry.',
+      suggestedWait: 'Suggested wait: ~{{seconds}}s',
+    },
+  },
+  composer: {
+    modeLabel: 'Problem input mode',
+    modes: {
+      text: 'Problem Text',
+      url: 'Problem URL',
+      image: 'Screenshot',
+    },
+    pasteLabel: 'Paste a problem statement',
+    pastePlaceholder:
+      'Paste any algorithm problem statement to analyze its inputs, approach, and intuition...',
+    analyzing: 'Analyzing problem structure, example, and key reasoning steps...',
+    feedback: {
+      unsupported: 'Not supported in current demo',
+      error: 'Analysis request failed',
+      empty: 'Add a problem statement',
+    },
+    trySample: 'Try sample:',
+    twoSumSample: 'Load Two Sum sample',
+    validParenthesesSample: 'Valid Parentheses',
+    splitArraySample: 'Split Array',
+    curatedTitle:
+      'Opens a built-in curated Studio example if your statement strictly matches one',
+    openCurated: 'Open Curated Studio',
+    url: {
+      pasteLabel: 'Paste a problem URL',
+      inspect: 'Inspect URL',
+      help:
+        'Identifies canonical problem links safely. AlgoMiri never scrapes proprietary sites like LeetCode — only explicitly allowlisted public raw text files are fetched automatically.',
+      openOriginal: 'Open original problem',
+      verifiedAvailable: 'Verified Studio available for {{title}}',
+      openVerified: 'Open Verified Studio',
+      reviewFetched: 'Review fetched text before analyzing:',
+      pasteText: 'Paste Problem Text',
+      uploadScreenshot: 'Upload Screenshot',
+      required:
+        'Paste an HTTPS problem URL (for example, a LeetCode or GitHub link).',
+      invalid:
+        'Could not inspect this URL. Please check that it is a valid HTTPS link.',
+    },
+    image: {
+      uploadLabel: 'Upload problem screenshots',
+      drop: 'Drop problem screenshots here, or click to browse',
+      limits: 'PNG, JPEG, or WebP · Up to 3 images · Max 4 MB each',
+      choose: 'Choose screenshot files',
+      privacy:
+        'Images are processed in memory for transcription and are not stored by default.',
+      remove: 'Remove {{filename}}',
+      extract: 'Extract Problem Text',
+      confirmTitle: 'Confirm Extracted Problem Text',
+      visionOffline: 'Vision Offline',
+      reviewBefore: 'Review Before Analyzing',
+      confirmLabel: 'Confirm extracted problem text',
+      diagrams: 'Observed Diagrams / Tables',
+      unclear: 'Please verify unclear or missing details:',
+      editText: 'Edit in Text Tab',
+      confirmAnalyze: 'Confirm & Analyze',
+      countError: 'You can upload up to {{count}} screenshots at a time.',
+      typeError:
+        'Unsupported file “{{filename}}”. Please upload PNG, JPEG, or WebP screenshots.',
+      sizeError: '“{{filename}}” exceeds the 4 MB per-image limit.',
+      readError: 'Could not read the selected image.',
+      required: 'Add at least one PNG, JPEG, or WebP screenshot first.',
+      extractionError:
+        'Could not extract text from the uploaded screenshot(s). Please retry.',
+      fileReadError: 'Could not read {{filename}}.',
+      encodingError: 'Invalid image encoding for {{filename}}.',
+    },
+  },
+  library: {
+    title: 'Problem Library',
+    description:
+      'Practice in verified deterministic visual studios, explore original AI-guided practice problems, or paste your own problem statement on the Home page.',
+    pasteCustom: 'Paste Custom Problem',
+    searchLabel: 'Search problems',
+    searchPlaceholder: 'Search by title, topic, or pattern...',
+    topicFilter: 'Filter by topic',
+    allTopics: 'All Topics',
+    difficultyFilter: 'Filter by difficulty',
+    allDifficulties: 'All Difficulties',
+    availabilityFilter: 'Filter by visualization availability',
+    availability: {
+      all: 'All',
+      verified: 'Visual Studios',
+      ai: 'AI-Guided',
+    },
+    showing: 'Showing <strong>{{visible}}</strong> of {{total}} problems',
+    emptyTitle: 'No library problems match your current filters.',
+    emptyDescription:
+      'Reset filters or paste any custom problem statement directly into the AI Problem Analyzer.',
+    analyzeCustom: 'Analyze Custom Problem',
+    verifiedTitle: 'Verified Visual Studios',
+    verifiedDescription:
+      'Deterministic step-by-step execution traces, interactive Solution Maps, and guided checkpoints.',
+    live: '{{count}} Live',
+    verifiedVisual: 'Verified Visual',
+    strategy_one: '{{count}} verified strategy',
+    strategy_other: '{{count}} verified strategies',
+    guidedLesson: '{{count}}-stage Guided Lesson',
+    startLesson: 'Start Guided Lesson',
+    explore: 'Explore',
+    aiTitle: 'Original AI-Guided Practice Problems',
+    aiDescription:
+      'Original AlgoMiri prompts for conceptual AI breakdown and Socratic tutoring (no deterministic visual engine yet).',
+    conceptual: 'Conceptual · AI-Guided',
+    analyzeConceptually: 'Analyze Conceptually',
+    referencesTitle: 'External Practice References',
+    referencesDescription:
+      'Links to related public problem IDs for independent coding practice. AlgoMiri never scrapes or hosts copyrighted problem statements.',
+    problemSummaries: {
+      twoSum:
+        'Compare Brute Force pair scanning against O(n) Hash Map complement lookups with step-by-step visuals.',
+      validParentheses:
+        'Visualize how a Last-In-First-Out stack tracks opening brackets and catches mismatches or unclosed leftovers.',
+      splitArray:
+        'Learn algorithm composition: Binary Search on Answer proposes candidate caps while an O(n) Greedy packer checks feasibility.',
+      sortedPairSum:
+        'Use two opposite-end pointers on an already-sorted integer array to find a pair matching a target sum in O(1) extra space.',
+      longestSubarray:
+        'Expand and shrink a contiguous window over nonnegative daily costs to find the longest streak whose total cost stays within a budget.',
+      minimumCoinChange:
+        'Discover why greedy largest-coin picking fails on arbitrary denominations and how bottom-up subproblems find the fewest coins.',
+      firstTrueBoundary:
+        'Find the first index where a sorted false-then-true condition flips from false to true without scanning linearly.',
+      shortestGridPath:
+        'Explore why Breadth-First Search finds the fewest 4-directional steps between start and goal cells while avoiding blocked walls.',
+      topKFrequent:
+        'Count element frequencies with a Hash Map and compare sorting, min-heap, and bucket-sort tradeoffs for selecting the top k.',
+    },
+    topics: {
+      arraysHashMap: 'Arrays & Hash Map',
+      stack: 'Stack (LIFO)',
+      binarySearchGreedy: 'Binary Search + Greedy',
+      twoPointers: 'Two Pointers',
+      slidingWindow: 'Sliding Window',
+      dynamicProgramming: 'Dynamic Programming',
+      binarySearch: 'Binary Search',
+      graphsBfs: 'Graphs & BFS',
+      hashingFrequency: 'Hashing & Frequency',
+    },
+  },
+} as const;
+

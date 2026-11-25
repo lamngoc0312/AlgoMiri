@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -25,7 +26,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 type AvailabilityFilter = 'all' | ProblemAvailability;
 type DifficultyFilter = 'all' | LibraryDifficulty;
 
+const TOPIC_KEYS = {
+  'Arrays & Hash Map': 'library.topics.arraysHashMap',
+  'Stack (LIFO)': 'library.topics.stack',
+  'Binary Search + Greedy': 'library.topics.binarySearchGreedy',
+  'Two Pointers': 'library.topics.twoPointers',
+  'Sliding Window': 'library.topics.slidingWindow',
+  'Dynamic Programming': 'library.topics.dynamicProgramming',
+  'Binary Search': 'library.topics.binarySearch',
+  'Graphs & BFS': 'library.topics.graphsBfs',
+  'Hashing & Frequency': 'library.topics.hashingFrequency',
+} as const;
+
+const SUMMARY_KEYS = {
+  'two-sum': 'library.problemSummaries.twoSum',
+  'valid-parentheses': 'library.problemSummaries.validParentheses',
+  'split-array-largest-sum': 'library.problemSummaries.splitArray',
+  'sorted-pair-sum': 'library.problemSummaries.sortedPairSum',
+  'longest-subarray-under-budget': 'library.problemSummaries.longestSubarray',
+  'minimum-coin-change': 'library.problemSummaries.minimumCoinChange',
+  'first-true-boundary': 'library.problemSummaries.firstTrueBoundary',
+  'shortest-grid-path': 'library.problemSummaries.shortestGridPath',
+  'top-k-frequent-values': 'library.problemSummaries.topKFrequent',
+} as const;
+
 export function ProblemsPage() {
+  const { t } = useTranslation();
   const allItems = useMemo(() => getAllLibraryItems(), []);
   const topics = useMemo(
     () => Array.from(new Set(allItems.map((item) => item.topic))).sort(),
@@ -38,6 +64,27 @@ export function ProblemsPage() {
     useState<DifficultyFilter>('all');
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>('all');
+
+  const localizeTopic = useCallback(
+    (topic: string) => {
+      const key = TOPIC_KEYS[topic as keyof typeof TOPIC_KEYS];
+      return key ? t(key) : topic;
+    },
+    [t],
+  );
+
+  const localizeDifficulty = (difficulty: LibraryDifficulty) =>
+    difficulty === 'Beginner'
+      ? t('common.beginner')
+      : t('common.intermediate');
+
+  const localizeSummary = useCallback(
+    (id: string, fallback: string) => {
+      const key = SUMMARY_KEYS[id as keyof typeof SUMMARY_KEYS];
+      return key ? t(key) : fallback;
+    },
+    [t],
+  );
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -52,12 +99,20 @@ export function ProblemsPage() {
         return false;
       }
       if (q) {
-        const hay = `${item.title} ${item.topic} ${item.summary}`.toLowerCase();
+        const hay = `${item.title} ${item.topic} ${localizeTopic(item.topic)} ${item.summary} ${localizeSummary(item.id, item.summary)}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [allItems, availabilityFilter, selectedTopic, selectedDifficulty, query]);
+  }, [
+    allItems,
+    availabilityFilter,
+    selectedTopic,
+    selectedDifficulty,
+    query,
+    localizeSummary,
+    localizeTopic,
+  ]);
 
   const verifiedItems = filteredItems.filter(
     (item) => item.availability === 'verified-studio',
@@ -87,11 +142,11 @@ export function ProblemsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <BookOpen className="h-5 w-5 text-[#2664C2]" aria-hidden="true" />
             <h1 className="text-2xl font-extrabold tracking-tight text-[#202B3B] sm:text-3xl">
-              Problem Library
+              {t('library.title')}
             </h1>
           </div>
           <p className="max-w-2xl text-base leading-relaxed text-[#526075]">
-            Practice in verified deterministic visual studios, explore original AI-guided practice problems, or paste your own problem statement on the Home page.
+            {t('library.description')}
           </p>
         </div>
 
@@ -100,7 +155,7 @@ export function ProblemsPage() {
           className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-white px-4 text-xs font-semibold text-[#202B3B] hover:bg-[#F7F9FC]"
         >
           <Sparkles className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
-          Paste Custom Problem
+          {t('library.pasteCustom')}
         </Link>
       </div>
 
@@ -113,39 +168,39 @@ export function ProblemsPage() {
               aria-hidden="true"
             />
             <label htmlFor="library-search" className="sr-only">
-              Search problems
+              {t('library.searchLabel')}
             </label>
             <input
               id="library-search"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, topic, or pattern..."
+              placeholder={t('library.searchPlaceholder')}
               className="h-10 w-full rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] pl-9 pr-3 text-sm text-[#202B3B] placeholder:text-[#526075]/80 focus:border-[#397BDB] focus:bg-white focus:outline-none"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="topic-filter" className="sr-only">
-              Filter by topic
+              {t('library.topicFilter')}
             </label>
             <select
               id="topic-filter"
               value={selectedTopic}
               onChange={(e) => setSelectedTopic(e.target.value)}
-              aria-label="Filter by topic"
+              aria-label={t('library.topicFilter')}
               className="h-10 rounded-xl border border-[#D7DCEB] bg-white px-3 text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
             >
-              <option value="all">All Topics</option>
+              <option value="all">{t('library.allTopics')}</option>
               {topics.map((topic) => (
                 <option key={topic} value={topic}>
-                  {topic}
+                  {localizeTopic(topic)}
                 </option>
               ))}
             </select>
 
             <label htmlFor="difficulty-filter" className="sr-only">
-              Filter by difficulty
+              {t('library.difficultyFilter')}
             </label>
             <select
               id="difficulty-filter"
@@ -153,25 +208,25 @@ export function ProblemsPage() {
               onChange={(e) =>
                 setSelectedDifficulty(e.target.value as DifficultyFilter)
               }
-              aria-label="Filter by difficulty"
+              aria-label={t('library.difficultyFilter')}
               className="h-10 rounded-xl border border-[#D7DCEB] bg-white px-3 text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
             >
-              <option value="all">All Difficulties</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
+              <option value="all">{t('library.allDifficulties')}</option>
+              <option value="Beginner">{t('common.beginner')}</option>
+              <option value="Intermediate">{t('common.intermediate')}</option>
             </select>
           </div>
 
           <div
             role="group"
-            aria-label="Filter by visualization availability"
+            aria-label={t('library.availabilityFilter')}
             className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
           >
             {(
               [
-                { id: 'all', label: 'All' },
-                { id: 'verified-studio', label: 'Visual Studios' },
-                { id: 'ai-guided', label: 'AI-Guided' },
+                { id: 'all', label: t('library.availability.all') },
+                { id: 'verified-studio', label: t('library.availability.verified') },
+                { id: 'ai-guided', label: t('library.availability.ai') },
               ] as const
             ).map((opt) => (
               <button
@@ -194,11 +249,14 @@ export function ProblemsPage() {
         {hasActiveFilters && (
           <div className="mt-3 flex items-center justify-between border-t border-[#E2E8F0] pt-2.5 text-xs text-[#526075]">
             <span>
-              Showing <strong>{filteredItems.length}</strong> of {allItems.length}{' '}
-              problems
+              <Trans
+                i18nKey="library.showing"
+                values={{ visible: filteredItems.length, total: allItems.length }}
+                components={{ strong: <strong /> }}
+              />
             </span>
             <Button variant="ghost" size="sm" onClick={resetFilters}>
-              Reset filters
+              {t('common.resetFilters')}
             </Button>
           </div>
         )}
@@ -208,20 +266,20 @@ export function ProblemsPage() {
       {filteredItems.length === 0 && (
         <Card className="p-8 text-center space-y-3">
           <p className="text-sm font-bold text-[#202B3B]">
-            No library problems match your current filters.
+            {t('library.emptyTitle')}
           </p>
           <p className="text-xs text-[#526075]">
-            Reset filters or paste any custom problem statement directly into the AI Problem Analyzer.
+            {t('library.emptyDescription')}
           </p>
           <div className="flex justify-center gap-2 pt-1">
             <Button variant="outline" size="sm" onClick={resetFilters}>
-              Reset filters
+              {t('common.resetFilters')}
             </Button>
             <Link
               to="/"
               className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3.5 text-xs font-semibold text-white hover:bg-[#2257A8]"
             >
-              Analyze Custom Problem
+              {t('library.analyzeCustom')}
             </Link>
           </div>
         </Card>
@@ -239,13 +297,13 @@ export function ProblemsPage() {
                 id="verified-studios-heading"
                 className="text-lg font-extrabold tracking-tight text-[#202B3B]"
               >
-                Verified Visual Studios
+                {t('library.verifiedTitle')}
               </h2>
               <p className="text-xs text-[#526075]">
-                Deterministic step-by-step execution traces, interactive Solution Maps, and guided checkpoints.
+                {t('library.verifiedDescription')}
               </p>
             </div>
-            <Badge variant="mint">{verifiedItems.length} Live</Badge>
+            <Badge variant="mint">{t('library.live', { count: verifiedItems.length })}</Badge>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -261,21 +319,21 @@ export function ProblemsPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Badge variant="teal">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                        Verified Visual
+                        {t('library.verifiedVisual')}
                       </Badge>
                       <span className="text-xs font-medium text-[#526075]">
-                        {problem.difficulty}
+                        {localizeDifficulty(problem.difficulty)}
                       </span>
                     </div>
                     <CardTitle className="mt-2 text-lg">{problem.title}</CardTitle>
                     <div className="pt-1">
-                      <Badge variant={topicStyle.badgeVariant}>{problem.topic}</Badge>
+                      <Badge variant={topicStyle.badgeVariant}>{localizeTopic(problem.topic)}</Badge>
                     </div>
                   </CardHeader>
 
                   <CardContent className="flex flex-1 flex-col justify-between gap-4">
                     <p className="text-sm leading-relaxed text-[#526075]">
-                      {problem.summary}
+                      {localizeSummary(problem.id, problem.summary)}
                     </p>
 
                     <div className="space-y-3 border-t border-[#E2E8F0] pt-3">
@@ -284,11 +342,8 @@ export function ProblemsPage() {
                           className="h-3.5 w-3.5 text-[#2664C2]"
                           aria-hidden="true"
                         />
-                        {problem.strategiesCount}{' '}
-                        {problem.strategiesCount === 1
-                          ? 'verified strategy'
-                          : 'verified strategies'}{' '}
-                        · {problem.stagesCount}-stage Guided Lesson
+                        {t('library.strategy', { count: problem.strategiesCount ?? 0 })}{' '}
+                        · {t('library.guidedLesson', { count: problem.stagesCount ?? 0 })}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
@@ -297,14 +352,14 @@ export function ProblemsPage() {
                           className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#2B64B8]"
                         >
                           <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-                          Start Guided Lesson
+                          {t('library.startLesson')}
                         </Link>
                         <Link
                           to={`${problem.studioPath ?? `/studio/${problem.id}`}?mode=explore`}
                           className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-[#D7E0EC] bg-white px-3 text-xs font-semibold text-[#202B3B] transition-colors hover:bg-[#F7F9FC]"
                         >
                           <Compass className="h-3.5 w-3.5 text-[#0D7A6E]" aria-hidden="true" />
-                          Explore
+                          {t('library.explore')}
                         </Link>
                       </div>
                     </div>
@@ -325,13 +380,13 @@ export function ProblemsPage() {
                 id="ai-guided-heading"
                 className="text-lg font-extrabold tracking-tight text-[#202B3B]"
               >
-                Original AI-Guided Practice Problems
+                {t('library.aiTitle')}
               </h2>
               <p className="text-xs text-[#526075]">
-                Original AlgoMiri prompts for conceptual AI breakdown and Socratic tutoring (no deterministic visual engine yet).
+                {t('library.aiDescription')}
               </p>
             </div>
-            <Badge variant="indigo">Conceptual · AI-Guided</Badge>
+            <Badge variant="indigo">{t('library.conceptual')}</Badge>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -342,9 +397,9 @@ export function ProblemsPage() {
                   <div className={`h-1 w-full ${topicStyle.accentBarClass}`} aria-hidden="true" />
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between gap-2">
-                      <Badge variant={topicStyle.badgeVariant}>{problem.topic}</Badge>
+                      <Badge variant={topicStyle.badgeVariant}>{localizeTopic(problem.topic)}</Badge>
                       <span className="text-xs font-medium text-[#526075]">
-                        {problem.difficulty}
+                        {localizeDifficulty(problem.difficulty)}
                       </span>
                     </div>
                     <CardTitle className="mt-2 text-base">
@@ -353,7 +408,7 @@ export function ProblemsPage() {
                   </CardHeader>
                   <CardContent className="flex flex-1 flex-col justify-between gap-4">
                     <p className="text-sm leading-relaxed text-[#526075]">
-                      {problem.summary}
+                      {localizeSummary(problem.id, problem.summary)}
                     </p>
                     <div className="border-t border-[#E2E8F0] pt-3">
                       <Link
@@ -361,7 +416,7 @@ export function ProblemsPage() {
                         className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[#C2DAFA] bg-[#EAF2FD]/55 px-3 text-xs font-semibold text-[#2257A8] transition-colors hover:bg-[#EAF2FD]"
                       >
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                        Analyze Conceptually
+                        {t('library.analyzeConceptually')}
                         <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </div>
@@ -380,10 +435,10 @@ export function ProblemsPage() {
             id="external-refs-heading"
             className="text-sm font-extrabold uppercase tracking-wider text-[#526075]"
           >
-            External Practice References
+            {t('library.referencesTitle')}
           </h2>
           <p className="text-xs text-[#526075]">
-            Links to related public problem IDs for independent coding practice. AlgoMiri never scrapes or hosts copyrighted problem statements.
+            {t('library.referencesDescription')}
           </p>
         </div>
 

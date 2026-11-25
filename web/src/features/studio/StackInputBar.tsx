@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, SlidersHorizontal } from 'lucide-react';
 import type { ProblemPreset } from '../../domain/core/types';
 import {
@@ -18,6 +19,7 @@ export function StackInputBar({
   presets,
   onApplyInput,
 }: StackInputBarProps) {
+  const { t } = useTranslation();
   const [text, setText] = useState(currentInput.brackets);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +27,8 @@ export function StackInputBar({
     event.preventDefault();
     const result = parseAndValidateBracketsInput(text);
     if (!result.ok) {
-      setError(result.error);
+      const key = `studioInputs.validation.${result.code}` as never;
+      setError(String(t(key, result.values as never)));
       return;
     }
     setError(null);
@@ -46,10 +49,10 @@ export function StackInputBar({
             className="h-3.5 w-3.5 text-[#2664C2]"
             aria-hidden="true"
           />
-          Custom Brackets Input
+          {t('studioInputs.customBrackets')}
         </div>
         <span className="text-xs text-[#526075]">
-          Allowed: ( ) [ ] {'{'} {'}'} · up to 16 chars
+          {t('studioInputs.bracketsHelp')}
         </span>
       </div>
 
@@ -62,7 +65,7 @@ export function StackInputBar({
             htmlFor="brackets-input"
             className="block text-xs font-semibold text-[#526075] mb-1"
           >
-            Bracket string (s)
+            {t('studioInputs.brackets')}
           </label>
           <input
             id="brackets-input"
@@ -72,14 +75,14 @@ export function StackInputBar({
               setText(e.target.value);
               if (error) setError(null);
             }}
-            placeholder='e.g. {[]} or ([)] (leave blank for "")'
+            placeholder={t('studioInputs.bracketsPlaceholder')}
             aria-invalid={error ? 'true' : 'false'}
             className="h-9 w-full rounded-xl border border-[#D7DCEB] bg-white px-3 font-mono text-xs text-[#202B3B] placeholder:text-[#8B93B0] focus:border-[#397BDB] focus:outline-none"
           />
         </div>
 
         <Button type="submit" variant="primary" size="sm" className="w-full sm:w-auto">
-          Apply
+          {t('common.apply')}
         </Button>
       </form>
 
@@ -95,7 +98,7 @@ export function StackInputBar({
 
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
         <span className="text-xs font-semibold text-[#526075] mr-1">
-          Presets:
+          {t('common.presets')}
         </span>
         {presets.map((preset) => (
           <button

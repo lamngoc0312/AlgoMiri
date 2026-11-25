@@ -6,6 +6,7 @@ import {
   type ChangeEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   AlertTriangle,
@@ -110,6 +111,7 @@ export function ProblemComposer({
   onFillValidParentheses,
   onFillSplitArray,
 }: ProblemComposerProps) {
+  const { t } = useTranslation();
   const [composerMode, setComposerMode] = useState<ComposerMode>('text');
 
   // URL mode state
@@ -133,7 +135,7 @@ export function ProblemComposer({
     event.preventDefault();
     const trimmed = urlInput.trim();
     if (!trimmed) {
-      setUrlError('Paste an HTTPS problem URL (for example, a LeetCode or GitHub link).');
+      setUrlError(t('composer.url.required'));
       return;
     }
 
@@ -152,7 +154,7 @@ export function ProblemComposer({
       setUrlError(
         err instanceof AiClientError
           ? err.message
-          : 'Could not inspect this URL. Please check that it is a valid HTTPS link.',
+          : t('composer.url.invalid'),
       );
     } finally {
       setInspectingUrl(false);
@@ -165,7 +167,7 @@ export function ProblemComposer({
     if (incoming.length === 0) return;
 
     if (attachments.length + incoming.length > MAX_IMAGE_COUNT) {
-      setImageError(`You can upload up to ${MAX_IMAGE_COUNT} screenshots at a time.`);
+      setImageError(t('composer.image.countError', { count: MAX_IMAGE_COUNT }));
       return;
     }
 
@@ -173,12 +175,12 @@ export function ProblemComposer({
     for (const file of incoming) {
       if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedImageMimeType)) {
         setImageError(
-          `Unsupported file "${file.name}". Please upload PNG, JPEG, or WebP screenshots.`,
+          t('composer.image.typeError', { filename: file.name }),
         );
         return;
       }
       if (file.size > MAX_IMAGE_BYTES) {
-        setImageError(`"${file.name}" exceeds the 4 MB per-image limit.`);
+        setImageError(t('composer.image.sizeError', { filename: file.name }));
         return;
       }
       try {
@@ -191,10 +193,8 @@ export function ProblemComposer({
           previewUrl,
           base64Data,
         });
-      } catch (err) {
-        setImageError(
-          err instanceof Error ? err.message : 'Could not read the selected image.',
-        );
+      } catch {
+        setImageError(t('composer.image.readError'));
         return;
       }
     }
@@ -220,7 +220,7 @@ export function ProblemComposer({
 
   const handleExtractFromImages = async () => {
     if (attachments.length === 0) {
-      setImageError('Add at least one PNG, JPEG, or WebP screenshot first.');
+      setImageError(t('composer.image.required'));
       return;
     }
     setExtractingImages(true);
@@ -239,7 +239,7 @@ export function ProblemComposer({
       setImageError(
         err instanceof AiClientError
           ? err.message
-          : 'Could not extract text from the uploaded screenshot(s). Please retry.',
+          : t('composer.image.extractionError'),
       );
     } finally {
       setExtractingImages(false);
@@ -260,14 +260,14 @@ export function ProblemComposer({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div
           role="tablist"
-          aria-label="Problem input mode"
+          aria-label={t('composer.modeLabel')}
           className="flex flex-wrap sm:inline-flex w-full sm:w-auto rounded-xl border border-[#E2E8F0] bg-[#F4F5FA] p-1 gap-1"
         >
           {(
             [
-              { id: 'text', label: 'Problem Text', icon: FileText },
-              { id: 'url', label: 'Problem URL', icon: Link2 },
-              { id: 'image', label: 'Screenshot', icon: ImageIcon },
+              { id: 'text', label: t('composer.modes.text'), icon: FileText },
+              { id: 'url', label: t('composer.modes.url'), icon: Link2 },
+              { id: 'image', label: t('composer.modes.image'), icon: ImageIcon },
             ] as const
           ).map(({ id, label, icon: Icon }) => {
             const active = composerMode === id;
@@ -304,14 +304,14 @@ export function ProblemComposer({
         <form onSubmit={onOpenCuratedStudio} className="space-y-4">
           <div>
             <label htmlFor="problem-input" className="sr-only">
-              Paste a problem statement
+              {t('composer.pasteLabel')}
             </label>
             <textarea
               id="problem-input"
               rows={4}
               value={problemInput}
               onChange={(e) => onProblemInputChange(e.target.value)}
-              placeholder="Paste any algorithm problem statement to analyze its inputs, approach, and intuition..."
+              placeholder={t('composer.pastePlaceholder')}
               className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] p-4 text-base leading-relaxed text-[#202B3B] placeholder:text-[#526075]/75 focus:border-[#397BDB] focus:bg-white focus:outline-none"
             />
           </div>
@@ -322,7 +322,7 @@ export function ProblemComposer({
               className="flex items-center gap-2.5 rounded-xl border border-[#C2DAFA] bg-[#EAF2FD]/60 px-4 py-3 text-sm font-medium text-[#2257A8]"
             >
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Analyzing problem structure, example, and key reasoning steps...
+              {t('composer.analyzing')}
             </div>
           )}
 
@@ -339,10 +339,10 @@ export function ProblemComposer({
                 <div className="space-y-1">
                   <p className="font-semibold text-[#925E08]">
                     {feedback.type === 'unsupported'
-                      ? 'Not supported in current demo'
+                      ? t('composer.feedback.unsupported')
                       : feedback.type === 'error'
-                        ? 'Analysis request failed'
-                        : 'Add a problem statement'}
+                        ? t('composer.feedback.error')
+                        : t('composer.feedback.empty')}
                   </p>
                   <p className="text-[#526075]">{feedback.message}</p>
                 </div>
@@ -355,7 +355,7 @@ export function ProblemComposer({
                   onClick={() => onAnalyzeText()}
                 >
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                  Retry
+                  {t('common.retry')}
                 </Button>
               )}
             </div>
@@ -363,9 +363,9 @@ export function ProblemComposer({
 
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
             <div className="flex flex-wrap items-center gap-1 text-xs text-[#526075]">
-              <span className="font-medium pr-1">Try sample:</span>
+              <span className="font-medium pr-1">{t('composer.trySample')}</span>
               <Button type="button" variant="ghost" size="sm" onClick={onFillTwoSum}>
-                Load Two Sum sample
+                {t('composer.twoSumSample')}
               </Button>
               <Button
                 type="button"
@@ -373,7 +373,7 @@ export function ProblemComposer({
                 size="sm"
                 onClick={onFillValidParentheses}
               >
-                Valid Parentheses
+                {t('composer.validParenthesesSample')}
               </Button>
               <Button
                 type="button"
@@ -381,7 +381,7 @@ export function ProblemComposer({
                 size="sm"
                 onClick={onFillSplitArray}
               >
-                Split Array
+                {t('composer.splitArraySample')}
               </Button>
             </div>
 
@@ -390,9 +390,9 @@ export function ProblemComposer({
                 type="submit"
                 variant="ghost"
                 size="sm"
-                title="Opens a built-in curated Studio example if your statement strictly matches one"
+                title={t('composer.curatedTitle')}
               >
-                Open Curated Studio
+                {t('composer.openCurated')}
               </Button>
               <Button
                 type="button"
@@ -402,7 +402,7 @@ export function ProblemComposer({
                 onClick={() => onAnalyzeText()}
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                Analyze Problem (AI)
+                {t('common.analyze')}
               </Button>
             </div>
           </div>
@@ -414,7 +414,7 @@ export function ProblemComposer({
         <div className="space-y-4">
           <form onSubmit={handleInspectUrl} className="space-y-3">
             <label htmlFor="problem-url-input" className="sr-only">
-              Paste a problem URL
+              {t('composer.url.pasteLabel')}
             </label>
             <div className="flex flex-col sm:flex-row gap-2.5">
               <input
@@ -439,13 +439,11 @@ export function ProblemComposer({
                 ) : (
                   <Link2 className="h-4 w-4" aria-hidden="true" />
                 )}
-                Inspect URL
+                {t('composer.url.inspect')}
               </Button>
             </div>
             <p className="text-sm text-[#526075]">
-              Identifies canonical problem links safely. AlgoMiri never scrapes
-              proprietary sites like LeetCode — only explicitly allowlisted public
-              raw text files are fetched automatically.
+              {t('composer.url.help')}
             </p>
           </form>
 
@@ -476,7 +474,7 @@ export function ProblemComposer({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
                 >
-                  Open original problem
+                  {t('composer.url.openOriginal')}
                   <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 </a>
               </div>
@@ -495,13 +493,15 @@ export function ProblemComposer({
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#B4E6DF] bg-[#E6F7F5]/70 px-4 py-3">
                   <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#0A594B]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                    Verified Studio available for {urlResult.verified_match.matched_problem_title}
+                    {t('composer.url.verifiedAvailable', {
+                      title: urlResult.verified_match.matched_problem_title ?? '',
+                    })}
                   </span>
                   <Link
                     to={urlResult.verified_match.studio_path}
                     className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0F8477] px-3.5 text-sm font-semibold text-white hover:bg-[#0E8779]"
                   >
-                    Open Verified Studio
+                    {t('composer.url.openVerified')}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </div>
@@ -513,7 +513,7 @@ export function ProblemComposer({
                     htmlFor="url-extracted-confirm"
                     className="block text-sm font-bold text-[#202B3B]"
                   >
-                    Review fetched text before analyzing:
+                    {t('composer.url.reviewFetched')}
                   </label>
                   <textarea
                     id="url-extracted-confirm"
@@ -529,7 +529,7 @@ export function ProblemComposer({
                       onClick={() => handleConfirmExtractedAndAnalyze(urlDraftText)}
                     >
                       <Sparkles className="h-4 w-4" aria-hidden="true" />
-                      Confirm &amp; Analyze
+                      {t('composer.image.confirmAnalyze')}
                     </Button>
                   </div>
                 </div>
@@ -541,7 +541,7 @@ export function ProblemComposer({
                     onClick={() => setComposerMode('text')}
                   >
                     <FileText className="h-4 w-4" aria-hidden="true" />
-                    Paste Problem Text
+                    {t('composer.url.pasteText')}
                   </Button>
                   <Button
                     variant="outline"
@@ -549,7 +549,7 @@ export function ProblemComposer({
                     onClick={() => setComposerMode('image')}
                   >
                     <ImageIcon className="h-4 w-4" aria-hidden="true" />
-                    Upload Screenshot
+                    {t('composer.url.uploadScreenshot')}
                   </Button>
                 </div>
               )}
@@ -571,7 +571,7 @@ export function ProblemComposer({
             onClick={() => fileInputRef.current?.click()}
             role="button"
             tabIndex={0}
-            aria-label="Upload problem screenshots"
+            aria-label={t('composer.image.uploadLabel')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -589,10 +589,10 @@ export function ProblemComposer({
             </span>
             <div className="space-y-1">
               <p className="text-base font-semibold text-[#202B3B]">
-                Drop problem screenshots here, or click to browse
+                {t('composer.image.drop')}
               </p>
               <p className="text-sm text-[#526075]">
-                PNG, JPEG, or WebP · Up to 3 images · Max 4 MB each
+                {t('composer.image.limits')}
               </p>
             </div>
             <input
@@ -602,13 +602,13 @@ export function ProblemComposer({
               multiple
               onChange={handleFileChange}
               className="sr-only"
-              aria-label="Choose screenshot files"
+              aria-label={t('composer.image.choose')}
             />
           </div>
 
           <p className="flex items-center gap-1.5 text-xs text-[#526075]">
             <ShieldCheck className="h-4 w-4 text-[#0D7A6E] shrink-0" aria-hidden="true" />
-            Images are processed in memory for transcription and are not stored by default.
+            {t('composer.image.privacy')}
           </p>
 
           {imageError && (
@@ -644,7 +644,7 @@ export function ProblemComposer({
                     </div>
                     <button
                       type="button"
-                      aria-label={`Remove ${item.filename}`}
+                      aria-label={t('composer.image.remove', { filename: item.filename })}
                       onClick={() => {
                         setAttachments((prev) =>
                           prev.filter((att) => att.id !== item.id),
@@ -672,7 +672,7 @@ export function ProblemComposer({
                   ) : (
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
                   )}
-                  Extract Problem Text
+                  {t('composer.image.extract')}
                 </Button>
               </div>
             </div>
@@ -683,7 +683,7 @@ export function ProblemComposer({
             <div className="rounded-xl border border-[#C2DAFA] bg-[#F7F9FC] p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-base font-bold text-[#202B3B]">
-                  Confirm Extracted Problem Text
+                  {t('composer.image.confirmTitle')}
                 </span>
                 <Badge
                   variant={
@@ -691,13 +691,13 @@ export function ProblemComposer({
                   }
                 >
                   {extractionResult.mode === 'offline-demo'
-                    ? 'Vision Offline'
-                    : 'Review Before Analyzing'}
+                    ? t('composer.image.visionOffline')
+                    : t('composer.image.reviewBefore')}
                 </Badge>
               </div>
 
               <label htmlFor="extracted-image-confirm" className="sr-only">
-                Confirm extracted problem text
+                {t('composer.image.confirmLabel')}
               </label>
               <textarea
                 id="extracted-image-confirm"
@@ -710,7 +710,7 @@ export function ProblemComposer({
               {extractionResult.diagram_notes.length > 0 && (
                 <div className="space-y-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
-                    Observed Diagrams / Tables
+                    {t('composer.image.diagrams')}
                   </p>
                   <ul className="space-y-1 text-sm text-[#202B3B]">
                     {extractionResult.diagram_notes.map((note) => (
@@ -724,7 +724,7 @@ export function ProblemComposer({
                 <div className="rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 space-y-1 text-sm text-[#925E08]">
                   <p className="flex items-center gap-1.5 font-bold">
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                    Please verify unclear or missing details:
+                    {t('composer.image.unclear')}
                   </p>
                   <ul className="space-y-0.5">
                     {extractionResult.uncertain_regions.map((item) => (
@@ -744,7 +744,7 @@ export function ProblemComposer({
                     setComposerMode('text');
                   }}
                 >
-                  Edit in Text Tab
+                  {t('composer.image.editText')}
                 </Button>
                 <Button
                   type="button"
@@ -760,7 +760,7 @@ export function ProblemComposer({
                   }
                 >
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  Confirm &amp; Analyze
+                  {t('composer.image.confirmAnalyze')}
                 </Button>
               </div>
             </div>

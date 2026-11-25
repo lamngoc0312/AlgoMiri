@@ -8,7 +8,12 @@ const ALLOWED_BRACKETS = new Set(['(', ')', '[', ']', '{', '}']);
 
 export type BracketValidationResult =
   | { ok: true; value: ValidParenthesesInput }
-  | { ok: false; error: string };
+  | {
+      ok: false;
+      error: string;
+      code: 'bracketsTooLong' | 'invalidBrackets';
+      values: Record<string, string | number>;
+    };
 
 export function parseAndValidateBracketsInput(
   rawText: string,
@@ -18,6 +23,8 @@ export function parseAndValidateBracketsInput(
   if (trimmed.length > MAX_BRACKETS_LENGTH) {
     return {
       ok: false,
+      code: 'bracketsTooLong',
+      values: { max: MAX_BRACKETS_LENGTH },
       error: `Please enter at most ${MAX_BRACKETS_LENGTH} bracket characters so the stack visualization stays clear.`,
     };
   }
@@ -32,6 +39,8 @@ export function parseAndValidateBracketsInput(
   if (invalidChars.length > 0) {
     return {
       ok: false,
+      code: 'invalidBrackets',
+      values: { characters: invalidChars.map((c) => `"${c}"`).join(', ') },
       error: `Unsupported character${invalidChars.length > 1 ? 's' : ''}: ${invalidChars.map((c) => `"${c}"`).join(', ')}. Only (), [], and {} are supported.`,
     };
   }

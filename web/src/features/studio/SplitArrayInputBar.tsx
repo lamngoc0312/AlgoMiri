@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, SlidersHorizontal } from 'lucide-react';
 import type { ProblemPreset } from '../../domain/core/types';
 import {
@@ -19,6 +20,7 @@ export function SplitArrayInputBar({
   presets,
   onApplyInput,
 }: SplitArrayInputBarProps) {
+  const { t } = useTranslation();
   const [numsText, setNumsText] = useState(() =>
     formatSplitArrayNums(currentInput.nums),
   );
@@ -29,7 +31,8 @@ export function SplitArrayInputBar({
     event.preventDefault();
     const result = parseAndValidateSplitArrayInput(numsText, kText);
     if (!result.ok) {
-      setError(result.error);
+      const key = `studioInputs.validation.${result.code}` as never;
+      setError(String(result.values ? t(key, result.values as never) : t(key)));
       return;
     }
     setError(null);
@@ -51,10 +54,10 @@ export function SplitArrayInputBar({
             className="h-3.5 w-3.5 text-[#2664C2]"
             aria-hidden="true"
           />
-          Custom Input
+          {t('studioInputs.customInput')}
         </div>
         <span className="text-xs text-[#526075]">
-          Nonnegative integers (&ge; 0) · 1 &le; k &le; length (max 10)
+          {t('studioInputs.splitHelp')}
         </span>
       </div>
 
@@ -67,7 +70,7 @@ export function SplitArrayInputBar({
             htmlFor="split-nums-input"
             className="block text-xs font-semibold text-[#526075] mb-1"
           >
-            Array (nums &ge; 0)
+            {t('studioInputs.splitNums')}
           </label>
           <input
             id="split-nums-input"
@@ -88,7 +91,7 @@ export function SplitArrayInputBar({
             htmlFor="split-k-input"
             className="block text-xs font-semibold text-[#526075] mb-1"
           >
-            Subarrays (k)
+            {t('studioInputs.subarrays')}
           </label>
           <input
             id="split-k-input"
@@ -106,7 +109,7 @@ export function SplitArrayInputBar({
         </div>
 
         <Button type="submit" variant="primary" size="sm" className="w-full sm:w-auto">
-          Apply
+          {t('common.apply')}
         </Button>
       </form>
 
@@ -122,7 +125,7 @@ export function SplitArrayInputBar({
 
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
         <span className="text-xs font-semibold text-[#526075] mr-1">
-          Presets:
+          {t('common.presets')}
         </span>
         {presets.map((preset) => (
           <button

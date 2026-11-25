@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import {
   BookOpen,
@@ -11,23 +12,25 @@ import {
   X,
 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Home', icon: Sparkles, end: true },
-  { to: '/problems', label: 'Problems', icon: Library, end: false },
-  { to: '/studio', label: 'Learning Studio', icon: Layers, end: false },
-  { to: '/roadmap', label: 'Roadmap', icon: Compass, end: false },
-  { to: '/progress', label: 'Progress', icon: TrendingUp, end: false },
-];
+  { to: '/', labelKey: 'shell.nav.home', icon: Sparkles, end: true },
+  { to: '/problems', labelKey: 'shell.nav.problems', icon: Library, end: false },
+  { to: '/studio', labelKey: 'shell.nav.studio', icon: Layers, end: false },
+  { to: '/roadmap', labelKey: 'shell.nav.roadmap', icon: Compass, end: false },
+  { to: '/progress', labelKey: 'shell.nav.progress', icon: TrendingUp, end: false },
+] as const;
 
 export function AppShell() {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F9FC] text-[#202B3B]">
       <a href="#main-content" className="skip-link">
-        Skip to main content
+        {t('shell.skipToContent')}
       </a>
 
       <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-xs">
@@ -49,17 +52,17 @@ export function AppShell() {
                   Algo<span className="text-[#2664C2]">Miri</span>
                 </span>
                 <span className="text-xs font-medium text-[#526075]">
-                  Visual Algorithm Studio
+                  {t('shell.productTagline')}
                 </span>
               </span>
             </Link>
             <Badge variant="indigo" className="hidden sm:inline-flex">
-              Beta Preview
+              {t('shell.beta')}
             </Badge>
           </div>
 
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
-            {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+          <nav aria-label={t('shell.primaryNavigation')} className="hidden lg:flex items-center gap-1">
+            {NAV_ITEMS.map(({ to, labelKey, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -74,24 +77,25 @@ export function AppShell() {
                 }
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
-                {label}
+                {t(labelKey)}
               </NavLink>
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center">
+          <div className="hidden lg:flex items-center gap-2">
+            <LanguageSwitcher compact />
             <Link
               to="/problems"
               className="inline-flex h-9 items-center justify-center rounded-xl bg-[#2B6CC9] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2257A8]"
             >
-              Browse Problems
+              {t('shell.browseProblems')}
             </Link>
           </div>
 
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E2E8F0] bg-white text-[#202B3B] lg:hidden"
-            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={mobileMenuOpen ? t('shell.closeMenu') : t('shell.openMenu')}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -107,11 +111,11 @@ export function AppShell() {
         {mobileMenuOpen && (
           <nav
             id="mobile-nav"
-            aria-label="Mobile navigation"
+            aria-label={t('shell.mobileNavigation')}
             className="border-t border-[#E2E8F0] bg-white px-4 py-3 lg:hidden"
           >
             <div className="flex flex-col gap-1">
-              {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+              {NAV_ITEMS.map(({ to, labelKey, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -127,9 +131,12 @@ export function AppShell() {
                   }
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
-                  {label}
+                  {t(labelKey)}
                 </NavLink>
               ))}
+              <div className="mt-2 border-t border-[#E2E8F0] pt-3">
+                <LanguageSwitcher />
+              </div>
             </div>
           </nav>
         )}
@@ -142,11 +149,9 @@ export function AppShell() {
       <footer className="border-t border-[#E2E8F0] bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-[#526075] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
-            <span className="font-semibold text-[#202B3B]">AlgoMiri</span> — Understand first. Code second.
+            <span className="font-semibold text-[#202B3B]">AlgoMiri</span> — {t('shell.footerPrimary')}
           </p>
-          <p>
-            Verified deterministic studios + optional server-side AI conceptual tutor · Local browser history only (no account sync).
-          </p>
+          <p>{t('shell.footerSecondary')}</p>
         </div>
       </footer>
     </div>

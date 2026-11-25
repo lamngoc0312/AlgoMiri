@@ -7,7 +7,21 @@ export const MAX_SPLIT_ARRAY_LENGTH = 10;
 
 export type SplitArrayValidationResult =
   | { ok: true; value: SplitArrayInput }
-  | { ok: false; error: string };
+  | {
+      ok: false;
+      error: string;
+      code:
+        | 'splitRequired'
+        | 'splitTooLong'
+        | 'splitInvalidInteger'
+        | 'splitUnsafeInteger'
+        | 'negative'
+        | 'sumOverflow'
+        | 'kInvalid'
+        | 'kUnsafe'
+        | 'kRange';
+      values?: Record<string, string | number>;
+    };
 
 const SIGNED_INT_PATTERN = /^[+-]?\d+$/;
 
@@ -23,6 +37,7 @@ export function parseAndValidateSplitArrayInput(
   if (!cleanedNums) {
     return {
       ok: false,
+      code: 'splitRequired',
       error:
         'Please enter at least 1 nonnegative integer for nums (for example: 7, 2, 5, 10, 8).',
     };
@@ -36,6 +51,8 @@ export function parseAndValidateSplitArrayInput(
   if (rawTokens.length > MAX_SPLIT_ARRAY_LENGTH) {
     return {
       ok: false,
+      code: 'splitTooLong',
+      values: { max: MAX_SPLIT_ARRAY_LENGTH },
       error: `Please enter at most ${MAX_SPLIT_ARRAY_LENGTH} integers so the nested Binary Search + Greedy trace remains clear and easy to follow.`,
     };
   }
@@ -47,6 +64,8 @@ export function parseAndValidateSplitArrayInput(
     if (!SIGNED_INT_PATTERN.test(token)) {
       return {
         ok: false,
+        code: 'splitInvalidInteger',
+        values: { value: token },
         error: `"${token}" is not a valid whole integer. Use comma-separated nonnegative integers like 7, 2, 5, 10, 8.`,
       };
     }
@@ -55,6 +74,8 @@ export function parseAndValidateSplitArrayInput(
     if (!Number.isSafeInteger(value)) {
       return {
         ok: false,
+        code: 'splitUnsafeInteger',
+        values: { value: token },
         error: `"${token}" exceeds JavaScript's safe integer range.`,
       };
     }
@@ -62,6 +83,8 @@ export function parseAndValidateSplitArrayInput(
     if (value < 0) {
       return {
         ok: false,
+        code: 'negative',
+        values: { value },
         error: `Negative value ${value} is not allowed. Binary Search + Greedy partitioning relies on nonnegative numbers so adding an element never decreases a subarray sum.`,
       };
     }
@@ -70,6 +93,7 @@ export function parseAndValidateSplitArrayInput(
     if (!Number.isSafeInteger(nextTotal)) {
       return {
         ok: false,
+        code: 'sumOverflow',
         error:
           'The sum of nums exceeds the safe integer limit, which would risk overflow when computing search bounds.',
       };
@@ -82,6 +106,7 @@ export function parseAndValidateSplitArrayInput(
   if (!trimmedK || !SIGNED_INT_PATTERN.test(trimmedK)) {
     return {
       ok: false,
+      code: 'kInvalid',
       error: 'Please enter a valid whole integer for k (number of subarrays).',
     };
   }
@@ -90,6 +115,7 @@ export function parseAndValidateSplitArrayInput(
   if (!Number.isSafeInteger(k)) {
     return {
       ok: false,
+      code: 'kUnsafe',
       error: 'Subarray count k must be a safe integer.',
     };
   }
@@ -97,6 +123,8 @@ export function parseAndValidateSplitArrayInput(
   if (k < 1 || k > nums.length) {
     return {
       ok: false,
+      code: 'kRange',
+      values: { k, length: nums.length },
       error: `Subarray count k must satisfy 1 <= k <= nums.length (got k = ${k} for ${nums.length} element${nums.length === 1 ? '' : 's'}).`,
     };
   }

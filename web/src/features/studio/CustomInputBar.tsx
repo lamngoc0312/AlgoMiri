@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, SlidersHorizontal } from 'lucide-react';
 import type { TwoSumInput } from '../../domain/traces/types';
 import { TWO_SUM_PRESETS } from '../../domain/traces/twoSumEngine';
@@ -17,6 +18,7 @@ export function CustomInputBar({
   currentInput,
   onApplyInput,
 }: CustomInputBarProps) {
+  const { t } = useTranslation();
   const [numsText, setNumsText] = useState(() =>
     formatNumsInput(currentInput.nums),
   );
@@ -29,7 +31,8 @@ export function CustomInputBar({
     event.preventDefault();
     const result = parseAndValidateTwoSumInput(numsText, targetText);
     if (!result.ok) {
-      setError(result.error);
+      const key = `studioInputs.validation.${result.code}` as never;
+      setError(String(result.values ? t(key, result.values as never) : t(key)));
       return;
     }
     setError(null);
@@ -51,10 +54,10 @@ export function CustomInputBar({
             className="h-3.5 w-3.5 text-[#2664C2]"
             aria-hidden="true"
           />
-          Custom Input
+          {t('studioInputs.customInput')}
         </div>
         <span className="text-xs text-[#526075]">
-          Up to 12 integers · negatives &amp; duplicates supported
+          {t('studioInputs.twoSumHelp')}
         </span>
       </div>
 
@@ -67,7 +70,7 @@ export function CustomInputBar({
             htmlFor="nums-input"
             className="block text-xs font-semibold text-[#526075] mb-1"
           >
-            Array (nums)
+            {t('studioInputs.nums')}
           </label>
           <input
             id="nums-input"
@@ -77,7 +80,7 @@ export function CustomInputBar({
               setNumsText(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="e.g. 2, 7, 11, 15 (or leave blank for [])"
+            placeholder={t('studioInputs.numsPlaceholder')}
             aria-invalid={error ? 'true' : 'false'}
             className="h-9 w-full rounded-xl border border-[#D7DCEB] bg-white px-3 font-mono text-xs text-[#202B3B] placeholder:text-[#8B93B0] focus:border-[#397BDB] focus:outline-none"
           />
@@ -88,7 +91,7 @@ export function CustomInputBar({
             htmlFor="target-input"
             className="block text-xs font-semibold text-[#526075] mb-1"
           >
-            Target
+            {t('studioInputs.target')}
           </label>
           <input
             id="target-input"
@@ -106,7 +109,7 @@ export function CustomInputBar({
         </div>
 
         <Button type="submit" variant="primary" size="sm" className="w-full sm:w-auto">
-          Apply
+          {t('common.apply')}
         </Button>
       </form>
 
@@ -122,7 +125,7 @@ export function CustomInputBar({
 
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
         <span className="text-xs font-semibold text-[#526075] mr-1">
-          Presets:
+          {t('common.presets')}
         </span>
         {TWO_SUM_PRESETS.map((preset) => (
           <button
