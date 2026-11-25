@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from ..schemas import ProblemAnalysis, TutorPayload, TutorRequest
+from ..schemas import (
+    ImageExtractionPayload,
+    ProblemAnalysis,
+    TutorPayload,
+    TutorRequest,
+)
 
 
 class ProviderError(Exception):
@@ -11,6 +16,14 @@ class ProviderError(Exception):
 
 class ProviderAuthError(ProviderError):
     """Raised when server-side LLM credentials are invalid or unauthorized."""
+
+
+class ProviderModelNotFoundError(ProviderError):
+    """Raised when the configured upstream model is unavailable or deprecated (404)."""
+
+
+class ProviderBadRequestError(ProviderError):
+    """Raised when the upstream provider rejects the request payload/schema (400)."""
 
 
 class ProviderRateLimitError(ProviderError):
@@ -37,5 +50,9 @@ class LLMProvider(Protocol):
     async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis: ...
 
     async def tutor(self, request: TutorRequest) -> TutorPayload: ...
+
+    async def extract_problem_from_images(
+        self, images: list[tuple[str, bytes]]
+    ) -> ImageExtractionPayload: ...
 
     async def aclose(self) -> None: ...

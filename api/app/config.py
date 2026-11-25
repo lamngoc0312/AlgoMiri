@@ -20,7 +20,7 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
     gemini_api_key: SecretStr = Field(default_factory=lambda: SecretStr(""))
-    gemini_model: str = Field(default="gemini-2.5-flash", min_length=1, max_length=120)
+    gemini_model: str = Field(default="gemini-3.5-flash", min_length=1, max_length=120)
     cors_origins: tuple[str, ...] = Field(
         default=("http://localhost:5173", "http://127.0.0.1:5173"),
     )

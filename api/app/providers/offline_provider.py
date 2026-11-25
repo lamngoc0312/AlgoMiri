@@ -3,6 +3,7 @@ from __future__ import annotations
 from ..schemas import (
     CandidateStrategy,
     DecompositionStep,
+    ImageExtractionPayload,
     ProblemAnalysis,
     TutorPayload,
     TutorRequest,
@@ -144,4 +145,18 @@ class OfflineDemoProvider:
             reply=reply,
             guiding_question=question,
             progressive_hint=hint,
+        )
+
+    async def extract_problem_from_images(
+        self, images: list[tuple[str, bytes]]
+    ) -> ImageExtractionPayload:
+        return ImageExtractionPayload(
+            extracted_text=(
+                "Live vision extraction is unavailable because GEMINI_API_KEY is not configured on the server. "
+                "Please type or paste the problem statement manually."
+            ),
+            diagram_notes=[],
+            uncertain_regions=[
+                f"{len(images)} uploaded image(s) were not processed because live AI is offline."
+            ],
         )

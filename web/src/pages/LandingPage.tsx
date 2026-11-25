@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  AlertCircle,
   ArrowRight,
   Layers,
-  Loader2,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 import {
   getAiGuidedProblemById,
@@ -17,6 +14,7 @@ import {
   analyzeProblem,
   type AnalyzeResponseDto,
 } from '../services/aiClient';
+import { ProblemComposer } from '../features/composer/ProblemComposer';
 import { ProblemAnalysisView } from '../features/analyzer/ProblemAnalysisView';
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { Badge } from '../components/ui/Badge';
@@ -132,8 +130,8 @@ export function LandingPage() {
       problemInput.trim() !== analyzedStatement,
   );
 
-  const runAiAnalysis = async () => {
-    const trimmed = problemInput.trim();
+  const runAiAnalysis = async (overrideText?: string) => {
+    const trimmed = (overrideText ?? problemInput).trim();
     if (trimmed.length < 10) {
       setFeedback({
         type: 'empty',
@@ -263,129 +261,18 @@ export function LandingPage() {
           </p>
         </div>
 
-        <Card className="text-left p-6 sm:p-7 shadow-[0_8px_30px_rgba(24,27,46,0.05)]">
-          <form onSubmit={handleOpenInStudioSubmit} className="space-y-4">
-            {prefillProblem && (
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/50 px-4 py-2.5 text-sm text-[#181B2E]">
-                <span>
-                  Loaded original practice problem:{' '}
-                  <strong>{prefillProblem.title}</strong> ({prefillProblem.topic})
-                </span>
-                <Badge variant="indigo">AI-Guided · Conceptual</Badge>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="problem-input" className="sr-only">
-                Paste a problem statement
-              </label>
-              <textarea
-                id="problem-input"
-                rows={4}
-                value={problemInput}
-                onChange={(e) => handleInputChange(e.target.value)}
-                placeholder="Paste any algorithm problem statement to analyze its inputs, approach, and intuition..."
-                className="w-full rounded-xl border border-[#D7DCEB] bg-[#F8F9FC] p-4 text-base leading-relaxed text-[#181B2E] placeholder:text-[#4E5672]/75 focus:border-[#645BE8] focus:bg-white focus:outline-none"
-              />
-            </div>
-
-            {analyzing && (
-              <div
-                role="status"
-                className="flex items-center gap-2 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/60 px-3.5 py-3 text-xs font-medium text-[#4F46D8]"
-              >
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                Analyzing problem structure, constraints, and candidate strategies...
-              </div>
-            )}
-
-            {feedback && (
-              <div
-                role="alert"
-                className="flex items-start justify-between gap-2.5 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-3.5 text-xs leading-relaxed text-[#20253B]"
-              >
-                <div className="flex items-start gap-2">
-                  <AlertCircle
-                    className="h-4 w-4 shrink-0 text-[#9A630A] mt-0.5"
-                    aria-hidden="true"
-                  />
-                  <div className="space-y-1">
-                    <p className="font-semibold text-[#9A630A]">
-                      {feedback.type === 'unsupported'
-                        ? 'Not supported in current demo'
-                        : feedback.type === 'error'
-                          ? 'Analysis request failed'
-                          : 'Add a problem statement'}
-                    </p>
-                    <p className="text-[#555D7A]">{feedback.message}</p>
-                  </div>
-                </div>
-                {feedback.canRetry && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void runAiAnalysis()}
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                    Retry
-                  </Button>
-                )}
-              </div>
-            )}
-
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-0.5">
-              <div className="flex flex-wrap items-center gap-1 text-xs text-[#555D7A]">
-                <span className="font-medium pr-1">Try sample:</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleFillTwoSum}
-                >
-                  Load Two Sum sample
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleFillValidParentheses}
-                >
-                  Valid Parentheses
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleFillSplitArray}
-                >
-                  Split Array
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  title="Opens a built-in curated Studio example if your statement strictly matches one"
-                >
-                  Open Curated Studio
-                </Button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  disabled={analyzing}
-                  onClick={() => void runAiAnalysis()}
-                >
-                  <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  Analyze Problem (AI)
-                </Button>
-              </div>
-            </div>
-          </form>
-        </Card>
+        <ProblemComposer
+          problemInput={problemInput}
+          prefillProblem={prefillProblem}
+          analyzing={analyzing}
+          feedback={feedback}
+          onProblemInputChange={handleInputChange}
+          onAnalyzeText={(overrideText) => void runAiAnalysis(overrideText)}
+          onOpenCuratedStudio={handleOpenInStudioSubmit}
+          onFillTwoSum={handleFillTwoSum}
+          onFillValidParentheses={handleFillValidParentheses}
+          onFillSplitArray={handleFillSplitArray}
+        />
       </section>
 
       {/* Focused Single-Column Analysis / Ask AI Tutor Workspace */}

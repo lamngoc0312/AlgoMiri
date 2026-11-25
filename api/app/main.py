@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import logging
 from contextlib import asynccontextmanager
 from typing import Any, Optional
@@ -19,7 +21,9 @@ from .providers.base import (
     LLMProvider,
     MalformedProviderOutputError,
     ProviderAuthError,
+    ProviderBadRequestError,
     ProviderError,
+    ProviderModelNotFoundError,
     ProviderRateLimitError,
     ProviderTimeoutError,
     ProviderTransientError,
@@ -31,9 +35,28 @@ from .schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
     HealthResponse,
+    ImageExtractionRequest,
+    ImageExtractionResponse,
+    InspectUrlRequest,
+    InspectUrlResponse,
     TutorRequest,
     TutorResponse,
 )
+from .url_inspector import UrlValidationError, inspect_problem_url
+
+MAX_IMAGE_FILE_BYTES = 4 * 1024 * 1024
+MAX_TOTAL_IMAGE_BYTES = 10 * 1024 * 1024
+IMAGE_EXTRACT_BODY_LIMIT_BYTES = 15 * 1024 * 1024
+
+
+def _verify_image_magic_bytes(mime_type: str, data: bytes) -> bool:
+    if mime_type == "image/png":
+        return data.startswith(b"\x89PNG\r\n\x1a\n")
+    if mime_type == "image/jpeg":
+        return data.startswith(b"\xff\xd8\xff")
+    if mime_type == "image/webp":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+    return False
 
 # Log operational events only — NEVER log full user problem statements or API secrets.
 logger = logging.getLogger("algomiri.api")
@@ -45,9 +68,15 @@ class BodySizeLimitMiddleware:
     Content-Length is omitted (e.g., Transfer-Encoding: chunked).
     """
 
-    def __init__(self, app: Any, max_bytes: int) -> None:
+    def __init__(
+        self,
+        app: Any,
+        max_bytes: int,
+        path_limits: Optional[dict[str, int]] = None,
+    ) -> None:
         self.app = app
         self.max_bytes = max_bytes
+        self.path_limits = path_limits or {}
 
     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
         if scope.get("type") != "http" or scope.get("method") not in {
@@ -58,16 +87,18 @@ class BodySizeLimitMiddleware:
             await self.app(scope, receive, send)
             return
 
+        effective_limit = self.path_limits.get(scope.get("path", ""), self.max_bytes)
+
         headers = dict(scope.get("headers") or [])
         raw_cl = headers.get(b"content-length")
         if raw_cl is not None:
             try:
-                if int(raw_cl.decode("ascii")) > self.max_bytes:
+                if int(raw_cl.decode("ascii")) > effective_limit:
                     response = JSONResponse(
                         status_code=413,
                         content={
                             "detail": (
-                                f"Request payload exceeds the {self.max_bytes}-byte limit."
+                                f"Request payload exceeds the {effective_limit}-byte limit."
                             )
                         },
                     )
@@ -91,12 +122,12 @@ class BodySizeLimitMiddleware:
                 return
             chunk = message.get("body", b"")
             total_bytes += len(chunk)
-            if total_bytes > self.max_bytes:
+            if total_bytes > effective_limit:
                 response = JSONResponse(
                     status_code=413,
                     content={
                         "detail": (
-                            f"Request payload exceeds the {self.max_bytes}-byte limit."
+                            f"Request payload exceeds the {effective_limit}-byte limit."
                         )
                     },
                 )
@@ -143,6 +174,24 @@ def _raise_provider_http_error(exc: ProviderError) -> None:
             detail=(
                 "AI service credentials are invalid or unauthorized on the server. "
                 "Built-in verified Studios remain available."
+            ),
+        ) from None
+    if isinstance(exc, ProviderModelNotFoundError):
+        logger.error("provider_model_not_found")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Configured AI model is unavailable on the upstream provider. "
+                "Update GEMINI_MODEL on the server or use the built-in verified Studios."
+            ),
+        ) from None
+    if isinstance(exc, ProviderBadRequestError):
+        logger.error("provider_bad_request")
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Upstream AI provider rejected the request schema or format. "
+                "Please retry or report this server issue."
             ),
         ) from None
     if isinstance(exc, ProviderRateLimitError):
@@ -222,6 +271,7 @@ def create_app(
     app.add_middleware(
         BodySizeLimitMiddleware,
         max_bytes=cfg.max_request_body_bytes,
+        path_limits={"/api/extract-image": IMAGE_EXTRACT_BODY_LIMIT_BYTES},
     )
 
     def enforce_guards(request: Request) -> None:
@@ -336,6 +386,91 @@ def create_app(
             reply=tutor_payload.reply,
             guiding_question=tutor_payload.guiding_question,
             progressive_hint=tutor_payload.progressive_hint,
+            notice=None if is_live_ai else OFFLINE_NOTICE,
+        )
+
+    @app.post("/api/inspect-url", response_model=InspectUrlResponse)
+    async def inspect_url(
+        payload: InspectUrlRequest, request: Request
+    ) -> InspectUrlResponse:
+        enforce_guards(request)
+        try:
+            return await inspect_problem_url(payload.url)
+        except UrlValidationError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from None
+
+    @app.post("/api/extract-image", response_model=ImageExtractionResponse)
+    async def extract_image(
+        payload: ImageExtractionRequest, request: Request
+    ) -> ImageExtractionResponse:
+        enforce_guards(request)
+
+        decoded_images: list[tuple[str, bytes]] = []
+        total_bytes = 0
+        for item in payload.images:
+            try:
+                raw = base64.b64decode(item.data_base64, validate=True)
+            except (binascii.Error, ValueError):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Image '{item.filename}' is not valid base64 data.",
+                ) from None
+
+            if len(raw) == 0 or len(raw) > MAX_IMAGE_FILE_BYTES:
+                raise HTTPException(
+                    status_code=413,
+                    detail=(
+                        f"Image '{item.filename}' exceeds the 4 MB per-image limit."
+                    ),
+                )
+
+            if not _verify_image_magic_bytes(item.mime_type, raw):
+                raise HTTPException(
+                    status_code=422,
+                    detail=(
+                        f"Image '{item.filename}' content does not match declared type {item.mime_type}."
+                    ),
+                )
+
+            total_bytes += len(raw)
+            if total_bytes > MAX_TOTAL_IMAGE_BYTES:
+                raise HTTPException(
+                    status_code=413,
+                    detail="Combined uploaded images exceed the 10 MB total limit.",
+                )
+            decoded_images.append((item.mime_type, raw))
+
+        try:
+            await concurrency_guard.acquire()
+        except GuardRejectedError as exc:
+            raise HTTPException(
+                status_code=429,
+                detail=exc.detail,
+                headers={"Retry-After": str(exc.retry_after_seconds)},
+            ) from None
+
+        logger.info(
+            "extract_image_request mode=%s count=%d total_bytes=%d",
+            "ai" if is_live_ai else "offline-demo",
+            len(decoded_images),
+            total_bytes,
+        )
+
+        try:
+            extracted = await active_provider.extract_problem_from_images(decoded_images)
+        except ProviderError as exc:
+            _raise_provider_http_error(exc)
+            raise
+        finally:
+            await concurrency_guard.release()
+
+        return ImageExtractionResponse(
+            mode="ai" if is_live_ai else "offline-demo",
+            is_ai_generated=is_live_ai,
+            extracted_text=extracted.extracted_text,
+            diagram_notes=extracted.diagram_notes,
+            uncertain_regions=extracted.uncertain_regions,
+            needs_confirmation=True,
             notice=None if is_live_ai else OFFLINE_NOTICE,
         )
 

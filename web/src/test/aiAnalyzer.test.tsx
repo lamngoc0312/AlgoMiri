@@ -508,4 +508,98 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
       'Reverse Integer: Given a signed 32-bit integer x, return x with its digits reversed, or 0 on overflow.',
     );
   });
+
+  it('supports interactive one-step-at-a-time conceptual walkthrough, example beats, and compact strategy switching', async () => {
+    const multiStepResponse: AnalyzeResponseDto = {
+      ...MOCK_ANALYZE_RESPONSE,
+      analysis: {
+        ...MOCK_ANALYZE_RESPONSE.analysis,
+        title: 'Reverse Integer',
+        worked_example: {
+          input_summary: 'x = -123',
+          output_summary: '-321',
+          walkthrough:
+            'Pop 3 from -123 to start rev = 3. Next pop 2 to get 32. Finally pop 1 to reach -321.',
+        },
+        subproblem_decomposition: [
+          {
+            id: 's1',
+            title: 'Extract last digit',
+            goal: 'Use modulo 10 to peel off the rightmost digit.',
+            depends_on: [],
+          },
+          {
+            id: 's2',
+            title: 'Check 32-bit overflow',
+            goal: 'Guard against exceeding [-2^31, 2^31 - 1] before multiplying by 10.',
+            depends_on: ['s1'],
+          },
+        ],
+        candidate_strategies: [
+          {
+            name: 'Digit Pop & Push',
+            technique: 'Base-10 Math',
+            intuition: 'Peel digits from the right and accumulate in O(1) space.',
+            why_it_applies: 'Avoids 64-bit integers and string allocation.',
+            time_complexity: 'O(log10 |x|)',
+            space_complexity: 'O(1)',
+            complexity_assumptions: '32-bit integer input.',
+            limitations: 'Must handle negative truncation carefully.',
+          },
+          {
+            name: 'String Reversal',
+            technique: 'String Manipulation',
+            intuition: 'Convert digits to text and reverse characters.',
+            why_it_applies: 'Easy to read for beginners as a conceptual baseline.',
+            time_complexity: 'O(log10 |x|)',
+            space_complexity: 'O(log10 |x|)',
+            complexity_assumptions: 'Allocates digit buffer.',
+            limitations: 'Still requires string-based overflow comparison.',
+          },
+        ],
+      },
+    };
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => multiStepResponse,
+    } as Response);
+
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      screen.getByLabelText(/paste a problem statement/i),
+      'Reverse Integer: Given a signed 32-bit integer x, return x with its digits reversed.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /analyze problem \(ai\)/i }),
+    );
+
+    // Only Step 1 is shown initially (one step at a time)
+    expect(await screen.findByText('Extract last digit')).toBeInTheDocument();
+    expect(screen.queryByText('Check 32-bit overflow')).not.toBeInTheDocument();
+
+    // Example beat 1 of 3 shown; clicking Next example beat advances to beat 2
+    expect(screen.getByText(/pop 3 from -123/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /next example beat/i }));
+    expect(screen.getByText(/next pop 2 to get 32/i)).toBeInTheDocument();
+
+    // Advance conceptual stepper to Step 2
+    await user.click(screen.getByRole('button', { name: /next step/i }));
+    expect(screen.getByText('Check 32-bit overflow')).toBeInTheDocument();
+
+    // Switch strategy via compact selector
+    await user.click(
+      screen.getByRole('button', { name: 'String Reversal' }),
+    );
+    expect(
+      screen.getByText(/convert digits to text and reverse characters/i),
+    ).toBeInTheDocument();
+  });
 });

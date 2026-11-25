@@ -143,3 +143,68 @@ class HealthResponse(BaseModel):
     ai_configured: bool
     provider: str
     model: str
+
+
+class InspectUrlRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    url: str = Field(min_length=8, max_length=2048)
+
+
+UrlRetrievalStatus = Literal[
+    "fetched",
+    "restricted_source",
+    "manual_input_required",
+    "fetch_failed",
+]
+
+
+class InspectUrlResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    original_url: str
+    canonical_url: str
+    source_name: str
+    slug: Optional[str] = None
+    display_title: Optional[str] = None
+    retrieval_status: UrlRetrievalStatus
+    message: str
+    extracted_text: Optional[str] = None
+    verified_match: Optional[VerifiedMatchInfo] = None
+
+
+AllowedImageMimeType = Literal["image/png", "image/jpeg", "image/webp"]
+
+
+class ImageInputItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    filename: str = Field(default="screenshot.png", min_length=1, max_length=160)
+    mime_type: AllowedImageMimeType
+    data_base64: str = Field(min_length=16, max_length=6_000_000)
+
+
+class ImageExtractionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    images: list[ImageInputItem] = Field(min_length=1, max_length=3)
+
+
+class ImageExtractionPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    extracted_text: str = Field(min_length=1, max_length=6000)
+    diagram_notes: list[str] = Field(default_factory=list, max_length=8)
+    uncertain_regions: list[str] = Field(default_factory=list, max_length=8)
+
+
+class ImageExtractionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["ai", "offline-demo"]
+    is_ai_generated: bool
+    extracted_text: str
+    diagram_notes: list[str] = Field(default_factory=list)
+    uncertain_regions: list[str] = Field(default_factory=list)
+    needs_confirmation: Literal[True] = True
+    notice: Optional[str] = None

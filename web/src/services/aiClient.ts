@@ -93,6 +93,42 @@ export interface TutorResponseDto {
   notice: string | null;
 }
 
+export type UrlRetrievalStatus =
+  | 'fetched'
+  | 'restricted_source'
+  | 'manual_input_required'
+  | 'fetch_failed';
+
+export interface InspectUrlResponseDto {
+  original_url: string;
+  canonical_url: string;
+  source_name: string;
+  slug: string | null;
+  display_title: string | null;
+  retrieval_status: UrlRetrievalStatus;
+  message: string;
+  extracted_text: string | null;
+  verified_match: VerifiedMatchInfoDto | null;
+}
+
+export type AllowedImageMimeType = 'image/png' | 'image/jpeg' | 'image/webp';
+
+export interface ImageInputDto {
+  filename: string;
+  mime_type: AllowedImageMimeType;
+  data_base64: string;
+}
+
+export interface ImageExtractionResponseDto {
+  mode: 'ai' | 'offline-demo';
+  is_ai_generated: boolean;
+  extracted_text: string;
+  diagram_notes: string[];
+  uncertain_regions: string[];
+  needs_confirmation: true;
+  notice: string | null;
+}
+
 export type AiClientErrorKind =
   | 'aborted'
   | 'timeout'
@@ -246,6 +282,24 @@ export async function askTutor(
   options?: RequestOptions,
 ): Promise<TutorResponseDto> {
   return postJson<TutorResponseDto>('/api/tutor', request, options);
+}
+
+export async function inspectProblemUrl(
+  url: string,
+  options?: RequestOptions,
+): Promise<InspectUrlResponseDto> {
+  return postJson<InspectUrlResponseDto>('/api/inspect-url', { url }, options);
+}
+
+export async function extractProblemFromImages(
+  images: ImageInputDto[],
+  options?: RequestOptions,
+): Promise<ImageExtractionResponseDto> {
+  return postJson<ImageExtractionResponseDto>(
+    '/api/extract-image',
+    { images },
+    { ...options, timeoutMs: options?.timeoutMs ?? 40000 },
+  );
 }
 
 /**
