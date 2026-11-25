@@ -211,4 +211,30 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
       expect(overflowPx, `320px reflow overflow on ${route}`).toBe(0);
     }
   });
+
+  test('@smoke switches to Dark Mode, persists after reload, and passes axe-core WCAG 2.0/2.1 A+AA contrast checks', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    await page.getByRole('button', { name: /switch to dark mode/i }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    // Reload and confirm Dark Mode persists immediately
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    // Run axe-core WCAG 2.0/2.1 A+AA checks in Dark Mode across key routes
+    for (const route of ['/', '/problems', '/studio/two-sum', '/roadmap']) {
+      await page.goto(route, { waitUntil: 'networkidle' });
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      expect(
+        results.violations,
+        `axe-core dark-mode violations on ${route}`,
+      ).toEqual([]);
+    }
+  });
 });

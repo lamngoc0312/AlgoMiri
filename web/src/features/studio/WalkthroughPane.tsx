@@ -33,7 +33,7 @@ export function WalkthroughPane({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <MessageSquareText
-              className="h-4 w-4 text-[#2664C2]"
+              className="h-4 w-4 text-[var(--accent-blue-link)]"
               aria-hidden="true"
             />
             <CardTitle className="text-lg">Step Explanation</CardTitle>
@@ -49,35 +49,35 @@ export function WalkthroughPane({
             aria-live="polite"
             className={`rounded-xl border-l-4 px-5 py-4 transition-colors duration-200 ${
               step.visualState.status === 'found'
-                ? 'border-[#15A897] bg-[#E6F7F5]/70'
+                ? 'border-[#15A897] bg-[var(--accent-teal-soft)]/70'
                 : step.visualState.status === 'not-found'
-                  ? 'border-[#F2B84B] bg-[#FEF7E7]/70'
-                  : 'border-[#397BDB] bg-[#F7F9FC]'
+                  ? 'border-[#F2B84B] bg-[var(--accent-amber-soft)]/70'
+                  : 'border-[#397BDB] bg-[var(--surface-subtle)]'
             }`}
           >
-            <p className="text-xs font-bold uppercase tracking-wider text-[#2257A8]">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--accent-blue-text)]">
               {step.actionTitle}
             </p>
-            <p className="mt-1.5 text-base leading-relaxed text-[#202B3B]">
+            <p className="mt-1.5 text-base leading-relaxed text-[var(--text-primary)]">
               {step.explanation}
             </p>
           </div>
 
           {/* Synchronized Variables Readout */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
               Execution State
             </h3>
             <dl className="mt-2 grid grid-cols-2 gap-2.5">
               {Object.entries(step.variables).map(([name, val]) => (
                 <div
                   key={name}
-                  className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-3 py-2.5"
+                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3 py-2.5"
                 >
-                  <dt className="font-mono text-xs text-[#526075] truncate">
+                  <dt className="font-mono text-xs text-[var(--text-secondary)] truncate">
                     {name}
                   </dt>
-                  <dd className="mt-0.5 font-mono text-base font-bold text-[#202B3B] truncate">
+                  <dd className="mt-0.5 font-mono text-base font-bold text-[var(--text-primary)] truncate">
                     {val === null ? '—' : String(val)}
                   </dd>
                 </div>
@@ -87,28 +87,28 @@ export function WalkthroughPane({
         </div>
 
         {/* Progressive Disclosure: Complexity & Tradeoffs */}
-        <details className="group rounded-xl border border-[#E2E8F0] bg-[#F7F9FC]">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-bold text-[#202B3B]">
+        <details className="group rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-bold text-[var(--text-primary)]">
             <span className="flex flex-wrap items-center gap-2.5">
               <span>Complexity &amp; Why {strategy.shortLabel}?</span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-0.5 font-mono text-xs font-semibold text-[#202B3B] border border-[#E2E8F0]">
-                <Clock className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--text-primary)] border border-[var(--border-subtle)]">
+                <Clock className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
                 {strategy.timeComplexity}
               </span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-0.5 font-mono text-xs font-semibold text-[#202B3B] border border-[#E2E8F0]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--text-primary)] border border-[var(--border-subtle)]">
                 <Database
-                  className="h-3.5 w-3.5 text-[#0D7A6E]"
+                  className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"
                   aria-hidden="true"
                 />
                 {strategy.spaceComplexity}
               </span>
             </span>
             <ChevronDown
-              className="h-4 w-4 shrink-0 text-[#526075] transition-transform group-open:rotate-180"
+              className="h-4 w-4 shrink-0 text-[var(--text-secondary)] transition-transform group-open:rotate-180"
               aria-hidden="true"
             />
           </summary>
-          <div className="border-t border-[#E2E8F0] px-4 py-3.5 text-sm leading-relaxed text-[#526075]">
+          <div className="border-t border-[var(--border-subtle)] px-4 py-3.5 text-sm leading-relaxed text-[var(--text-secondary)]">
             {strategy.tradeoffs}
           </div>
         </details>

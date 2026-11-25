@@ -160,8 +160,8 @@ export function ProgressPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-[#2664C2]" aria-hidden="true" />
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#202B3B] sm:text-3xl">
+            <TrendingUp className="h-5 w-5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-primary)] sm:text-3xl">
               Learning Progress
             </h1>
             <Badge variant="indigo">
@@ -169,7 +169,7 @@ export function ProgressPage({
               Local Browser History
             </Badge>
           </div>
-          <p className="text-sm text-[#526075]">
+          <p className="text-sm text-[var(--text-secondary)]">
             Evidence-based activity recorded from your Guided Learning sessions and deterministic trace predictions.
           </p>
         </div>
@@ -177,7 +177,7 @@ export function ProgressPage({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/problems"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#2B6CC9] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2257A8]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
           >
             Practice a Problem
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -203,13 +203,13 @@ export function ProgressPage({
         <div
           role="alertdialog"
           aria-label="Confirm clearing local learning history"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#E05252]/60 bg-[#FDF2F2] px-4 py-3.5 text-xs text-[#202B3B]"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#E05252]/60 bg-[#FDF2F2] px-4 py-3.5 text-xs text-[var(--text-primary)]"
         >
           <div className="space-y-0.5">
             <p className="font-bold text-[#9B2C2C]">
               Clear all saved learning sessions from this browser?
             </p>
-            <p className="text-[#526075]">
+            <p className="text-[var(--text-secondary)]">
               This permanently removes your {sessions.length} locally saved session(s) and resets all skill evidence counts.
             </p>
           </div>
@@ -236,10 +236,10 @@ export function ProgressPage({
       {/* Honest Local-Only Storage Notice */}
       <div
         role="note"
-        className="flex items-start gap-2.5 rounded-2xl border border-[#C2DAFA] bg-[#EAF2FD]/55 px-4 py-3 text-xs leading-relaxed text-[#202B3B]"
+        className="flex items-start gap-2.5 rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/55 px-4 py-3 text-xs leading-relaxed text-[var(--text-primary)]"
       >
         <Info
-          className="h-4 w-4 shrink-0 text-[#2257A8] mt-0.5"
+          className="h-4 w-4 shrink-0 text-[var(--accent-blue-text)] mt-0.5"
           aria-hidden="true"
         />
         <p>
@@ -254,7 +254,7 @@ export function ProgressPage({
       {loadState.warningMessage && (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 text-xs text-[#925E08]"
+          className="flex items-start gap-2 rounded-xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-4 py-3 text-xs text-[var(--accent-amber-text)]"
         >
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
           <span>{loadState.warningMessage}</span>
@@ -264,7 +264,7 @@ export function ProgressPage({
       {clearFeedback && (
         <div
           role="status"
-          className="rounded-xl border border-[#15A897]/50 bg-[#E6F7F5]/70 px-4 py-3 text-xs font-medium text-[#0D7A6E]"
+          className="rounded-xl border border-[#15A897]/50 bg-[var(--accent-teal-soft)]/70 px-4 py-3 text-xs font-medium text-[var(--accent-teal-text)]"
         >
           {clearFeedback}
         </div>
@@ -273,16 +273,16 @@ export function ProgressPage({
       {/* Honest Empty State for First-Time Learners */}
       {sessions.length === 0 ? (
         <div className="space-y-6">
-          <Card className="border-dashed border-2 border-[#D7DCEB]">
+          <Card className="border-dashed border-2 border-[var(--border-control)]">
             <CardContent className="p-8 text-center space-y-4">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF2FD] text-[#2664C2]">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-blue-soft)] text-[var(--accent-blue-link)]">
                 <BookOpen className="h-6 w-6" aria-hidden="true" />
               </div>
               <div className="space-y-1.5 max-w-lg mx-auto">
-                <h2 className="text-lg font-extrabold text-[#202B3B]">
+                <h2 className="text-lg font-extrabold text-[var(--text-primary)]">
                   No learning sessions recorded yet
                 </h2>
-                <p className="text-sm leading-relaxed text-[#526075]">
+                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                   Complete or finalize a Guided Learning session in any verified Studio
                   to record real prediction accuracy, stage checks, hints used, and
                   skill evidence here. We never show fabricated stats or fake streaks.
@@ -291,20 +291,20 @@ export function ProgressPage({
               <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
                 <Link
                   to="/studio/two-sum"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-4 text-sm font-semibold text-white hover:bg-[#2257A8]"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-blue-hover)]"
                 >
                   Start Two Sum
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
                   to="/studio/valid-parentheses"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-white px-4 text-sm font-semibold text-[#202B3B] hover:bg-[#F7F9FC]"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 >
                   Start Valid Parentheses
                 </Link>
                 <Link
                   to="/studio/split-array-largest-sum"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-white px-4 text-sm font-semibold text-[#202B3B] hover:bg-[#F7F9FC]"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 >
                   Start Split Array Largest Sum
                 </Link>
@@ -322,75 +322,75 @@ export function ProgressPage({
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Learning Sessions
                   </span>
-                  <Clock className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+                  <Clock className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
                 </div>
                 <p
                   data-testid="progress-total-sessions"
-                  className="mt-2 font-mono text-2xl font-extrabold text-[#202B3B]"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
                   {summary.totalSessions}
                 </p>
-                <p className="mt-0.5 text-xs text-[#526075]">
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   Saved in this browser
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Problems Practiced
                   </span>
-                  <BookOpen className="h-4 w-4 text-[#0D7A6E]" aria-hidden="true" />
+                  <BookOpen className="h-4 w-4 text-[var(--accent-teal-text)]" aria-hidden="true" />
                 </div>
                 <p
                   data-testid="progress-problems-practiced"
-                  className="mt-2 font-mono text-2xl font-extrabold text-[#202B3B]"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
                   {summary.problemsPracticedCount} / {summary.totalAvailableProblems}
                 </p>
-                <p className="mt-0.5 text-xs text-[#526075]">
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   Verified visual studios
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Strategies Explored
                   </span>
-                  <Award className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+                  <Award className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
                 </div>
                 <p
                   data-testid="progress-strategies-explored"
-                  className="mt-2 font-mono text-2xl font-extrabold text-[#202B3B]"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
                   {summary.uniqueStrategiesExploredCount} /{' '}
                   {summary.totalAvailableStrategies}
                 </p>
-                <p className="mt-0.5 text-xs text-[#526075]">
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   Across all verified studios
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Prediction Accuracy
                   </span>
-                  <Target className="h-4 w-4 text-[#0D7A6E]" aria-hidden="true" />
+                  <Target className="h-4 w-4 text-[var(--accent-teal-text)]" aria-hidden="true" />
                 </div>
                 <p
                   data-testid="progress-prediction-accuracy"
-                  className="mt-2 font-mono text-2xl font-extrabold text-[#202B3B]"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
                   {summary.firstTryAccuracyPercent !== null
                     ? `${summary.firstTryAccuracyPercent}%`
                     : '—'}
                 </p>
-                <p className="mt-0.5 text-xs text-[#526075]">
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   {summary.totalPredictionsAttempted > 0
                     ? `${summary.totalPredictionsFirstTry}/${summary.totalPredictionsAttempted} first-try`
                     : 'No predictions attempted yet'}
@@ -399,18 +399,18 @@ export function ProgressPage({
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Hints Used
                   </span>
                   <Lightbulb className="h-4 w-4 text-[#F2B84B]" aria-hidden="true" />
                 </div>
                 <p
                   data-testid="progress-hints-used"
-                  className="mt-2 font-mono text-2xl font-extrabold text-[#202B3B]"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
                 >
                   {summary.totalHintsUsed}
                 </p>
-                <p className="mt-0.5 text-xs text-[#526075]">
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
                   {summary.skillsPracticedCount} of {summary.skillSummaries.length}{' '}
                   skills practiced
                 </p>
@@ -436,7 +436,7 @@ export function ProgressPage({
                   <div
                     role="img"
                     aria-label={`Prediction outcomes across ${totalPredictionEvents} question(s): ${summary.totalPredictionsFirstTry} first-try correct, ${summary.totalPredictionsSolvedAfterRetry} solved after retry, ${summary.totalPredictionsSkippedAfterAttempt} skipped after attempt, ${summary.totalPredictionsSkippedWithoutAttempt} skipped without attempt, ${summary.totalPredictionsUnresolved} unresolved`}
-                    className="flex h-4 w-full overflow-hidden rounded-full bg-[#EAF2FD]"
+                    className="flex h-4 w-full overflow-hidden rounded-full bg-[var(--accent-blue-soft)]"
                   >
                     {firstTryBarPct > 0 && (
                       <div
@@ -475,32 +475,32 @@ export function ProgressPage({
                         />
                       )}
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[#526075]">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[var(--text-secondary)]">
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#15A897]" />
                       First-try correct:{' '}
-                      <strong className="text-[#202B3B]">
+                      <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsFirstTry}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#397BDB]" />
                       Solved after retry/reveal:{' '}
-                      <strong className="text-[#202B3B]">
+                      <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSolvedAfterRetry}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#E08A2E]" />
                       Skipped after attempt:{' '}
-                      <strong className="text-[#202B3B]">
+                      <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSkippedAfterAttempt}
                       </strong>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-[#F2B84B]" />
                       Skipped (unattempted):{' '}
-                      <strong className="text-[#202B3B]">
+                      <strong className="text-[var(--text-primary)]">
                         {summary.totalPredictionsSkippedWithoutAttempt}
                       </strong>
                     </span>
@@ -508,20 +508,20 @@ export function ProgressPage({
                       <span className="inline-flex items-center gap-1.5">
                         <span className="h-2.5 w-2.5 rounded-full bg-[#9AA2BE]" />
                         Unresolved:{' '}
-                        <strong className="text-[#202B3B]">
+                        <strong className="text-[var(--text-primary)]">
                           {summary.totalPredictionsUnresolved}
                         </strong>
                       </span>
                     )}
                     {summary.overallSolvedPercent !== null && (
-                      <span className="ml-auto font-mono text-xs font-semibold text-[#2257A8]">
+                      <span className="ml-auto font-mono text-xs font-semibold text-[var(--accent-blue-text)]">
                         Eventually solved: {summary.overallSolvedPercent}%
                       </span>
                     )}
                   </div>
                 </>
               ) : (
-                <p className="text-xs text-[#526075]">
+                <p className="text-xs text-[var(--text-secondary)]">
                   No trace predictions recorded yet. Keep Predict Mode enabled during Guided Learning to test your intuition step by step.
                 </p>
               )}
@@ -551,20 +551,20 @@ export function ProgressPage({
                     {summary.areasNeedingPractice.map((item) => (
                       <li
                         key={item.skill.id}
-                        className="rounded-xl border border-[#F2B84B]/60 bg-[#FEF7E7]/60 p-3.5 space-y-1.5"
+                        className="rounded-xl border border-[#F2B84B]/60 bg-[var(--accent-amber-soft)]/60 p-3.5 space-y-1.5"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-sm font-bold text-[#202B3B]">
+                          <span className="text-sm font-bold text-[var(--text-primary)]">
                             {item.skill.name}
                           </span>
                           <Badge variant="amber">{item.label}</Badge>
                         </div>
-                        <p className="text-xs text-[#526075]">
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {item.evidenceNote}
                         </p>
                         <Link
                           to={item.skill.recommendedStudioPath}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#925E08] hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent-amber-text)] hover:underline"
                         >
                           Practice in Studio
                           <ArrowRight className="h-3 w-3" aria-hidden="true" />
@@ -573,7 +573,7 @@ export function ProgressPage({
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs leading-relaxed text-[#526075]">
+                  <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
                     No specific skills are currently flagged for mistakes or heavy hint reliance. Continue exploring unpracticed skills or trying harder edge cases in Free Exploration.
                   </p>
                 )}
@@ -589,7 +589,7 @@ export function ProgressPage({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <CardTitle>Evidence-Based Skill Tracking</CardTitle>
-                  <p className="mt-1 text-xs text-[#526075]">
+                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
                     Distinguishes viewing, attempting, assisted answers, and first-try recall. Guided lessons cap below 100% because independent mastery requires an unassisted assessment.
                   </p>
                 </div>
@@ -603,14 +603,14 @@ export function ProgressPage({
               {summary.skillSummaries.map((item) => (
                 <div
                   key={item.skill.id}
-                  className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC]/70 p-4 space-y-2"
+                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/70 p-4 space-y-2"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-sm font-bold text-[#202B3B]">
+                      <p className="text-sm font-bold text-[var(--text-primary)]">
                         {item.skill.name}
                       </p>
-                      <p className="text-xs text-[#526075]">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         {item.skill.category}
                       </p>
                     </div>
@@ -633,22 +633,22 @@ export function ProgressPage({
                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 text-xs font-mono text-[#526075]">
-                    <span className="rounded bg-white px-1.5 py-0.5 border border-[#E2E8F0]">
+                  <div className="flex flex-wrap gap-1.5 text-xs font-mono text-[var(--text-secondary)]">
+                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
                       First-try: {item.counts['first-try-correct']}
                     </span>
-                    <span className="rounded bg-white px-1.5 py-0.5 border border-[#E2E8F0]">
+                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
                       Assisted: {item.counts['correct-with-assistance']}
                     </span>
-                    <span className="rounded bg-white px-1.5 py-0.5 border border-[#E2E8F0]">
+                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
                       Attempted: {item.counts.attempted}
                     </span>
-                    <span className="rounded bg-white px-1.5 py-0.5 border border-[#E2E8F0]">
+                    <span className="rounded bg-[var(--surface-card)] px-1.5 py-0.5 border border-[var(--border-subtle)]">
                       Viewed: {item.counts.viewed}
                     </span>
                   </div>
 
-                  <p className="text-xs leading-relaxed text-[#526075]">
+                  <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
                     {item.evidenceNote}
                   </p>
                 </div>
@@ -665,11 +665,11 @@ export function ProgressPage({
               {summary.problemSummaries.map((prob) => (
                 <div
                   key={prob.problemId}
-                  className="flex flex-col justify-between rounded-2xl border border-[#E2E8F0] bg-white p-4 space-y-3"
+                  className="flex flex-col justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4 space-y-3"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-bold text-[#202B3B]">
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
                         {prob.problemTitle}
                       </h3>
                       <Badge
@@ -681,39 +681,39 @@ export function ProgressPage({
                       </Badge>
                     </div>
                     <dl className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-xs font-semibold uppercase text-[#526075]">
+                      <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
+                        <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
                           Best Stages
                         </dt>
-                        <dd className="font-mono font-bold text-[#202B3B]">
+                        <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.bestVerifiedStages} / {prob.totalStages}
                         </dd>
                       </div>
-                      <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-xs font-semibold uppercase text-[#526075]">
+                      <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
+                        <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
                           Strategies
                         </dt>
-                        <dd className="font-mono font-bold text-[#202B3B]">
+                        <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.strategiesExplored.length} /{' '}
                           {prob.totalStrategiesAvailable}
                         </dd>
                       </div>
-                      <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-xs font-semibold uppercase text-[#526075]">
+                      <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
+                        <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
                           Predictions
                         </dt>
-                        <dd className="font-mono font-bold text-[#202B3B]">
+                        <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.predictionsFirstTry}/{prob.predictionsAttempted}{' '}
-                          <span className="font-sans text-xs font-normal text-[#526075]">
+                          <span className="font-sans text-xs font-normal text-[var(--text-secondary)]">
                             1st try
                           </span>
                         </dd>
                       </div>
-                      <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-xs font-semibold uppercase text-[#526075]">
+                      <div className="rounded-lg bg-[var(--surface-subtle)] p-2">
+                        <dt className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
                           Hints Used
                         </dt>
-                        <dd className="font-mono font-bold text-[#202B3B]">
+                        <dd className="font-mono font-bold text-[var(--text-primary)]">
                           {prob.hintsUsed}
                         </dd>
                       </div>
@@ -722,7 +722,7 @@ export function ProgressPage({
 
                   <Link
                     to={prob.studioPath}
-                    className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] text-xs font-semibold text-[#2257A8] hover:bg-[#EAF2FD]"
+                    className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)]"
                   >
                     {prob.totalSessions > 0 ? 'Practice Again' : 'Start Lesson'}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -743,7 +743,7 @@ export function ProgressPage({
               </div>
             </CardHeader>
             <CardContent>
-              <ul className="divide-y divide-[#E2E8F0]">
+              <ul className="divide-y divide-[var(--border-subtle)]">
                 {summary.recentSessions.map((session) => (
                   <li
                     key={session.sessionId}
@@ -752,10 +752,10 @@ export function ProgressPage({
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <CheckCircle2
-                          className="h-4 w-4 text-[#0D7A6E]"
+                          className="h-4 w-4 text-[var(--accent-teal-text)]"
                           aria-hidden="true"
                         />
-                        <span className="font-bold text-[#202B3B]">
+                        <span className="font-bold text-[var(--text-primary)]">
                           {session.problemTitle}
                         </span>
                         <Badge
@@ -770,7 +770,7 @@ export function ProgressPage({
                           {formatOutcomeLabel(session.outcome)}
                         </Badge>
                       </div>
-                      <p className="text-xs text-[#526075]">
+                      <p className="text-xs text-[var(--text-secondary)]">
                         Verified stages:{' '}
                         <strong>
                           {session.completedStagesCount}/{session.totalStages}
@@ -787,7 +787,7 @@ export function ProgressPage({
                         · Hints: <strong>{session.hintsUsed}</strong>
                       </p>
                     </div>
-                    <span className="text-xs font-medium text-[#526075]">
+                    <span className="text-xs font-medium text-[var(--text-secondary)]">
                       {formatSessionTimestamp(session.completedAt)}
                     </span>
                   </li>
@@ -811,12 +811,12 @@ function SuggestionsCard({
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+            <Sparkles className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
             <CardTitle>Next Practice Suggestions</CardTitle>
           </div>
           <Badge variant="neutral">Rule-Based · Deterministic</Badge>
         </div>
-        <p className="text-xs text-[#526075]">
+        <p className="text-xs text-[var(--text-secondary)]">
           Simple suggestions derived directly from your recorded local evidence (not an AI recommendation model).
         </p>
       </CardHeader>
@@ -824,20 +824,20 @@ function SuggestionsCard({
         {suggestions.map((item) => (
           <div
             key={item.id}
-            className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5 space-y-2"
+            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 space-y-2"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-bold text-[#202B3B]">{item.title}</h3>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">{item.title}</h3>
               {item.priority === 'high' && (
                 <Badge variant="amber">Recommended Review</Badge>
               )}
             </div>
-            <p className="text-xs leading-relaxed text-[#526075]">
+            <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
               <strong>Why:</strong> {item.reason}
             </p>
             <Link
               to={item.targetPath}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2664C2] hover:text-[#2257A8]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-blue-link)] hover:text-[var(--accent-blue-text)]"
             >
               <Compass className="h-3.5 w-3.5" aria-hidden="true" />
               {item.ctaLabel}

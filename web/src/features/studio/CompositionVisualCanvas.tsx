@@ -59,10 +59,10 @@ interface CompositionVisualCanvasProps {
 }
 
 const GROUP_PALETTE = [
-  'border-[#397BDB] bg-[#EAF2FD] text-[#202B3B]',
-  'border-[#15A897] bg-[#E6F7F5] text-[#0A594B]',
-  'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08]',
-  'border-[#83C8ED] bg-[#EDF8FE] text-[#1B648D]',
+  'border-[#397BDB] bg-[var(--accent-blue-soft)] text-[var(--text-primary)]',
+  'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)]',
+  'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)]',
+  'border-[#83C8ED] bg-[var(--accent-sky-soft)] text-[var(--accent-sky-text)]',
 ];
 
 export function CompositionVisualCanvas({
@@ -110,10 +110,10 @@ export function CompositionVisualCanvas({
   return (
     <div className="flex flex-col gap-4">
       <Card className="overflow-hidden">
-        <CardHeader className="border-b border-[#E2E8F0] bg-white">
+        <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+              <Eye className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
               <CardTitle>Composition Execution Canvas</CardTitle>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -125,8 +125,8 @@ export function CompositionVisualCanvas({
                 onClick={onTogglePredictMode}
                 className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   predictModeEnabled
-                    ? 'bg-[#2B6CC9] text-white'
-                    : 'border border-[#D7DCEB] bg-[#F7F9FC] text-[#526075] hover:text-[#202B3B]'
+                    ? 'bg-[var(--accent-blue-solid)] text-white'
+                    : 'border border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
@@ -146,50 +146,50 @@ export function CompositionVisualCanvas({
             <div
               className={`rounded-2xl border-2 p-3.5 transition-all duration-200 ${
                 isDriverActive
-                  ? 'border-[#397BDB] bg-[#EAF2FD]/55 shadow-xs'
-                  : 'border-[#E2E8F0] bg-[#F7F9FC]'
+                  ? 'border-[#397BDB] bg-[var(--accent-blue-soft)]/55 shadow-xs'
+                  : 'border-[var(--border-subtle)] bg-[var(--surface-subtle)]'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#202B3B]">
-                  <Target className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                  <Target className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
                   Outer Driver · Binary Search
                 </span>
                 {isDriverActive && <Badge variant="indigo">Active</Badge>}
               </div>
 
               <div className="mt-2.5 grid grid-cols-3 gap-2 text-center font-mono">
-                <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-xs text-[#526075]">low</span>
-                  <span className="text-sm font-extrabold text-[#202B3B]">
+                <div className="rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] py-1.5 px-2">
+                  <span className="block text-xs text-[var(--text-secondary)]">low</span>
+                  <span className="text-sm font-extrabold text-[var(--text-primary)]">
                     {visualState.low}
                   </span>
                 </div>
-                <div className="rounded-xl border border-[#397BDB]/40 bg-white py-1.5 px-2">
-                  <span className="block text-xs text-[#2257A8]">mid</span>
-                  <span className="text-sm font-extrabold text-[#2257A8]">
+                <div className="rounded-xl border border-[#397BDB]/40 bg-[var(--surface-card)] py-1.5 px-2">
+                  <span className="block text-xs text-[var(--accent-blue-text)]">mid</span>
+                  <span className="text-sm font-extrabold text-[var(--accent-blue-text)]">
                     {visualState.mid ?? '—'}
                   </span>
                 </div>
-                <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-xs text-[#526075]">high</span>
-                  <span className="text-sm font-extrabold text-[#202B3B]">
+                <div className="rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] py-1.5 px-2">
+                  <span className="block text-xs text-[var(--text-secondary)]">high</span>
+                  <span className="text-sm font-extrabold text-[var(--text-primary)]">
                     {visualState.high}
                   </span>
                 </div>
               </div>
 
               {visualState.boundDecision && (
-                <p className="mt-2 font-mono text-xs font-semibold text-[#2257A8]">
+                <p className="mt-2 font-mono text-xs font-semibold text-[var(--accent-blue-text)]">
                   {visualState.boundDecision}
                 </p>
               )}
             </div>
 
             {/* Data Contract Connector */}
-            <div className="flex flex-col items-center justify-center px-1 text-xs font-mono text-[#526075]">
+            <div className="flex flex-col items-center justify-center px-1 text-xs font-mono text-[var(--text-secondary)]">
               <span>mid={visualState.mid ?? '?'} &rarr;</span>
-              <span className="text-[#0D7A6E] font-semibold">
+              <span className="text-[var(--accent-teal-text)] font-semibold">
                 {visualState.feasible === null
                   ? 'checking...'
                   : visualState.feasible
@@ -202,44 +202,44 @@ export function CompositionVisualCanvas({
             <div
               className={`rounded-2xl border-2 p-3.5 transition-all duration-200 ${
                 isSubroutineActive
-                  ? 'border-[#15A897] bg-[#E6F7F5]/60 shadow-xs'
-                  : 'border-[#E2E8F0] bg-[#F7F9FC]'
+                  ? 'border-[#15A897] bg-[var(--accent-teal-soft)]/60 shadow-xs'
+                  : 'border-[var(--border-subtle)] bg-[var(--surface-subtle)]'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#202B3B]">
-                  <Layers className="h-3.5 w-3.5 text-[#0D7A6E]" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                  <Layers className="h-3.5 w-3.5 text-[var(--accent-teal-text)]" aria-hidden="true" />
                   Subroutine · Greedy Packer
                 </span>
                 {isSubroutineActive ? (
                   <Badge variant="mint">{composition.invocationId}</Badge>
                 ) : (
-                  <span className="font-mono text-xs text-[#526075]">
+                  <span className="font-mono text-xs text-[var(--text-secondary)]">
                     {composition.invocationId}
                   </span>
                 )}
               </div>
 
               <div className="mt-2.5 grid grid-cols-2 gap-2 text-center font-mono">
-                <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-xs text-[#526075]">
+                <div className="rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] py-1.5 px-2">
+                  <span className="block text-xs text-[var(--text-secondary)]">
                     groups / k
                   </span>
                   <span
                     className={`text-sm font-extrabold ${
                       visualState.groupsUsed > visualState.k
-                        ? 'text-[#925E08]'
-                        : 'text-[#0A594B]'
+                        ? 'text-[var(--accent-amber-text)]'
+                        : 'text-[var(--accent-teal-deep)]'
                     }`}
                   >
                     {visualState.groupsUsed || '—'} / {visualState.k}
                   </span>
                 </div>
-                <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-xs text-[#526075]">
+                <div className="rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] py-1.5 px-2">
+                  <span className="block text-xs text-[var(--text-secondary)]">
                     sum / cap
                   </span>
-                  <span className="text-sm font-extrabold text-[#202B3B]">
+                  <span className="text-sm font-extrabold text-[var(--text-primary)]">
                     {visualState.runningSum ?? '—'} / {visualState.mid ?? '—'}
                   </span>
                 </div>
@@ -250,11 +250,11 @@ export function CompositionVisualCanvas({
           {/* Array & Contiguous Partition Visualization */}
           <div aria-label="Contiguous partition visualization" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                 Array Scan &amp; Contiguous Partitions (k = {visualState.k})
               </h3>
               {visualState.scanIndex !== null && (
-                <span className="rounded-full bg-[#FEF7E7] px-2.5 py-0.5 font-mono text-xs font-semibold text-[#925E08] border border-[#F8DFA8]">
+                <span className="rounded-full bg-[var(--accent-amber-soft)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--accent-amber-text)] border border-[var(--accent-amber-border)]">
                   Scanning idx {visualState.scanIndex} (val{' '}
                   {visualState.nums[visualState.scanIndex]})
                 </span>
@@ -267,7 +267,7 @@ export function CompositionVisualCanvas({
                 const isScanning = visualState.scanIndex === idx;
                 const paletteStyle = group
                   ? GROUP_PALETTE[(group.groupIndex - 1) % GROUP_PALETTE.length]
-                  : 'border-[#E2E8F0] bg-white text-[#202B3B]';
+                  : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]';
 
                 return (
                   <div
@@ -279,7 +279,7 @@ export function CompositionVisualCanvas({
                         isScanning
                           ? 'bg-[#F2B84B] text-[#202B3B]'
                           : group
-                            ? 'bg-[#EAF2FD] text-[#2257A8]'
+                            ? 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
                             : 'text-transparent select-none'
                       }`}
                     >
@@ -318,15 +318,15 @@ export function CompositionVisualCanvas({
                     key={group.groupIndex}
                     className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 font-mono text-xs ${
                       group.justCreated
-                        ? 'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08] font-bold'
+                        ? 'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)] font-bold'
                         : group.isCurrent
-                          ? 'border-[#15A897] bg-[#E6F7F5] text-[#0A594B] font-semibold'
-                          : 'border-[#E2E8F0] bg-white text-[#202B3B]'
+                          ? 'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)] font-semibold'
+                          : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]'
                     }`}
                   >
                     <span className="font-bold">G{group.groupIndex}:</span>
                     <span>[{group.elements.join(', ')}]</span>
-                    <span className="text-[#526075]">sum={group.sum}</span>
+                    <span className="text-[var(--text-secondary)]">sum={group.sum}</span>
                     {group.justCreated && (
                       <Badge variant="amber">New Group</Badge>
                     )}
@@ -340,10 +340,10 @@ export function CompositionVisualCanvas({
           {visualState.finalAnswer !== null && (
             <div
               role="status"
-              className="flex items-start gap-2.5 rounded-2xl border border-[#15A897] bg-[#E6F7F5] px-4 py-3 text-sm text-[#0A594B]"
+              className="flex items-start gap-2.5 rounded-2xl border border-[#15A897] bg-[var(--accent-teal-soft)] px-4 py-3 text-sm text-[var(--accent-teal-deep)]"
             >
               <CheckCircle2
-                className="h-5 w-5 shrink-0 text-[#0D7A6E] mt-0.5"
+                className="h-5 w-5 shrink-0 text-[var(--accent-teal-text)] mt-0.5"
                 aria-hidden="true"
               />
               <div>
@@ -366,11 +366,11 @@ export function CompositionVisualCanvas({
           {visualState.completedIterations.length > 0 && (
             <div
               aria-label="Binary Search iteration history"
-              className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5 space-y-2"
+              className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 space-y-2"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#202B3B]">
-                  <History className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                  <History className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
                   Binary Search Iterations (click to inspect Greedy subtrace)
                 </span>
               </div>
@@ -388,8 +388,8 @@ export function CompositionVisualCanvas({
                       onClick={() => onSeek(iter.firstStepIndex)}
                       className={`rounded-xl border px-2.5 py-1.5 font-mono text-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                         isCurrentIter
-                          ? 'border-[#397BDB] bg-[#EAF2FD] text-[#2257A8] font-bold'
-                          : 'border-[#DCE1F0] bg-white text-[#202B3B] hover:border-[#397BDB]'
+                          ? 'border-[#397BDB] bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)] font-bold'
+                          : 'border-[var(--border-control)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:border-[#397BDB]'
                       }`}
                     >
                       #{iter.iteration} [{iter.low}..{iter.high}] mid={iter.mid}{' '}
@@ -434,9 +434,9 @@ export function CompositionVisualCanvas({
           {/* Accessible Color + Label Legend */}
           <div
             aria-label="Composition highlight legend"
-            className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#E2E8F0] pt-3.5 text-xs text-[#526075]"
+            className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border-subtle)] pt-3.5 text-xs text-[var(--text-secondary)]"
           >
-            <span className="font-bold text-[#202B3B]">Legend:</span>
+            <span className="font-bold text-[var(--text-primary)]">Legend:</span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-3 w-3 rounded-full bg-[#397BDB]" aria-hidden="true" />
               BS Driver / Group 1
@@ -464,10 +464,10 @@ export function CompositionVisualCanvas({
       {/* Synchronized Macro Goal Link Banner */}
       <div
         aria-label="Synchronized Macro conceptual goal"
-        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#C2DAFA] bg-[#EAF2FD]/45 px-4 py-3"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/45 px-4 py-3"
       >
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#2257A8]">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-blue-text)]">
             <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
             Current Step Supports Conceptual Component:
           </div>

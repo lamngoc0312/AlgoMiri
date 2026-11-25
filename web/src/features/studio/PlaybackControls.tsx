@@ -69,12 +69,12 @@ export function PlaybackControls({
   return (
     <div
       aria-label="Trace playback controls"
-      className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5 sm:p-4 space-y-3"
+      className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5 sm:p-4 space-y-3"
     >
       {/* Timeline & Step Counter */}
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="font-mono font-semibold text-[#202B3B]">
+          <span className="font-mono font-semibold text-[var(--text-primary)]">
             Step {stepIndex + 1} of {totalSteps}
           </span>
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function PlaybackControls({
               <Badge variant="amber">Completed · Not Found / Invalid</Badge>
             )}
             {status === 'running' && (
-              <span className="font-mono text-xs text-[#526075]">
+              <span className="font-mono text-xs text-[var(--text-secondary)]">
                 {progressPercent}%
               </span>
             )}
@@ -178,7 +178,7 @@ export function PlaybackControls({
         <div className="flex items-center gap-2">
           <label
             htmlFor="playback-speed"
-            className="text-sm font-semibold text-[#526075]"
+            className="text-sm font-semibold text-[var(--text-secondary)]"
           >
             Speed
           </label>
@@ -187,7 +187,7 @@ export function PlaybackControls({
             value={speed}
             onChange={(e) => onSpeedChange(Number(e.target.value))}
             aria-label="Playback speed"
-            className="h-9 rounded-xl border border-[#D7DCEB] bg-white px-2.5 font-mono text-sm font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
+            className="h-9 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-2.5 font-mono text-sm font-semibold text-[var(--text-primary)] focus:border-[#397BDB] focus:outline-none cursor-pointer"
           >
             {PLAYBACK_SPEEDS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -199,7 +199,7 @@ export function PlaybackControls({
       </div>
 
       {isForwardBlocked && (
-        <p className="text-sm font-medium text-[#925E08]">
+        <p className="text-sm font-medium text-[var(--accent-amber-text)]">
           Checkpoint active — answer the prediction below or click Skip &amp; Reveal Next Step to advance.
         </p>
       )}

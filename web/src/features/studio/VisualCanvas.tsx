@@ -60,19 +60,19 @@ const ROLE_STYLES: Record<
   { box: string; badge: string }
 > = {
   current: {
-    box: 'border-[#F2B84B] bg-[#FEF7E7] text-[#202B3B] shadow-xs scale-[1.03]',
+    box: 'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--text-primary)] shadow-xs scale-[1.03]',
     badge: 'bg-[#F2B84B] text-[#202B3B]',
   },
   partner: {
-    box: 'border-[#397BDB] bg-[#EAF2FD] text-[#202B3B] shadow-xs scale-[1.03]',
-    badge: 'bg-[#2B6CC9] text-white',
+    box: 'border-[#397BDB] bg-[var(--accent-blue-soft)] text-[var(--text-primary)] shadow-xs scale-[1.03]',
+    badge: 'bg-[var(--accent-blue-solid)] text-white',
   },
   match: {
-    box: 'border-[#15A897] bg-[#E6F7F5] text-[#0A594B] shadow-xs scale-[1.04]',
-    badge: 'bg-[#0F8477] text-white',
+    box: 'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)] shadow-xs scale-[1.04]',
+    badge: 'bg-[var(--accent-teal-solid)] text-white',
   },
   visited: {
-    box: 'border-[#C5CBE3] bg-[#F0F2F8] text-[#526075]',
+    box: 'border-[var(--border-control)] bg-[var(--surface-elevated)] text-[var(--text-secondary)]',
     badge: 'bg-[#526075] text-white',
   },
 };
@@ -117,10 +117,10 @@ export function VisualCanvas({
   return (
     <div className="flex flex-col gap-4">
       <Card className="overflow-hidden">
-        <CardHeader className="border-b border-[#E2E8F0] bg-white">
+        <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+              <Eye className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
               <CardTitle>Visual Execution Canvas</CardTitle>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -132,8 +132,8 @@ export function VisualCanvas({
                 onClick={onTogglePredictMode}
                 className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   predictModeEnabled
-                    ? 'bg-[#2B6CC9] text-white'
-                    : 'border border-[#D7DCEB] bg-[#F7F9FC] text-[#526075] hover:text-[#202B3B]'
+                    ? 'bg-[var(--accent-blue-solid)] text-white'
+                    : 'border border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
@@ -148,11 +148,11 @@ export function VisualCanvas({
           <div aria-label="Array state visualization" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Array ({visualState.nums.length}{' '}
                   {visualState.nums.length === 1 ? 'item' : 'items'})
                 </h3>
-                <span className="rounded-md bg-[#EAF2FD] px-2 py-0.5 font-mono text-xs font-semibold text-[#2257A8]">
+                <span className="rounded-md bg-[var(--accent-blue-soft)] px-2 py-0.5 font-mono text-xs font-semibold text-[var(--accent-blue-text)]">
                   target = {visualState.target}
                 </span>
               </div>
@@ -160,7 +160,7 @@ export function VisualCanvas({
               <div className="flex flex-wrap items-center gap-2">
                 {visualState.complement !== undefined &&
                   visualState.complement !== null && (
-                    <span className="rounded-full bg-[#FEF7E7] px-2.5 py-0.5 font-mono text-xs font-semibold text-[#925E08] border border-[#F8DFA8]">
+                    <span className="rounded-full bg-[var(--accent-amber-soft)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--accent-amber-text)] border border-[var(--accent-amber-border)]">
                       Need complement: {visualState.complement}
                     </span>
                   )}
@@ -169,8 +169,8 @@ export function VisualCanvas({
                     <span
                       className={`rounded-full px-2.5 py-0.5 font-mono text-xs font-semibold border ${
                         visualState.pairSum === visualState.target
-                          ? 'bg-[#E6F7F5] text-[#0D7A6E] border-[#B4E6DF]'
-                          : 'bg-[#F0F2F8] text-[#4A526E] border-[#DFE3F0]'
+                          ? 'bg-[var(--accent-teal-soft)] text-[var(--accent-teal-text)] border-[var(--accent-teal-border)]'
+                          : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border-control)]'
                       }`}
                     >
                       Pair sum: {visualState.pairSum}
@@ -180,15 +180,15 @@ export function VisualCanvas({
             </div>
 
             {visualState.nums.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#C5CBE3] bg-[#F7F9FC] px-4 py-8 text-center">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border-control)] bg-[var(--surface-subtle)] px-4 py-8 text-center">
                 <SearchX
-                  className="h-7 w-7 text-[#8B93B0]"
+                  className="h-7 w-7 text-[var(--text-secondary)]"
                   aria-hidden="true"
                 />
-                <p className="mt-2 text-sm font-bold text-[#202B3B]">
+                <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
                   Empty Array ([])
                 </p>
-                <p className="mt-1 max-w-sm text-xs text-[#526075]">
+                <p className="mt-1 max-w-sm text-xs text-[var(--text-secondary)]">
                   With 0 elements, no two distinct indices can sum to{' '}
                   <span className="font-mono font-semibold">{visualState.target}</span>.
                   Try a preset or enter at least two integers above.
@@ -223,13 +223,13 @@ export function VisualCanvas({
                         className={`flex h-16 sm:h-[72px] w-full flex-col items-center justify-center rounded-2xl border-2 font-mono transition-all duration-200 ${
                           styles
                             ? styles.box
-                            : 'border-[#E2E8F0] bg-white text-[#202B3B]'
+                            : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]'
                         }`}
                       >
                         <span className="text-base sm:text-lg font-bold truncate max-w-[60px]">
                           {value}
                         </span>
-                        <span className="mt-0.5 text-xs text-[#526075]">
+                        <span className="mt-0.5 text-xs text-[var(--text-secondary)]">
                           idx {idx}
                         </span>
                       </div>
@@ -244,10 +244,10 @@ export function VisualCanvas({
           {visualState.status === 'found' && visualState.foundPair && (
             <div
               role="status"
-              className="flex items-start gap-2.5 rounded-2xl border border-[#15A897] bg-[#E6F7F5] px-4 py-3 text-sm text-[#0A594B]"
+              className="flex items-start gap-2.5 rounded-2xl border border-[#15A897] bg-[var(--accent-teal-soft)] px-4 py-3 text-sm text-[var(--accent-teal-deep)]"
             >
               <CheckCircle2
-                className="h-5 w-5 shrink-0 text-[#0D7A6E] mt-0.5"
+                className="h-5 w-5 shrink-0 text-[var(--accent-teal-text)] mt-0.5"
                 aria-hidden="true"
               />
               <div>
@@ -271,14 +271,14 @@ export function VisualCanvas({
           {visualState.status === 'not-found' && (
             <div
               role="status"
-              className="flex items-start gap-2.5 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 text-sm text-[#925E08]"
+              className="flex items-start gap-2.5 rounded-2xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-4 py-3 text-sm text-[var(--accent-amber-text)]"
             >
               <SearchX className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="font-bold">No valid pair found</p>
-                <p className="text-xs mt-0.5 text-[#526075]">
+                <p className="text-xs mt-0.5 text-[var(--text-secondary)]">
                   No two distinct indices in this array sum to{' '}
-                  <span className="font-mono font-semibold text-[#202B3B]">
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">
                     {visualState.target}
                   </span>
                   .
@@ -291,16 +291,16 @@ export function VisualCanvas({
           {strategy.id === 'hash-map' && (
             <div
               aria-label="Seen hash map visualization"
-              className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-4"
+              className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Hash className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#202B3B]">
+                  <Hash className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Seen Hash Map (value &rarr; index)
                   </h3>
                 </div>
-                <span className="font-mono text-xs text-[#526075]">
+                <span className="font-mono text-xs text-[var(--text-secondary)]">
                   size: {visualState.hashMap?.length ?? 0}
                 </span>
               </div>
@@ -312,14 +312,14 @@ export function VisualCanvas({
                       key={`${entry.key}-${entry.value}`}
                       className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 font-mono text-xs font-semibold transition-colors duration-200 ${
                         entry.isMatched
-                          ? 'border-[#15A897] bg-[#E6F7F5] text-[#0D7A6E]'
+                          ? 'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-text)]'
                           : entry.isNew
-                            ? 'border-[#397BDB] bg-[#EAF2FD] text-[#2257A8]'
-                            : 'border-[#E2E8F0] bg-white text-[#202B3B]'
+                            ? 'border-[#397BDB] bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                            : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]'
                       }`}
                     >
                       <span>{entry.key}</span>
-                      <span className="text-[#8B93B0]">&rarr;</span>
+                      <span className="text-[var(--text-secondary)]">&rarr;</span>
                       <span>idx {entry.value}</span>
                       {entry.isMatched && (
                         <Badge variant="mint" className="ml-1">
@@ -335,7 +335,7 @@ export function VisualCanvas({
                   ))}
                 </div>
               ) : (
-                <p className="mt-2.5 text-xs text-[#526075]">
+                <p className="mt-2.5 text-xs text-[var(--text-secondary)]">
                   Map is empty — no elements have been stored yet.
                 </p>
               )}
@@ -374,18 +374,18 @@ export function VisualCanvas({
           {/* Compact Synchronized Narrative on Mobile */}
           <div
             aria-live="polite"
-            className="rounded-xl border border-[#E2E8F0] bg-white p-3.5 text-xs leading-relaxed text-[#202B3B] lg:hidden"
+            className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3.5 text-xs leading-relaxed text-[var(--text-primary)] lg:hidden"
           >
-            <p className="font-bold text-[#2257A8]">{step.actionTitle}</p>
-            <p className="mt-1 text-[#526075]">{step.explanation}</p>
+            <p className="font-bold text-[var(--accent-blue-text)]">{step.actionTitle}</p>
+            <p className="mt-1 text-[var(--text-secondary)]">{step.explanation}</p>
           </div>
 
           {/* Accessible Color + Label Legend */}
           <div
             aria-label="Highlight color legend"
-            className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#E2E8F0] pt-3.5 text-xs text-[#526075]"
+            className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border-subtle)] pt-3.5 text-xs text-[var(--text-secondary)]"
           >
-            <span className="font-bold text-[#202B3B]">Legend:</span>
+            <span className="font-bold text-[var(--text-primary)]">Legend:</span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-3 w-3 rounded-full bg-[#F2B84B]" aria-hidden="true" />
               Current / Anchor
@@ -416,10 +416,10 @@ export function VisualCanvas({
       {/* Synchronized Macro Goal Link Banner */}
       <div
         aria-label="Synchronized Macro conceptual goal"
-        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#C2DAFA] bg-[#EAF2FD]/45 px-4 py-3"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/45 px-4 py-3"
       >
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#2257A8]">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-blue-text)]">
             <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
             Current Step Supports Conceptual Goal:
           </div>

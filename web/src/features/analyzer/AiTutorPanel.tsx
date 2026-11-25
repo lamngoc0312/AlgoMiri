@@ -140,12 +140,12 @@ export function AiTutorPanel({
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
           <MessageCircle
-            className="h-5 w-5 text-[#2664C2]"
+            className="h-5 w-5 text-[var(--accent-blue-link)]"
             aria-hidden="true"
           />
           <CardTitle className="text-xl">AI Tutor</CardTitle>
         </div>
-        <p className="text-sm text-[#526075] leading-relaxed">
+        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
           Get a simpler explanation, a gentle hint, or ask a specific question without spoiling the full solution.
         </p>
       </CardHeader>
@@ -183,7 +183,7 @@ export function AiTutorPanel({
               value={customMessage}
               onChange={(e) => setCustomMessage(e.target.value)}
               placeholder="Ask a question about this problem..."
-              className="h-11 flex-1 rounded-xl border border-[#D7DCEB] bg-white px-4 text-base text-[#202B3B] placeholder:text-[#7A829E] focus:border-[#397BDB] focus:outline-none"
+              className="h-11 flex-1 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-base text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:border-[#397BDB] focus:outline-none"
             />
             <Button
               type="submit"
@@ -202,15 +202,15 @@ export function AiTutorPanel({
         </form>
 
         {/* Expandable Advanced Tutor Actions */}
-        <details className="group rounded-xl border border-[#E2E8F0] bg-[#F7F9FC]">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-[#526075] hover:text-[#202B3B]">
+        <details className="group rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <span>More tutor options</span>
             <ChevronDown
               className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
               aria-hidden="true"
             />
           </summary>
-          <div className="border-t border-[#E2E8F0] px-4 py-3.5 space-y-3">
+          <div className="border-t border-[var(--border-subtle)] px-4 py-3.5 space-y-3">
             <div className="flex flex-wrap gap-2">
               {ADVANCED_TUTOR_ACTIONS.map((item) => (
                 <button
@@ -218,18 +218,18 @@ export function AiTutorPanel({
                   type="button"
                   disabled={loading}
                   onClick={() => void runTutorAction(item.id)}
-                  className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm font-medium text-[#202B3B] transition-colors hover:border-[#397BDB] hover:text-[#2257A8] cursor-pointer disabled:opacity-50"
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:border-[#397BDB] hover:text-[var(--accent-blue-text)] cursor-pointer disabled:opacity-50"
                 >
                   {item.label}
                 </button>
               ))}
             </div>
-            <label className="inline-flex items-center gap-2 text-sm text-[#526075] cursor-pointer">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
               <input
                 type="checkbox"
                 checked={requestFullSolution}
                 onChange={(e) => setRequestFullSolution(e.target.checked)}
-                className="rounded border-[#D7DCEB] accent-[#397BDB]"
+                className="rounded border-[var(--border-control)] accent-[#397BDB]"
               />
               Explicitly request a fuller solution outline
             </label>
@@ -240,7 +240,7 @@ export function AiTutorPanel({
         {loading && (
           <div
             role="status"
-            className="flex items-center gap-2.5 rounded-xl bg-[#EAF2FD]/60 px-4 py-3 text-sm text-[#2257A8]"
+            className="flex items-center gap-2.5 rounded-xl bg-[var(--accent-blue-soft)]/60 px-4 py-3 text-sm text-[var(--accent-blue-text)]"
           >
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             Thinking through a beginner-friendly hint...
@@ -251,7 +251,7 @@ export function AiTutorPanel({
         {error && (
           <div
             role="alert"
-            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 text-sm text-[#925E08]"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-4 py-3 text-sm text-[var(--accent-amber-text)]"
           >
             <div className="flex items-start gap-2">
               <AlertCircle
@@ -277,7 +277,7 @@ export function AiTutorPanel({
         {response && !loading && (
           <div
             aria-label="AI Tutor response"
-            className="space-y-4 border-t border-[#E2E8F0] pt-5"
+            className="space-y-4 border-t border-[var(--border-subtle)] pt-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <Badge variant={response.mode === 'offline-demo' ? 'demo' : 'indigo'}>
@@ -285,38 +285,38 @@ export function AiTutorPanel({
                   ? 'Offline Demo Tutor'
                   : 'AI Tutor Reply'}
               </Badge>
-              <span className="text-xs text-[#526075]">
+              <span className="text-xs text-[var(--text-secondary)]">
                 Conceptual guidance
               </span>
             </div>
 
-            <p className="text-base leading-[1.7] text-[#202B3B]">
+            <p className="text-base leading-[1.7] text-[var(--text-primary)]">
               {response.reply}
             </p>
 
-            <div className="rounded-xl border-l-4 border-[#397BDB] bg-[#F7F9FC] px-4 py-3.5 text-sm space-y-1">
-              <p className="flex items-center gap-1.5 font-bold text-[#2257A8]">
+            <div className="rounded-xl border-l-4 border-[#397BDB] bg-[var(--surface-subtle)] px-4 py-3.5 text-sm space-y-1">
+              <p className="flex items-center gap-1.5 font-bold text-[var(--accent-blue-text)]">
                 <HelpCircle className="h-4 w-4" aria-hidden="true" />
                 Guiding Question
               </p>
-              <p className="text-base text-[#202B3B] leading-relaxed">
+              <p className="text-base text-[var(--text-primary)] leading-relaxed">
                 {response.guiding_question}
               </p>
             </div>
 
             {response.progressive_hint && (
-              <div className="rounded-xl border-l-4 border-[#F2B84B] bg-[#FEF7E7]/60 px-4 py-3.5 text-sm space-y-1">
-                <p className="flex items-center gap-1.5 font-bold text-[#925E08]">
+              <div className="rounded-xl border-l-4 border-[#F2B84B] bg-[var(--accent-amber-soft)]/60 px-4 py-3.5 text-sm space-y-1">
+                <p className="flex items-center gap-1.5 font-bold text-[var(--accent-amber-text)]">
                   <Lightbulb className="h-4 w-4" aria-hidden="true" />
                   Progressive Hint
                 </p>
-                <p className="text-base text-[#202B3B] leading-relaxed">
+                <p className="text-base text-[var(--text-primary)] leading-relaxed">
                   {response.progressive_hint}
                 </p>
               </div>
             )}
 
-            <p className="flex items-start gap-1.5 text-xs text-[#526075] leading-relaxed">
+            <p className="flex items-start gap-1.5 text-xs text-[var(--text-secondary)] leading-relaxed">
               <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{response.mastery_disclaimer}</span>
             </p>

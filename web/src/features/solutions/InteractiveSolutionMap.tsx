@@ -128,10 +128,10 @@ export function InteractiveSolutionMap({
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="border-b border-[#E2E8F0] bg-white">
+      <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+            <GitBranch className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
             <CardTitle>{graph.title}</CardTitle>
             <Badge variant="indigo">Macro View · Conceptual DAG</Badge>
           </div>
@@ -139,7 +139,7 @@ export function InteractiveSolutionMap({
           <div
             role="group"
             aria-label="Solution map display mode"
-            className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-0.5"
+            className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-0.5"
           >
             <button
               type="button"
@@ -147,8 +147,8 @@ export function InteractiveSolutionMap({
               onClick={() => setDisplayMode('graph')}
               className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
                 displayMode === 'graph'
-                  ? 'bg-white text-[#2257A8] shadow-2xs'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--surface-card)] text-[var(--accent-blue-text)] shadow-2xs'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Network className="h-3.5 w-3.5" aria-hidden="true" />
@@ -160,8 +160,8 @@ export function InteractiveSolutionMap({
               onClick={() => setDisplayMode('list')}
               className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
                 displayMode === 'list'
-                  ? 'bg-white text-[#2257A8] shadow-2xs'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--surface-card)] text-[var(--accent-blue-text)] shadow-2xs'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden="true" />
@@ -169,7 +169,7 @@ export function InteractiveSolutionMap({
             </button>
           </div>
         </div>
-        <p className="text-xs leading-relaxed text-[#526075]">
+        <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
           {graph.summary} Click any node to inspect why it is necessary, what it depends on, and which verified trace steps support it.
         </p>
       </CardHeader>
@@ -178,7 +178,7 @@ export function InteractiveSolutionMap({
         {displayMode === 'graph' ? (
           <div
             aria-label="Interactive solution dependency graph"
-            className="overflow-x-auto rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-3"
+            className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3"
           >
             <div
               className="relative mx-auto"
@@ -272,23 +272,23 @@ export function InteractiveSolutionMap({
                     }}
                     className={`absolute flex flex-col justify-between rounded-xl border-2 px-3 py-2 text-left transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? 'border-[#397BDB] bg-white shadow-sm ring-2 ring-[#397BDB]/25'
+                        ? 'border-[#397BDB] bg-[var(--surface-card)] shadow-sm ring-2 ring-[#397BDB]/25'
                         : isActiveForStep
-                          ? 'border-[#15A897] bg-[#E6F7F5] shadow-2xs'
-                          : 'border-[#DCE1F0] bg-white hover:border-[#397BDB]/60'
+                          ? 'border-[#15A897] bg-[var(--accent-teal-soft)] shadow-2xs'
+                          : 'border-[var(--border-control)] bg-[var(--surface-card)] hover:border-[#397BDB]/60'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs font-bold uppercase tracking-wider text-[#526075] truncate">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] truncate">
                         {CATEGORY_LABELS[node.category]}
                       </span>
                       {isActiveForStep && (
-                        <span className="rounded-full bg-[#0F8477] px-1.5 py-0.5 text-[9px] font-bold text-white shrink-0">
+                        <span className="rounded-full bg-[var(--accent-teal-solid)] px-1.5 py-0.5 text-[9px] font-bold text-white shrink-0">
                           Active Step
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-bold leading-snug text-[#202B3B] line-clamp-2">
+                    <p className="text-xs font-bold leading-snug text-[var(--text-primary)] line-clamp-2">
                       {node.title}
                     </p>
                   </button>
@@ -315,12 +315,12 @@ export function InteractiveSolutionMap({
                     onClick={() => handleSelectNode(node.id)}
                     className={`w-full rounded-xl border p-3 text-left transition-colors cursor-pointer ${
                       isSelected
-                        ? 'border-[#397BDB] bg-[#EAF2FD]/50'
-                        : 'border-[#E2E8F0] bg-white hover:bg-[#F7F9FC]'
+                        ? 'border-[#397BDB] bg-[var(--accent-blue-soft)]/50'
+                        : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)]'
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-[#202B3B]">
+                      <span className="text-xs font-bold text-[var(--text-primary)]">
                         {node.title}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -332,11 +332,11 @@ export function InteractiveSolutionMap({
                         )}
                       </div>
                     </div>
-                    <p className="mt-1 text-xs text-[#526075]">
+                    <p className="mt-1 text-xs text-[var(--text-secondary)]">
                       {node.learningGoal}
                     </p>
                     {deps.length > 0 && (
-                      <p className="mt-1.5 text-xs font-medium text-[#2257A8]">
+                      <p className="mt-1.5 text-xs font-medium text-[var(--accent-blue-text)]">
                         Depends on:{' '}
                         {deps
                           .map((d) => nodeById.get(d.source)?.title ?? d.source)
@@ -354,7 +354,7 @@ export function InteractiveSolutionMap({
         {selectedNode && (
           <section
             aria-label="Selected reasoning node details"
-            className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-4 space-y-4"
+            className="rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-4 space-y-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -366,7 +366,7 @@ export function InteractiveSolutionMap({
                     <Badge variant="mint">Supports Current Step</Badge>
                   )}
                 </div>
-                <h3 className="mt-1.5 text-base font-extrabold text-[#202B3B]">
+                <h3 className="mt-1.5 text-base font-extrabold text-[var(--text-primary)]">
                   {selectedNode.title}
                 </h3>
               </div>
@@ -382,7 +382,7 @@ export function InteractiveSolutionMap({
               </Button>
             </div>
 
-            <p className="text-sm leading-relaxed text-[#202B3B]">
+            <p className="text-sm leading-relaxed text-[var(--text-primary)]">
               {selectedNode.explanation}
             </p>
 
@@ -390,9 +390,9 @@ export function InteractiveSolutionMap({
               <div
                 role="region"
                 aria-label="Step rationale"
-                className="rounded-xl border border-[#397BDB]/40 bg-[#EAF2FD]/70 p-3 text-xs leading-relaxed text-[#202B3B]"
+                className="rounded-xl border border-[#397BDB]/40 bg-[var(--accent-blue-soft)]/70 p-3 text-xs leading-relaxed text-[var(--text-primary)]"
               >
-                <p className="font-bold text-[#2257A8]">
+                <p className="font-bold text-[var(--accent-blue-text)]">
                   Why this reasoning step matters:
                 </p>
                 <p className="mt-1">{selectedNode.rationale}</p>
@@ -401,8 +401,8 @@ export function InteractiveSolutionMap({
 
             {/* Dependencies & Downstream Connections */}
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 space-y-1.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 space-y-1.5">
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Depends On
                 </p>
                 {incomingEdges.length > 0 ? (
@@ -414,11 +414,11 @@ export function InteractiveSolutionMap({
                           <button
                             type="button"
                             onClick={() => handleSelectNode(edge.source)}
-                            className="font-semibold text-[#2257A8] hover:underline cursor-pointer"
+                            className="font-semibold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                           >
                             {src?.title ?? edge.source}
                           </button>
-                          <p className="text-xs text-[#526075]">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {edge.reason}
                           </p>
                         </li>
@@ -426,14 +426,14 @@ export function InteractiveSolutionMap({
                     })}
                   </ul>
                 ) : (
-                  <p className="text-xs text-[#526075]">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     Entry reasoning goal (no upstream graph dependency).
                   </p>
                 )}
               </div>
 
-              <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 space-y-1.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 space-y-1.5">
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Enables
                 </p>
                 {outgoingEdges.length > 0 ? (
@@ -445,11 +445,11 @@ export function InteractiveSolutionMap({
                           <button
                             type="button"
                             onClick={() => handleSelectNode(edge.target)}
-                            className="font-semibold text-[#2257A8] hover:underline cursor-pointer"
+                            className="font-semibold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                           >
                             {tgt?.title ?? edge.target}
                           </button>
-                          <p className="text-xs text-[#526075]">
+                          <p className="text-xs text-[var(--text-secondary)]">
                             {edge.reason}
                           </p>
                         </li>
@@ -457,7 +457,7 @@ export function InteractiveSolutionMap({
                     })}
                   </ul>
                 ) : (
-                  <p className="text-xs text-[#526075]">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     Final outcome goal for this strategy.
                   </p>
                 )}
@@ -466,24 +466,24 @@ export function InteractiveSolutionMap({
 
             {/* Optional Data Contract */}
             {selectedNode.ioContract && (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5 text-xs">
-                <span className="font-bold text-[#202B3B]">Data Flow:</span>
-                <span className="font-mono text-[#526075]">
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-2.5 text-xs">
+                <span className="font-bold text-[var(--text-primary)]">Data Flow:</span>
+                <span className="font-mono text-[var(--text-secondary)]">
                   {selectedNode.ioContract.inputs.join(' + ')}
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
-                <span className="font-mono font-semibold text-[#0D7A6E]">
+                <ArrowRight className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <span className="font-mono font-semibold text-[var(--accent-teal-text)]">
                   {selectedNode.ioContract.outputs.join(', ')}
                 </span>
               </div>
             )}
 
             {/* Relevant Verified Execution Steps */}
-            <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 space-y-2">
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#202B3B]">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
                   <Sparkles
-                    className="h-3.5 w-3.5 text-[#2664C2]"
+                    className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
                     aria-hidden="true"
                   />
                   Relevant Verified Execution Steps
@@ -492,7 +492,7 @@ export function InteractiveSolutionMap({
                   <button
                     type="button"
                     onClick={onSwitchToMicro}
-                    className="text-xs font-semibold text-[#2257A8] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                   >
                     Inspect in Micro View &rarr;
                   </button>
@@ -518,8 +518,8 @@ export function InteractiveSolutionMap({
                         onClick={() => onSelectStep(idx)}
                         className={`rounded-lg px-2.5 py-1 font-mono text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                           isCurrent
-                            ? 'bg-[#0F8477] text-white'
-                            : 'border border-[#DCE1F0] bg-[#F7F9FC] text-[#202B3B] hover:border-[#397BDB] hover:text-[#2257A8]'
+                            ? 'bg-[var(--accent-teal-solid)] text-white'
+                            : 'border border-[var(--border-control)] bg-[var(--surface-subtle)] text-[var(--text-primary)] hover:border-[#397BDB] hover:text-[var(--accent-blue-text)]'
                         }`}
                       >
                         Step {idx + 1}
@@ -528,7 +528,7 @@ export function InteractiveSolutionMap({
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-[#526075]">
+                <p className="text-xs text-[var(--text-secondary)]">
                   No steps in the current input trace trigger this node (try another preset to observe it).
                 </p>
               )}
@@ -537,16 +537,16 @@ export function InteractiveSolutionMap({
             {/* Skills & Prerequisites + Honest Non-Mastery Disclaimer */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
               <div className="flex flex-wrap items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
-                <span className="font-semibold text-[#202B3B]">Skills:</span>
+                <Layers className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <span className="font-semibold text-[var(--text-primary)]">Skills:</span>
                 {selectedNode.skills.map((skill) => (
                   <Badge key={skill} variant="neutral">
                     {skill}
                   </Badge>
                 ))}
               </div>
-              <span className="inline-flex items-center gap-1 text-xs text-[#526075]">
-                <Info className="h-3.5 w-3.5 text-[#8B93B0]" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+                <Info className="h-3.5 w-3.5 text-[var(--text-secondary)]" aria-hidden="true" />
                 Viewing a node builds intuition; it does not count as skill mastery.
               </span>
             </div>

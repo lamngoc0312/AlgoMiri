@@ -279,11 +279,11 @@ export function LandingPage() {
       {/* Focused Single-Column Hero & Main Problem Input */}
       <section className="mx-auto max-w-3xl space-y-7 text-center">
         <div className="space-y-3.5">
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#202B3B] sm:text-5xl leading-[1.12]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[var(--text-primary)] sm:text-5xl leading-[1.12]">
             {t('landing.heroPrefix')}{' '}
-            <span className="text-[#2664C2]">{t('landing.heroAccent')}</span>
+            <span className="text-[var(--accent-blue-link)]">{t('landing.heroAccent')}</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#526075] sm:text-lg">
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
             {t('landing.heroDescription')}
           </p>
         </div>
@@ -311,7 +311,7 @@ export function LandingPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2
               id="ai-analysis-heading"
-              className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#202B3B]"
+              className="text-xl sm:text-2xl font-extrabold tracking-tight text-[var(--text-primary)]"
             >
               {analysisResult.mode === 'offline-demo'
                 ? t('landing.analysisStatus')
@@ -323,7 +323,7 @@ export function LandingPage() {
                 <div
                   role="tablist"
                   aria-label={t('landing.workspaceLabel')}
-                  className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
+                  className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-1"
                 >
                   <button
                     ref={(el) => {
@@ -339,8 +339,8 @@ export function LandingPage() {
                     onKeyDown={(e) => handleWorkspaceTabKeyDown(e, 0)}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'analysis'
-                        ? 'bg-[#2B6CC9] text-white'
-                        : 'text-[#526075] hover:text-[#202B3B]'
+                        ? 'bg-[var(--accent-blue-solid)] text-white'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     {t('landing.analysisTab')}
@@ -359,8 +359,8 @@ export function LandingPage() {
                     onKeyDown={(e) => handleWorkspaceTabKeyDown(e, 1)}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'tutor'
-                        ? 'bg-[#2B6CC9] text-white'
-                        : 'text-[#526075] hover:text-[#202B3B]'
+                        ? 'bg-[var(--accent-blue-solid)] text-white'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     {t('landing.tutorTab')}
@@ -425,7 +425,7 @@ export function LandingPage() {
               {isAnalysisStale && activeWorkspaceTab === 'tutor' && (
                 <div
                   role="alert"
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-5 py-3.5 text-sm text-[var(--accent-amber-text)]"
                 >
                   <span className="font-bold">
                     {t('landing.staleTitle')}
@@ -456,17 +456,17 @@ export function LandingPage() {
           <div>
             <h2
               id="curated-studios-heading"
-              className="text-2xl font-extrabold tracking-tight text-[#202B3B]"
+              className="text-2xl font-extrabold tracking-tight text-[var(--text-primary)]"
             >
               {t('landing.curatedTitle')}
             </h2>
-            <p className="mt-1 text-base text-[#526075]">
+            <p className="mt-1 text-base text-[var(--text-secondary)]">
               {t('landing.curatedDescription')}
             </p>
           </div>
           <Link
             to="/problems"
-            className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
+            className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[var(--accent-blue-link)] hover:text-[var(--accent-blue-text)]"
           >
             {t('landing.browseLibrary')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -493,19 +493,19 @@ export function LandingPage() {
                   <CardTitle className="mt-2.5 text-xl">{studio.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col justify-between gap-5">
-                  <p className="text-sm leading-relaxed text-[#526075]">
+                  <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                     {studioSummaryKeys[studio.id as keyof typeof studioSummaryKeys]
                       ? t(studioSummaryKeys[studio.id as keyof typeof studioSummaryKeys])
                       : studio.summary}
                   </p>
-                  <div className="flex items-center justify-between border-t border-[#E2E8F0] pt-3.5">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#526075]">
-                      <Layers className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+                  <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-3.5">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                      <Layers className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
                       {t('landing.stageLesson', { count: studio.stagesCount ?? 0 })}
                     </span>
                     <Link
                       to={studio.studioPath ?? `/studio/${studio.id}`}
-                      className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
+                      className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[var(--accent-blue-link)] hover:text-[var(--accent-blue-text)]"
                     >
                       {t('common.openStudio')}
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />

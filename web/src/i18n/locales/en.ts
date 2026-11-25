@@ -13,6 +13,10 @@ export const en = {
     verifiedStudio: 'Verified Studio',
     beginner: 'Beginner',
     intermediate: 'Intermediate',
+    switchToDark: 'Switch to dark mode',
+    switchToLight: 'Switch to light mode',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
   },
   shell: {
     skipToContent: 'Skip to main content',

@@ -77,10 +77,10 @@ export function SessionSummaryCard({
 
   return (
     <Card className="border-[#15A897]/50">
-      <CardHeader className="border-b border-[#E2E8F0] bg-[#E6F7F5]/50">
+      <CardHeader className="border-b border-[var(--border-subtle)] bg-[var(--accent-teal-soft)]/50">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-[#0D7A6E]" aria-hidden="true" />
+            <Award className="h-5 w-5 text-[var(--accent-teal-text)]" aria-hidden="true" />
             <CardTitle className="text-lg">
               Local Session Summary · {problem.title}
             </CardTitle>
@@ -101,7 +101,7 @@ export function SessionSummaryCard({
             )}
           </div>
         </div>
-        <p className="text-xs leading-relaxed text-[#526075]">
+        <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
           Verified activity from this browser session. Skipped stages, viewing visuals alone, and repeated clicks are never counted as completed.
         </p>
       </CardHeader>
@@ -110,7 +110,7 @@ export function SessionSummaryCard({
         {saveWarning && (
           <div
             role="alert"
-            className="rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-3.5 py-2.5 text-xs text-[#925E08]"
+            className="rounded-xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-3.5 py-2.5 text-xs text-[var(--accent-amber-text)]"
           >
             {saveWarning}
           </div>
@@ -118,27 +118,27 @@ export function SessionSummaryCard({
 
         {/* Metrics Row */}
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
               Strategies Explored
             </p>
-            <p className="mt-1 font-mono text-xl font-extrabold text-[#202B3B]">
+            <p className="mt-1 font-mono text-xl font-extrabold text-[var(--text-primary)]">
               {exploredStrategyObjects.length} / {problem.supportedStrategies.length}
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
               Predictions Attempted
             </p>
             <p
               data-testid="summary-predictions-attempted"
-              className="mt-1 font-mono text-xl font-extrabold text-[#202B3B]"
+              className="mt-1 font-mono text-xl font-extrabold text-[var(--text-primary)]"
             >
               {predictionStats.questionsAttempted}
             </p>
-            <p className="mt-1 text-xs text-[#526075]">
-              <span className="font-semibold text-[#0D7A6E]">
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
+              <span className="font-semibold text-[var(--accent-teal-text)]">
                 {predictionStats.firstTryCorrect} first-try
               </span>
               {predictionStats.solvedAfterRetry > 0 && (
@@ -150,13 +150,13 @@ export function SessionSummaryCard({
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
               Hints Used
             </p>
             <p
               data-testid="summary-hints-used"
-              className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[#202B3B]"
+              className="mt-1 flex items-center gap-1.5 font-mono text-xl font-extrabold text-[var(--text-primary)]"
             >
               <Lightbulb
                 className="h-4 w-4 text-[#F2B84B]"
@@ -169,17 +169,17 @@ export function SessionSummaryCard({
 
         {/* Strategies Explored List */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
             Strategies Explored
           </h3>
           <ul className="mt-2 space-y-1.5">
             {exploredStrategyObjects.map((strat) => (
               <li
                 key={strat.id}
-                className="flex items-center gap-2 text-xs font-medium text-[#202B3B]"
+                className="flex items-center gap-2 text-xs font-medium text-[var(--text-primary)]"
               >
                 <CheckCircle2
-                  className="h-4 w-4 shrink-0 text-[#0D7A6E]"
+                  className="h-4 w-4 shrink-0 text-[var(--accent-teal-text)]"
                   aria-hidden="true"
                 />
                 {strat.name} · {strat.timeComplexity} time /{' '}
@@ -191,7 +191,7 @@ export function SessionSummaryCard({
 
         {/* Verified Concepts Completed */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
             Verified Concepts Completed ({verifiedStages.length} /{' '}
             {lesson.stages.length})
           </h3>
@@ -204,18 +204,18 @@ export function SessionSummaryCard({
               ))}
             </ul>
           ) : (
-            <p className="mt-1.5 text-xs text-[#526075]">
+            <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
               No guided stage checks completed yet. Answer a stage check correctly to record it here.
             </p>
           )}
           {skippedStages.length > 0 && (
-            <p className="mt-2 text-xs text-[#925E08]">
+            <p className="mt-2 text-xs text-[var(--accent-amber-text)]">
               Skipped stages ({skippedStages.length}):{' '}
               {skippedStages.map((s) => s.shortTitle).join(', ')} — revisit anytime to complete them.
             </p>
           )}
           {skippedAfterAttemptStages.length > 0 && (
-            <p className="mt-1 text-xs text-[#925E08]">
+            <p className="mt-1 text-xs text-[var(--accent-amber-text)]">
               Skipped after attempt ({skippedAfterAttemptStages.length}):{' '}
               {skippedAfterAttemptStages.map((s) => s.shortTitle).join(', ')} — retry anytime for verified completion.
             </p>
@@ -225,7 +225,7 @@ export function SessionSummaryCard({
         {/* Skills Practiced in This Session */}
         {uniquePracticedSkillIds.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
               Skills with Recorded Practice Evidence
             </h3>
             <ul className="mt-2 flex flex-wrap gap-2">
@@ -241,12 +241,12 @@ export function SessionSummaryCard({
         )}
 
         {/* Suggested Next Learning Activities */}
-        <div className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-4 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#202B3B]">
-            <Sparkles className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4 space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+            <Sparkles className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
             Suggested Next Learning Activity
           </div>
-          <p className="text-xs leading-relaxed text-[#526075]">
+          <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
             {lesson.suggestedNextActivity}
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -258,7 +258,7 @@ export function SessionSummaryCard({
             )}
             <Link
               to="/progress"
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#2257A8]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
             >
               <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
               View Learning Progress
@@ -273,7 +273,7 @@ export function SessionSummaryCard({
             </Button>
             <Link
               to="/problems"
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[#2257A8] hover:bg-[#EAF2FD]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)]"
             >
               <Compass className="h-3.5 w-3.5" aria-hidden="true" />
               Try Another Problem
@@ -284,10 +284,10 @@ export function SessionSummaryCard({
         {/* Honest Mastery & Local Storage Disclaimer */}
         <div
           role="note"
-          className="flex items-start gap-2 rounded-xl border border-[#F2B84B]/60 bg-[#FEF7E7]/70 px-3.5 py-3 text-xs leading-relaxed text-[#202B3B]"
+          className="flex items-start gap-2 rounded-xl border border-[#F2B84B]/60 bg-[var(--accent-amber-soft)]/70 px-3.5 py-3 text-xs leading-relaxed text-[var(--text-primary)]"
         >
           <Info
-            className="h-4 w-4 shrink-0 text-[#925E08] mt-0.5"
+            className="h-4 w-4 shrink-0 text-[var(--accent-amber-text)] mt-0.5"
             aria-hidden="true"
           />
           <p>

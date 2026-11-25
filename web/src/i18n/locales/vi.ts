@@ -13,6 +13,10 @@ export const vi = {
     verifiedStudio: 'Studio đã kiểm chứng',
     beginner: 'Cơ bản',
     intermediate: 'Trung cấp',
+    switchToDark: 'Chuyển sang giao diện tối',
+    switchToLight: 'Chuyển sang giao diện sáng',
+    darkMode: 'Giao diện tối',
+    lightMode: 'Giao diện sáng',
   },
   shell: {
     skipToContent: 'Chuyển đến nội dung chính',

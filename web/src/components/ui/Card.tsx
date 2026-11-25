@@ -8,7 +8,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(32,43,59,0.04)]',
+        'rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]',
         className,
       )}
       {...props}
@@ -35,7 +35,7 @@ export function CardTitle({
   return (
     <h2
       className={cn(
-        'text-lg font-bold tracking-tight text-[#202B3B]',
+        'text-lg font-bold tracking-tight text-[var(--text-primary)]',
         className,
       )}
       {...props}

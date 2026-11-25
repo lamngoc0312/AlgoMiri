@@ -13,14 +13,45 @@ import {
 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
-  { to: '/', labelKey: 'shell.nav.home', icon: Sparkles, end: true },
-  { to: '/problems', labelKey: 'shell.nav.problems', icon: Library, end: false },
-  { to: '/studio', labelKey: 'shell.nav.studio', icon: Layers, end: false },
-  { to: '/roadmap', labelKey: 'shell.nav.roadmap', icon: Compass, end: false },
-  { to: '/progress', labelKey: 'shell.nav.progress', icon: TrendingUp, end: false },
+  {
+    to: '/',
+    labelKey: 'shell.nav.home',
+    icon: Sparkles,
+    iconColor: 'text-[var(--accent-blue)]',
+    end: true,
+  },
+  {
+    to: '/problems',
+    labelKey: 'shell.nav.problems',
+    icon: Library,
+    iconColor: 'text-[var(--accent-teal)]',
+    end: false,
+  },
+  {
+    to: '/studio',
+    labelKey: 'shell.nav.studio',
+    icon: Layers,
+    iconColor: 'text-[var(--accent-amber)]',
+    end: false,
+  },
+  {
+    to: '/roadmap',
+    labelKey: 'shell.nav.roadmap',
+    icon: Compass,
+    iconColor: 'text-[var(--accent-sky)]',
+    end: false,
+  },
+  {
+    to: '/progress',
+    labelKey: 'shell.nav.progress',
+    icon: TrendingUp,
+    iconColor: 'text-[var(--accent-green)]',
+    end: false,
+  },
 ] as const;
 
 export function AppShell() {
@@ -28,30 +59,30 @@ export function AppShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F9FC] text-[#202B3B]">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-canvas)] text-[var(--text-primary)]">
       <a href="#main-content" className="skip-link">
         {t('shell.skipToContent')}
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-xs">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--surface-nav)] backdrop-blur-xs">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="flex items-center gap-2.5 rounded-xl py-1 pr-2 text-[#202B3B] no-underline"
+              className="flex items-center gap-2.5 rounded-xl py-1 pr-2 text-[var(--text-primary)] no-underline"
               onClick={() => setMobileMenuOpen(false)}
             >
               <span
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2B6CC9] text-white shadow-xs"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-blue-solid)] text-white shadow-xs"
                 aria-hidden="true"
               >
                 <BookOpen className="h-5 w-5" />
               </span>
               <span className="flex flex-col leading-none">
                 <span className="text-lg font-extrabold tracking-tight">
-                  Algo<span className="text-[#2664C2]">Miri</span>
+                  Algo<span className="text-[var(--accent-blue-link)]">Miri</span>
                 </span>
-                <span className="text-xs font-medium text-[#526075]">
+                <span className="text-xs font-medium text-[var(--text-secondary)]">
                   {t('shell.productTagline')}
                 </span>
               </span>
@@ -61,8 +92,11 @@ export function AppShell() {
             </Badge>
           </div>
 
-          <nav aria-label={t('shell.primaryNavigation')} className="hidden lg:flex items-center gap-1">
-            {NAV_ITEMS.map(({ to, labelKey, icon: Icon, end }) => (
+          <nav
+            aria-label={t('shell.primaryNavigation')}
+            className="hidden lg:flex items-center gap-1"
+          >
+            {NAV_ITEMS.map(({ to, labelKey, icon: Icon, iconColor, end }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -71,22 +105,23 @@ export function AppShell() {
                   cn(
                     'inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors',
                     isActive
-                      ? 'bg-[#EAF2FD] text-[#2257A8]'
-                      : 'text-[#526075] hover:bg-[#F7F9FC] hover:text-[#202B3B]',
+                      ? 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]',
                   )
                 }
               >
-                <Icon className="h-4 w-4" aria-hidden="true" />
+                <Icon className={cn('h-4 w-4', iconColor)} aria-hidden="true" />
                 {t(labelKey)}
               </NavLink>
             ))}
           </nav>
 
           <div className="hidden lg:flex items-center gap-2">
+            <ThemeSwitcher compact />
             <LanguageSwitcher compact />
             <Link
               to="/problems"
-              className="inline-flex h-9 items-center justify-center rounded-xl bg-[#2B6CC9] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2257A8]"
+              className="inline-flex h-9 items-center justify-center rounded-xl bg-[var(--accent-blue-solid)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
             >
               {t('shell.browseProblems')}
             </Link>
@@ -94,8 +129,10 @@ export function AppShell() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E2E8F0] bg-white text-[#202B3B] lg:hidden"
-            aria-label={mobileMenuOpen ? t('shell.closeMenu') : t('shell.openMenu')}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] lg:hidden cursor-pointer"
+            aria-label={
+              mobileMenuOpen ? t('shell.closeMenu') : t('shell.openMenu')
+            }
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -112,10 +149,10 @@ export function AppShell() {
           <nav
             id="mobile-nav"
             aria-label={t('shell.mobileNavigation')}
-            className="border-t border-[#E2E8F0] bg-white px-4 py-3 lg:hidden"
+            className="border-t border-[var(--border-subtle)] bg-[var(--surface-card)] px-4 py-3 lg:hidden"
           >
             <div className="flex flex-col gap-1">
-              {NAV_ITEMS.map(({ to, labelKey, icon: Icon, end }) => (
+              {NAV_ITEMS.map(({ to, labelKey, icon: Icon, iconColor, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -125,16 +162,17 @@ export function AppShell() {
                     cn(
                       'flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors',
                       isActive
-                        ? 'bg-[#EAF2FD] text-[#2257A8]'
-                        : 'text-[#526075] hover:bg-[#F7F9FC] hover:text-[#202B3B]',
+                        ? 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]',
                     )
                   }
                 >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <Icon className={cn('h-4 w-4', iconColor)} aria-hidden="true" />
                   {t(labelKey)}
                 </NavLink>
               ))}
-              <div className="mt-2 border-t border-[#E2E8F0] pt-3">
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
+                <ThemeSwitcher />
                 <LanguageSwitcher />
               </div>
             </div>
@@ -146,10 +184,13 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      <footer className="border-t border-[#E2E8F0] bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-[#526075] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <footer className="border-t border-[var(--border-subtle)] bg-[var(--surface-card)]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-[var(--text-secondary)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
-            <span className="font-semibold text-[#202B3B]">AlgoMiri</span> — {t('shell.footerPrimary')}
+            <span className="font-semibold text-[var(--text-primary)]">
+              AlgoMiri
+            </span>{' '}
+            — {t('shell.footerPrimary')}
           </p>
           <p>{t('shell.footerSecondary')}</p>
         </div>

@@ -7,17 +7,16 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        blue: 'bg-[#EAF2FD] text-[#2257A8] border border-[#C2DAFA]',
-        // Legacy alias mapped to Primary Blue so zero purple remains
-        indigo: 'bg-[#EAF2FD] text-[#2257A8] border border-[#C2DAFA]',
-        teal: 'bg-[#E6F7F5] text-[#0D7A6E] border border-[#B4E6DF]',
-        mint: 'bg-[#E6F7F5] text-[#0D7A6E] border border-[#B4E6DF]',
-        green: 'bg-[#EEF8F1] text-[#256B3A] border border-[#C2E5CC]',
-        sky: 'bg-[#EDF8FE] text-[#1B648D] border border-[#C5E7FA]',
-        coral: 'bg-[#FEF0EE] text-[#B8382A] border border-[#FACAC4]',
-        amber: 'bg-[#FEF7E7] text-[#925E08] border border-[#F8DFA8]',
-        neutral: 'bg-[#F1F5FA] text-[#526075] border border-[#DCE4EE]',
-        demo: 'bg-[#FEF7E7] text-[#925E08] border border-[#F2B84B]',
+        blue: 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)] border border-[var(--accent-blue-border)]',
+        indigo: 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)] border border-[var(--accent-blue-border)]',
+        teal: 'bg-[var(--accent-teal-soft)] text-[var(--accent-teal-text)] border border-[var(--accent-teal-border)]',
+        mint: 'bg-[var(--accent-teal-soft)] text-[var(--accent-teal-text)] border border-[var(--accent-teal-border)]',
+        green: 'bg-[var(--accent-green-soft)] text-[var(--accent-green-text)] border border-[var(--accent-green-border)]',
+        sky: 'bg-[var(--accent-sky-soft)] text-[var(--accent-sky-text)] border border-[var(--accent-sky-border)]',
+        coral: 'bg-[var(--accent-coral-soft)] text-[var(--accent-coral-text)] border border-[var(--accent-coral-border)]',
+        amber: 'bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)] border border-[var(--accent-amber-border)]',
+        neutral: 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]',
+        demo: 'bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)] border border-[var(--accent-amber)]',
       },
     },
     defaultVariants: {

@@ -130,7 +130,7 @@ export function ProblemAnalysisView({
         {isStale && (
           <div
             role="alert"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-5 py-3.5 text-sm text-[var(--accent-amber-text)]"
           >
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -161,10 +161,10 @@ export function ProblemAnalysisView({
                 </Badge>
               )}
             </div>
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#202B3B]">
+            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[var(--text-primary)]">
               Live AI analysis is not enabled on this server
             </h3>
-            <p className="text-base leading-relaxed text-[#526075]">
+            <p className="text-base leading-relaxed text-[var(--text-secondary)]">
               Your pasted problem was not analyzed by an AI model because no live
               LLM key is configured. Your statement stays intact above — or you can
               practice right now in a verified interactive studio below.
@@ -172,13 +172,13 @@ export function ProblemAnalysisView({
           </div>
 
           {match.studio_path ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#B4E6DF] bg-[#E6F7F5]/60 px-5 py-4">
-              <p className="text-sm font-medium text-[#202B3B]">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--accent-teal-border)] bg-[var(--accent-teal-soft)]/60 px-5 py-4">
+              <p className="text-sm font-medium text-[var(--text-primary)]">
                 {match.reason}
               </p>
               <Link
                 to={match.studio_path}
-                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#0F8477] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0E8779]"
+                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[var(--accent-teal-solid)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-teal-hover)]"
               >
                 {match.status === 'verified'
                   ? `Open Verified ${match.matched_problem_title} Studio`
@@ -187,8 +187,8 @@ export function ProblemAnalysisView({
               </Link>
             </div>
           ) : (
-            <div className="space-y-3 border-t border-[#E2E8F0] pt-5">
-              <p className="text-sm font-semibold text-[#202B3B]">
+            <div className="space-y-3 border-t border-[var(--border-subtle)] pt-5">
+              <p className="text-sm font-semibold text-[var(--text-primary)]">
                 Try a verified interactive lesson instead:
               </p>
               <div className="flex flex-wrap gap-2.5">
@@ -196,7 +196,7 @@ export function ProblemAnalysisView({
                   <Link
                     key={studio.id}
                     to={studio.studioPath ?? `/studio/${studio.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-4 py-2.5 text-sm font-semibold text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8]"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:border-[#397BDB] hover:bg-[var(--accent-blue-soft)]/60 hover:text-[var(--accent-blue-text)]"
                   >
                     {studio.title}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -220,7 +220,7 @@ export function ProblemAnalysisView({
       {isStale && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-4 text-sm text-[#925E08]"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-5 py-4 text-sm text-[var(--accent-amber-text)]"
         >
           <div className="flex items-start gap-2.5">
             <AlertTriangle
@@ -231,7 +231,7 @@ export function ProblemAnalysisView({
               <p className="font-bold">
                 Outdated Analysis — Problem Statement Changed
               </p>
-              <p className="mt-0.5 text-sm text-[#526075]">
+              <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
                 Re-analyze to refresh this walkthrough and reset the AI Tutor.
               </p>
             </div>
@@ -247,13 +247,13 @@ export function ProblemAnalysisView({
 
       <Card className="overflow-hidden">
         {/* Compact Reader Header + 3-Tab Progressive Navigation */}
-        <div className="border-b border-[#E2E8F0] bg-white p-6 sm:p-8 pb-5 space-y-5">
+        <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 sm:p-8 pb-5 space-y-5">
           <div
             role="status"
             className="flex flex-wrap items-center justify-between gap-2 text-xs"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-[#2257A8]">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-blue-text)]">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 AI-Generated · Conceptual (Not Verified)
               </span>
@@ -261,33 +261,33 @@ export function ProblemAnalysisView({
                 ·
               </span>
               {match.status === 'verified' && (
-                <span className="inline-flex items-center gap-1 font-semibold text-[#0D7A6E]">
+                <span className="inline-flex items-center gap-1 font-semibold text-[var(--accent-teal-text)]">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
                   Verified Deterministic Studio Available
                 </span>
               )}
               {match.status === 'ambiguous' && (
-                <span className="inline-flex items-center gap-1 font-semibold text-[#925E08]">
+                <span className="inline-flex items-center gap-1 font-semibold text-[var(--accent-amber-text)]">
                   <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
                   Ambiguous Match — Please Choose
                 </span>
               )}
               {match.status === 'conceptual_only' && (
-                <span className="font-medium text-[#526075]">
+                <span className="font-medium text-[var(--text-secondary)]">
                   Conceptual Analysis Only
                 </span>
               )}
             </div>
-            <span className="font-medium text-[#526075]">
+            <span className="font-medium text-[var(--text-secondary)]">
               {analysis.inferred_problem_type}
             </span>
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#202B3B] leading-tight">
+            <h3 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[var(--text-primary)] leading-tight">
               {analysis.title}
             </h3>
-            <p className="text-base leading-[1.7] text-[#202B3B]">
+            <p className="text-base leading-[1.7] text-[var(--text-primary)]">
               {analysis.plain_language_summary}
             </p>
           </div>
@@ -296,7 +296,7 @@ export function ProblemAnalysisView({
           <div
             role="tablist"
             aria-label="Analysis sections"
-            className="flex flex-wrap sm:inline-flex w-full sm:w-auto gap-1 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
+            className="flex flex-wrap sm:inline-flex w-full sm:w-auto gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1"
           >
             <button
               ref={(el) => {
@@ -312,12 +312,12 @@ export function ProblemAnalysisView({
               onKeyDown={(e) => handleReaderTabKeyDown(e, 0)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'walkthrough'
-                  ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xs ring-1 ring-[var(--border-subtle)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Sparkles
-                className={`h-4 w-4 ${readerTab === 'walkthrough' ? 'text-[#2664C2]' : ''}`}
+                className={`h-4 w-4 ${readerTab === 'walkthrough' ? 'text-[var(--accent-blue-link)]' : ''}`}
                 aria-hidden="true"
               />
               Walkthrough
@@ -336,12 +336,12 @@ export function ProblemAnalysisView({
               onKeyDown={(e) => handleReaderTabKeyDown(e, 1)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'approaches'
-                  ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xs ring-1 ring-[var(--border-subtle)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Layers
-                className={`h-4 w-4 ${readerTab === 'approaches' ? 'text-[#0D7A6E]' : ''}`}
+                className={`h-4 w-4 ${readerTab === 'approaches' ? 'text-[var(--accent-teal-text)]' : ''}`}
                 aria-hidden="true"
               />
               Approaches ({analysis.candidate_strategies.length})
@@ -360,12 +360,12 @@ export function ProblemAnalysisView({
               onKeyDown={(e) => handleReaderTabKeyDown(e, 2)}
               className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                 readerTab === 'details'
-                  ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xs ring-1 ring-[var(--border-subtle)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <ListChecks
-                className={`h-4 w-4 ${readerTab === 'details' ? 'text-[#925E08]' : ''}`}
+                className={`h-4 w-4 ${readerTab === 'details' ? 'text-[var(--accent-amber-text)]' : ''}`}
                 aria-hidden="true"
               />
               Constraints &amp; Edge Cases
@@ -382,9 +382,9 @@ export function ProblemAnalysisView({
             className="p-6 sm:p-8 space-y-7"
           >
             {/* Clear Input -> Output Example with Interactive Beats */}
-            <div className="rounded-2xl bg-[#F7F9FC] border border-[#E2E8F0] p-5 space-y-4">
+            <div className="rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-subtle)] p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Worked Example (Conceptual Illustration)
                 </span>
                 {walkthroughBeats.length > 1 && (
@@ -396,11 +396,11 @@ export function ProblemAnalysisView({
                       onClick={() =>
                         setActiveBeatIdx((idx) => Math.max(0, idx - 1))
                       }
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#202B3B] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
                     >
                       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                     </button>
-                    <span className="min-w-[48px] text-center font-mono text-xs font-semibold text-[#526075]">
+                    <span className="min-w-[48px] text-center font-mono text-xs font-semibold text-[var(--text-secondary)]">
                       {activeBeatIdx + 1} / {walkthroughBeats.length}
                     </span>
                     <button
@@ -412,7 +412,7 @@ export function ProblemAnalysisView({
                           Math.min(walkthroughBeats.length - 1, idx + 1),
                         )
                       }
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#202B3B] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
                     >
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -421,23 +421,23 @@ export function ProblemAnalysisView({
               </div>
 
               <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-                <div className="rounded-xl bg-white border border-[#E2E8F0] px-4 py-3">
-                  <span className="block text-xs font-semibold text-[#526075]">
+                <div className="rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-3">
+                  <span className="block text-xs font-semibold text-[var(--text-secondary)]">
                     Input
                   </span>
-                  <p className="mt-1 font-mono text-sm font-semibold text-[#202B3B] break-words">
+                  <p className="mt-1 font-mono text-sm font-semibold text-[var(--text-primary)] break-words">
                     {analysis.worked_example.input_summary}
                   </p>
                 </div>
                 <ArrowRight
-                  className="hidden sm:block h-5 w-5 text-[#2664C2]"
+                  className="hidden sm:block h-5 w-5 text-[var(--accent-blue-link)]"
                   aria-hidden="true"
                 />
-                <div className="rounded-xl bg-[#E6F7F5]/60 border border-[#B4E6DF] px-4 py-3">
-                  <span className="block text-xs font-semibold text-[#0D7A6E]">
+                <div className="rounded-xl bg-[var(--accent-teal-soft)]/60 border border-[var(--accent-teal-border)] px-4 py-3">
+                  <span className="block text-xs font-semibold text-[var(--accent-teal-text)]">
                     Output
                   </span>
-                  <p className="mt-1 font-mono text-sm font-bold text-[#0A594B] break-words">
+                  <p className="mt-1 font-mono text-sm font-bold text-[var(--accent-teal-deep)] break-words">
                     {analysis.worked_example.output_summary}
                   </p>
                 </div>
@@ -446,7 +446,7 @@ export function ProblemAnalysisView({
               {activeBeat && (
                 <p
                   aria-live="polite"
-                  className="rounded-xl bg-white border border-[#E2E8F0] px-4 py-3.5 text-base leading-relaxed text-[#202B3B]"
+                  className="rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-3.5 text-base leading-relaxed text-[var(--text-primary)]"
                 >
                   {activeBeat}
                 </p>
@@ -461,10 +461,10 @@ export function ProblemAnalysisView({
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-lg font-bold tracking-tight text-[#202B3B]">
+                    <h4 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                       Walk Through the Logic
                     </h4>
-                    <p className="text-sm text-[#526075]">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Step {activeStep.stepNumber} of {conceptualSteps.length} ·
                       Conceptual guide (not an executed trace)
                     </p>
@@ -494,10 +494,10 @@ export function ProblemAnalysisView({
                           onKeyDown={(e) => handleStepTabKeyDown(e, idx)}
                           className={`h-8 min-w-[32px] rounded-lg px-2.5 font-mono text-xs font-bold transition-colors cursor-pointer ${
                             isActive
-                              ? 'bg-[#2B6CC9] text-white'
+                              ? 'bg-[var(--accent-blue-solid)] text-white'
                               : isVisited
-                                ? 'bg-[#EAF2FD] text-[#2257A8] hover:bg-[#DCEBFC]'
-                                : 'bg-[#F1F5FA] text-[#526075] hover:bg-[#E2E8F0]'
+                                ? 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft-hover)]'
+                                : 'bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)]'
                           }`}
                         >
                           {step.stepNumber}
@@ -512,22 +512,22 @@ export function ProblemAnalysisView({
                   role="tabpanel"
                   aria-labelledby={`conceptual-step-tab-${activeStep.id}`}
                   aria-live="polite"
-                  className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-5 sm:p-6 space-y-2.5"
+                  className="rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-5 sm:p-6 space-y-2.5"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-2.5 text-base sm:text-lg font-bold text-[#202B3B]">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#2B6CC9] font-mono text-xs font-bold text-white">
+                    <span className="inline-flex items-center gap-2.5 text-base sm:text-lg font-bold text-[var(--text-primary)]">
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent-blue-solid)] font-mono text-xs font-bold text-white">
                         {activeStep.stepNumber}
                       </span>
                       {activeStep.title}
                     </span>
                     {activeStep.dependsOn.length > 0 && (
-                      <span className="text-xs font-medium text-[#2257A8]">
+                      <span className="text-xs font-medium text-[var(--accent-blue-text)]">
                         Builds on {activeStep.dependsOn.join(', ')}
                       </span>
                     )}
                   </div>
-                  <p className="text-base leading-[1.7] text-[#202B3B] pl-9">
+                  <p className="text-base leading-[1.7] text-[var(--text-primary)] pl-9">
                     {activeStep.goal}
                   </p>
                 </div>
@@ -551,8 +551,8 @@ export function ProblemAnalysisView({
                         to={match.studio_path}
                         className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors ${
                           match.status === 'verified'
-                            ? 'bg-[#0F8477] text-white hover:bg-[#0E8779]'
-                            : 'border border-[#F2B84B] bg-[#FEF7E7] text-[#925E08] hover:bg-[#FDEBC8]'
+                            ? 'bg-[var(--accent-teal-solid)] text-white hover:bg-[var(--accent-teal-hover)]'
+                            : 'border border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)] hover:bg-[var(--accent-amber-soft)]'
                         }`}
                       >
                         {match.status === 'verified'
@@ -603,7 +603,7 @@ export function ProblemAnalysisView({
             className="p-6 sm:p-8 space-y-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-[#526075]">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Select an approach to compare tradeoffs and focus the AI Tutor.
               </p>
               <div
@@ -621,8 +621,8 @@ export function ProblemAnalysisView({
                       onClick={() => onSelectStrategy(strat.name)}
                       className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-[#2B6CC9] text-white'
-                          : 'border border-[#E2E8F0] bg-[#F7F9FC] text-[#202B3B] hover:border-[#397BDB]'
+                          ? 'bg-[var(--accent-blue-solid)] text-white'
+                          : 'border border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-[var(--text-primary)] hover:border-[#397BDB]'
                       }`}
                     >
                       {strat.name}
@@ -632,22 +632,22 @@ export function ProblemAnalysisView({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-6 space-y-4">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-6 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-sm font-bold text-[#2257A8]">
+                <span className="text-sm font-bold text-[var(--accent-blue-text)]">
                   {activeStrategy.technique}
                 </span>
                 <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#202B3B] border border-[#E2E8F0]">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-1 text-[var(--text-primary)] border border-[var(--border-subtle)]">
                     <Clock
-                      className="h-3.5 w-3.5 text-[#2664C2]"
+                      className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
                       aria-hidden="true"
                     />
                     Time: {activeStrategy.time_complexity}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#202B3B] border border-[#E2E8F0]">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-1 text-[var(--text-primary)] border border-[var(--border-subtle)]">
                     <Database
-                      className="h-3.5 w-3.5 text-[#0D7A6E]"
+                      className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"
                       aria-hidden="true"
                     />
                     Space: {activeStrategy.space_complexity}
@@ -655,27 +655,27 @@ export function ProblemAnalysisView({
                 </div>
               </div>
 
-              <p className="text-base leading-relaxed text-[#202B3B]">
+              <p className="text-base leading-relaxed text-[var(--text-primary)]">
                 {activeStrategy.intuition}
               </p>
-              <p className="text-sm leading-relaxed text-[#526075]">
+              <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 {activeStrategy.why_it_applies}
               </p>
 
-              <div className="grid gap-3 border-t border-[#E2E8F0] pt-4 text-sm sm:grid-cols-2">
+              <div className="grid gap-3 border-t border-[var(--border-subtle)] pt-4 text-sm sm:grid-cols-2">
                 <div>
-                  <span className="block text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Assumptions
                   </span>
-                  <p className="mt-1 text-[#202B3B]">
+                  <p className="mt-1 text-[var(--text-primary)]">
                     {activeStrategy.complexity_assumptions}
                   </p>
                 </div>
                 <div>
-                  <span className="block text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Limitations
                   </span>
-                  <p className="mt-1 text-[#526075]">
+                  <p className="mt-1 text-[var(--text-secondary)]">
                     {activeStrategy.limitations}
                   </p>
                 </div>
@@ -701,32 +701,32 @@ export function ProblemAnalysisView({
             aria-labelledby="analysis-tab-details"
             className="p-6 sm:p-8 space-y-6 text-sm"
           >
-            <div className="rounded-xl border-l-4 border-[#397BDB] bg-[#F7F9FC] px-5 py-4 space-y-1">
-              <p className="flex items-center gap-2 text-sm font-bold text-[#2257A8]">
+            <div className="rounded-xl border-l-4 border-[#397BDB] bg-[var(--surface-subtle)] px-5 py-4 space-y-1">
+              <p className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue-text)]">
                 <HelpCircle className="h-4 w-4" aria-hidden="true" />
                 Check Your Intuition
               </p>
-              <p className="text-base leading-relaxed text-[#202B3B]">
+              <p className="text-base leading-relaxed text-[var(--text-primary)]">
                 {guidingQuestion}
               </p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Inputs
                 </h4>
-                <ul className="space-y-1.5 text-sm text-[#202B3B]">
+                <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.inputs.map((inp) => (
                     <li key={inp}>• {inp}</li>
                   ))}
                 </ul>
               </div>
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Outputs
                 </h4>
-                <ul className="space-y-1.5 text-sm text-[#202B3B]">
+                <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.outputs.map((out) => (
                     <li key={out}>• {out}</li>
                   ))}
@@ -736,20 +736,20 @@ export function ProblemAnalysisView({
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Constraints &amp; Assumptions
                 </h4>
-                <ul className="space-y-1.5 text-sm text-[#202B3B]">
+                <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.constraints_and_assumptions.map((c) => (
                     <li key={c}>• {c}</li>
                   ))}
                 </ul>
               </div>
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Important Edge Cases
                 </h4>
-                <ul className="space-y-1.5 text-sm text-[#202B3B]">
+                <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.edge_cases.map((e) => (
                     <li key={e}>• {e}</li>
                   ))}
@@ -758,8 +758,8 @@ export function ProblemAnalysisView({
             </div>
 
             {analysis.prerequisite_concepts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border-t border-[#E2E8F0] pt-4">
-                <span className="text-xs font-bold text-[#526075]">
+              <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-4">
+                <span className="text-xs font-bold text-[var(--text-secondary)]">
                   Prerequisites:
                 </span>
                 {analysis.prerequisite_concepts.map((concept) => (
@@ -770,7 +770,7 @@ export function ProblemAnalysisView({
               </div>
             )}
 
-            <p className="text-xs text-[#526075] border-t border-[#E2E8F0] pt-4">
+            <p className="text-xs text-[var(--text-secondary)] border-t border-[var(--border-subtle)] pt-4">
               {analysis.confidence_notes} {match.user_input_note}
             </p>
           </div>

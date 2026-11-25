@@ -6,6 +6,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { AppShell } from './AppShell';
+import { ThemeProvider } from '../theme/ThemeProvider';
 import { LandingPage } from '../pages/LandingPage';
 import { ProblemsPage } from '../pages/ProblemsPage';
 import { StudioPage } from '../pages/StudioPage';
@@ -19,17 +20,19 @@ function LegacyStudioRedirect() {
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<AppShell />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/problems" element={<ProblemsPage />} />
-        <Route path="/studio" element={<LegacyStudioRedirect />} />
-        <Route path="/studio/:problemId" element={<StudioPage />} />
-        <Route path="/roadmap" element={<RoadmapPage />} />
-        <Route path="/progress" element={<ProgressPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+    <ThemeProvider>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/problems" element={<ProblemsPage />} />
+          <Route path="/studio" element={<LegacyStudioRedirect />} />
+          <Route path="/studio/:problemId" element={<StudioPage />} />
+          <Route path="/roadmap" element={<RoadmapPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </ThemeProvider>
   );
 }
 

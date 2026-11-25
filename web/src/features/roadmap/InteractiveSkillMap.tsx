@@ -73,20 +73,20 @@ function nodeBorderClasses(
   isRecommended: boolean,
 ): string {
   if (isSelected) {
-    return 'border-[#397BDB] bg-[#EAF2FD]/70 ring-2 ring-[#397BDB]/35';
+    return 'border-[#397BDB] bg-[var(--accent-blue-soft)]/70 ring-2 ring-[#397BDB]/35';
   }
   if (isRecommended) {
-    return 'border-[#397BDB]/70 bg-[#EAF2FD]/35 hover:bg-[#EAF2FD]/60';
+    return 'border-[#397BDB]/70 bg-[var(--accent-blue-soft)]/35 hover:bg-[var(--accent-blue-soft)]/60';
   }
   switch (status) {
     case 'Strong Guided Recall':
-      return 'border-[#15A897]/60 bg-[#E6F7F5]/45 hover:bg-[#E6F7F5]/75';
+      return 'border-[#15A897]/60 bg-[var(--accent-teal-soft)]/45 hover:bg-[var(--accent-teal-soft)]/75';
     case 'Needs Practice':
-      return 'border-[#F2B84B] bg-[#FEF7E7]/65 hover:bg-[#FEF7E7]';
+      return 'border-[#F2B84B] bg-[var(--accent-amber-soft)]/65 hover:bg-[var(--accent-amber-soft)]';
     case 'Guided Progress':
-      return 'border-[#C2DAFA] bg-white hover:bg-[#F7F9FC]';
+      return 'border-[var(--accent-blue-border)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)]';
     default:
-      return 'border-[#E2E8F0] bg-white hover:bg-[#F7F9FC]';
+      return 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)]';
   }
 }
 
@@ -201,15 +201,15 @@ export function InteractiveSkillMap({
 
   return (
     <Card>
-      <CardHeader className="border-b border-[#E2E8F0]">
+      <CardHeader className="border-b border-[var(--border-subtle)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <GitBranch className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+              <GitBranch className="h-4 w-4 text-[var(--accent-blue-link)]" aria-hidden="true" />
               <CardTitle>Interactive Skill Prerequisite Map</CardTitle>
               <Badge variant="neutral">Conceptual Dependencies</Badge>
             </div>
-            <p className="text-xs leading-relaxed text-[#526075]">
+            <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
               Shows genuine learning prerequisites between concepts (not an algorithm execution trace). Select any skill with mouse or arrow keys to highlight its connections, evidence, and linked Studios.
             </p>
           </div>
@@ -217,7 +217,7 @@ export function InteractiveSkillMap({
           <div
             role="group"
             aria-label="Skill map view mode"
-            className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
+            className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1"
           >
             <button
               type="button"
@@ -225,8 +225,8 @@ export function InteractiveSkillMap({
               onClick={() => setViewMode('map')}
               className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                 viewMode === 'map'
-                  ? 'bg-[#2B6CC9] text-white shadow-2xs'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--accent-blue-solid)] text-white shadow-2xs'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Network className="h-3.5 w-3.5" aria-hidden="true" />
@@ -238,8 +238,8 @@ export function InteractiveSkillMap({
               onClick={() => setViewMode('list')}
               className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                 viewMode === 'list'
-                  ? 'bg-[#2B6CC9] text-white shadow-2xs'
-                  : 'text-[#526075] hover:text-[#202B3B]'
+                  ? 'bg-[var(--accent-blue-solid)] text-white shadow-2xs'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden="true" />
@@ -318,10 +318,10 @@ export function InteractiveSkillMap({
               {graphValidation.layers.map((layerIds, layerIndex) => (
                 <div
                   key={layerIndex}
-                  className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC]/75 p-3 space-y-2.5"
+                  className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/75 p-3 space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                       {layerIndex + 1}. {LAYER_TITLES[layerIndex] ?? 'Advanced'}
                     </span>
                   </div>
@@ -359,12 +359,12 @@ export function InteractiveSkillMap({
                           }`}
                         >
                           <div className="flex items-start justify-between gap-1.5">
-                            <span className="text-xs font-bold text-[#202B3B] leading-snug">
+                            <span className="text-xs font-bold text-[var(--text-primary)] leading-snug">
                               {node.skill.name}
                             </span>
                             {isRecommended && (
                               <Sparkles
-                                className="h-3.5 w-3.5 shrink-0 text-[#2664C2]"
+                                className="h-3.5 w-3.5 shrink-0 text-[var(--accent-blue-link)]"
                                 aria-label="Recommended goal"
                               />
                             )}
@@ -380,14 +380,14 @@ export function InteractiveSkillMap({
                           </div>
 
                           {node.prerequisites.length > 0 ? (
-                            <p className="mt-2 text-xs text-[#526075] leading-snug">
+                            <p className="mt-2 text-xs text-[var(--text-secondary)] leading-snug">
                               Needs:{' '}
                               {node.prerequisites
                                 .map((id) => getSkillDefinition(id).name)
                                 .join(', ')}
                             </p>
                           ) : (
-                            <p className="mt-2 text-xs text-[#0D7A6E] font-medium">
+                            <p className="mt-2 text-xs text-[var(--accent-teal-text)] font-medium">
                               Independent foundation
                             </p>
                           )}
@@ -422,7 +422,7 @@ export function InteractiveSkillMap({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-bold text-[#202B3B]">
+                        <span className="text-sm font-bold text-[var(--text-primary)]">
                           {node.skill.name}
                         </span>
                         <Badge variant={badgeVariantForStatus(node.status)}>
@@ -435,15 +435,15 @@ export function InteractiveSkillMap({
                       <button
                         type="button"
                         onClick={() => setSelectedSkillId(skillId)}
-                        className="inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-xs font-semibold text-[#2664C2] hover:bg-[#EAF2FD] cursor-pointer"
+                        className="inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-xs font-semibold text-[var(--accent-blue-link)] hover:bg-[var(--accent-blue-soft)] cursor-pointer"
                       >
                         {isSelected ? 'Inspecting' : 'Inspect details'}
                       </button>
                     </div>
-                    <p className="mt-1 text-xs text-[#526075]">
+                    <p className="mt-1 text-xs text-[var(--text-secondary)]">
                       {node.skill.description}
                     </p>
-                    <p className="mt-1.5 text-xs text-[#526075]">
+                    <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
                       <strong>Prerequisites:</strong>{' '}
                       {node.prerequisites.length > 0
                         ? node.prerequisites
@@ -471,51 +471,51 @@ export function InteractiveSkillMap({
         {selectedNode && (
           <aside
             aria-label={`Skill details for ${selectedNode.skill.name}`}
-            className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-4 sm:p-5 grid gap-5 lg:grid-cols-[1.15fr_1fr]"
+            className="rounded-2xl border border-[var(--accent-blue-border)] bg-[var(--surface-subtle)] p-4 sm:p-5 grid gap-5 lg:grid-cols-[1.15fr_1fr]"
           >
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     {selectedNode.skill.category}
                   </span>
                   <Badge variant={badgeVariantForStatus(selectedNode.status)}>
                     {selectedNode.status}
                   </Badge>
                 </div>
-                <h3 className="text-base font-extrabold text-[#202B3B]">
+                <h3 className="text-base font-extrabold text-[var(--text-primary)]">
                   {selectedNode.skill.name}
                 </h3>
-                <p className="text-xs leading-relaxed text-[#526075]">
+                <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
                   {selectedNode.skill.description}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5 space-y-2 text-xs">
-                <p className="font-semibold text-[#202B3B]">Recorded Evidence</p>
-                <p className="text-[#526075] leading-relaxed">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3.5 space-y-2 text-xs">
+                <p className="font-semibold text-[var(--text-primary)]">Recorded Evidence</p>
+                <p className="text-[var(--text-secondary)] leading-relaxed">
                   {selectedNode.statusReason}
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-1 font-mono text-xs text-[#526075]">
-                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
+                <div className="flex flex-wrap gap-1.5 pt-1 font-mono text-xs text-[var(--text-secondary)]">
+                  <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
                     First-try: {selectedNode.firstTryCount}
                   </span>
-                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
+                  <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
                     Assisted: {selectedNode.assistedCount}
                   </span>
-                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
+                  <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
                     Mistakes: {selectedNode.unresolvedOrWrongCount}
                   </span>
-                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
+                  <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
                     Skips: {selectedNode.skippedCount}
                   </span>
-                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
+                  <span className="rounded bg-[var(--surface-subtle)] px-2 py-0.5 border border-[var(--border-subtle)]">
                     Hints: {selectedNode.hintsAssociated}
                   </span>
                 </div>
                 {selectedNode.hasContradictoryEvidence &&
                   selectedNode.contradictionNote && (
-                    <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F2B84B] bg-[#FEF7E7] p-2.5 text-xs text-[#925E08]">
+                    <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F2B84B] bg-[var(--accent-amber-soft)] p-2.5 text-xs text-[var(--accent-amber-text)]">
                       <AlertTriangle
                         className="h-4 w-4 shrink-0 mt-0.5"
                         aria-hidden="true"
@@ -532,7 +532,7 @@ export function InteractiveSkillMap({
                     <Link
                       key={problemId}
                       to={`/studio/${problemId}`}
-                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#2257A8]"
+                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
                     >
                       Open {mod?.spec.title ?? problemId}
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -545,7 +545,7 @@ export function InteractiveSkillMap({
             <div className="space-y-4">
               {/* Prerequisites with Rationale */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   Prerequisites ({selectedNode.prerequisites.length})
                 </h4>
                 {selectedNode.prerequisites.length > 0 ? (
@@ -559,13 +559,13 @@ export function InteractiveSkillMap({
                       return (
                         <li
                           key={prereqId}
-                          className="rounded-xl border border-[#E2E8F0] bg-white p-3 text-xs space-y-1"
+                          className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 text-xs space-y-1"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <button
                               type="button"
                               onClick={() => selectAndFocusSkill(prereqId)}
-                              className="inline-flex min-h-[34px] items-center font-bold text-[#2257A8] hover:underline cursor-pointer"
+                              className="inline-flex min-h-[34px] items-center font-bold text-[var(--accent-blue-text)] hover:underline cursor-pointer"
                             >
                               {getSkillDefinition(prereqId).name}
                             </button>
@@ -576,7 +576,7 @@ export function InteractiveSkillMap({
                             )}
                           </div>
                           {rationale && (
-                            <p className="text-xs text-[#526075] leading-relaxed">
+                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                               {rationale}
                             </p>
                           )}
@@ -585,7 +585,7 @@ export function InteractiveSkillMap({
                     })}
                   </ul>
                 ) : (
-                  <p className="flex items-center gap-1.5 text-xs text-[#0D7A6E]">
+                  <p className="flex items-center gap-1.5 text-xs text-[var(--accent-teal-text)]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     Independent foundation — no prerequisites required.
                   </p>
@@ -595,7 +595,7 @@ export function InteractiveSkillMap({
               {/* Dependent Skills */}
               {selectedNode.dependents.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                     Prepares You For
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -604,7 +604,7 @@ export function InteractiveSkillMap({
                         key={depId}
                         type="button"
                         onClick={() => selectAndFocusSkill(depId)}
-                        className="inline-flex min-h-[36px] items-center rounded-xl border border-[#C2DAFA] bg-white px-3 py-1.5 text-xs font-semibold text-[#2257A8] hover:bg-[#EAF2FD] cursor-pointer"
+                        className="inline-flex min-h-[36px] items-center rounded-xl border border-[var(--accent-blue-border)] bg-[var(--surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-blue-text)] hover:bg-[var(--accent-blue-soft)] cursor-pointer"
                       >
                         {getSkillDefinition(depId).name} &rarr;
                       </button>
@@ -616,8 +616,8 @@ export function InteractiveSkillMap({
           </aside>
         )}
 
-        <div className="flex items-start gap-2 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-3.5 py-2.5 text-xs text-[#526075]">
-          <Info className="h-4 w-4 shrink-0 text-[#2664C2] mt-0.5" aria-hidden="true" />
+        <div className="flex items-start gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2.5 text-xs text-[var(--text-secondary)]">
+          <Info className="h-4 w-4 shrink-0 text-[var(--accent-blue-link)] mt-0.5" aria-hidden="true" />
           <p>
             <strong>Cautious labels:</strong> &ldquo;Strong Guided Recall&rdquo; reflects consistent first-try answers inside Guided Learning and trace predictions — it does <strong>not</strong> claim independent mastery without a future unassisted assessment.
           </p>

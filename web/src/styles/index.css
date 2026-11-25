@@ -1,65 +1,157 @@
 @import "tailwindcss";
 
 @theme {
-  /* AlgoMiri — Colorful Minimalism Palette */
-  --color-brand-blue: #397BDB;
-  --color-brand-blue-hover: #2B64B8;
-  --color-brand-blue-text: #2257A8;
-  --color-brand-blue-soft: #EAF2FD;
-  --color-brand-blue-border: #C2DAFA;
-
-  --color-brand-teal: #15A897;
-  --color-brand-teal-hover: #0E8779;
-  --color-brand-teal-text: #0D7A6E;
-  --color-brand-teal-soft: #E6F7F5;
-  --color-brand-teal-border: #B4E6DF;
-
-  --color-brand-coral: #F47768;
-  --color-brand-coral-text: #B8382A;
-  --color-brand-coral-soft: #FEF0EE;
-  --color-brand-coral-border: #FACAC4;
-
-  --color-brand-amber: #F2B84B;
-  --color-brand-amber-text: #925E08;
-  --color-brand-amber-soft: #FEF7E7;
-  --color-brand-amber-border: #F8DFA8;
-
-  --color-brand-sky: #83C8ED;
-  --color-brand-sky-text: #1B648D;
-  --color-brand-sky-soft: #EDF8FE;
-  --color-brand-sky-border: #C5E7FA;
-
-  --color-brand-green: #74BF88;
-  --color-brand-green-text: #256B3A;
-  --color-brand-green-soft: #EEF8F1;
-  --color-brand-green-border: #C2E5CC;
-
-  /* Semantic Roles */
-  --color-primary: var(--color-brand-blue);
-  --color-secondary: var(--color-brand-teal);
-  --color-success: var(--color-brand-green);
-  --color-warning: var(--color-brand-amber);
-  --color-error: var(--color-brand-coral);
-  --color-info: var(--color-brand-sky);
-  --color-reward: var(--color-brand-amber);
-
-  /* High-Contrast Neutrals & Surfaces (WCAG AA >= 4.5:1) */
-  --color-ink: #202B3B;
-  --color-ink-muted: #526075;
-  --color-canvas: #F7F9FC;
-  --color-surface: #FFFFFF;
-  --color-surface-subtle: #F1F5FA;
-  --color-border-subtle: #E2E8F0;
-
-  /* Typography */
   --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
-  /* Spacious Educational Rhythm */
-  --space-section: 3rem;
-  --space-card: 1.5rem;
-  --radius-card: 0.875rem;
-  --radius-control: 0.625rem;
+/* ==========================================================================
+   AlgoMiri — Phase 3A.1 Semantic Light & Dark Theme Tokens
+   Light: Colorful Minimalism  |  Dark: Vocapy-Inspired Modern Dashboard
+   All text/surface pairs verified for WCAG AA >= 4.5:1 contrast.
+   ========================================================================== */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --surface-canvas: #F7F9FC;
+  --surface-nav: rgba(255, 255, 255, 0.95);
+  --surface-card: #FFFFFF;
+  --surface-subtle: #F7F9FC;
+  --surface-elevated: #F1F5FA;
+  --surface-input: #FFFFFF;
+  --surface-code: #202B3B;
+  --text-code: #EAF2FD;
+
+  /* Typography */
+  --text-primary: #202B3B;
+  --text-secondary: #526075;
+
+  /* Borders */
+  --border-subtle: #E2E8F0;
+  --border-control: #D7DCEB;
+
+  /* Primary Blue */
+  --accent-blue: #397BDB;
+  --accent-blue-solid: #2B6CC9;
+  --accent-blue-hover: #2257A8;
+  --accent-blue-text: #2257A8;
+  --accent-blue-link: #2664C2;
+  --accent-blue-soft: #EAF2FD;
+  --accent-blue-soft-hover: #DCEBFC;
+  --accent-blue-border: #C2DAFA;
+
+  /* Secondary Teal */
+  --accent-teal: #15A897;
+  --accent-teal-solid: #0F8477;
+  --accent-teal-hover: #0B6E63;
+  --accent-teal-text: #0D7A6E;
+  --accent-teal-deep: #0A594B;
+  --accent-teal-soft: #E6F7F5;
+  --accent-teal-border: #B4E6DF;
+
+  /* Amber (Hints, Warnings, Rewards, Binary Search) */
+  --accent-amber: #F2B84B;
+  --accent-amber-text: #925E08;
+  --accent-amber-soft: #FEF7E7;
+  --accent-amber-border: #F8DFA8;
+
+  /* Coral (Errors, Mismatch, Dynamic Programming) */
+  --accent-coral: #F47768;
+  --accent-coral-solid: #D64B3C;
+  --accent-coral-hover: #B8382A;
+  --accent-coral-text: #B8382A;
+  --accent-coral-soft: #FEF0EE;
+  --accent-coral-border: #FACAC4;
+
+  /* Sky Blue (Info, Two Pointers) */
+  --accent-sky: #83C8ED;
+  --accent-sky-text: #1B648D;
+  --accent-sky-soft: #EDF8FE;
+  --accent-sky-border: #C5E7FA;
+
+  /* Leaf Green (Success, Mastery, Sliding Window) */
+  --accent-green: #74BF88;
+  --accent-green-text: #256B3A;
+  --accent-green-soft: #EEF8F1;
+  --accent-green-border: #C2E5CC;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(32, 43, 59, 0.04);
+  --shadow-elevated: 0 10px 32px rgba(32, 43, 59, 0.06);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces (Vocapy-inspired layered slate-navy dark dashboard) */
+  --surface-canvas: #151923;
+  --surface-nav: rgba(27, 32, 43, 0.95);
+  --surface-card: #222938;
+  --surface-subtle: #1B202B;
+  --surface-elevated: #303949;
+  --surface-input: #1B202B;
+  --surface-code: #0F131C;
+  --text-code: #E2EEFF;
+
+  /* Typography (high contrast >= 7:1 on #222938 and #151923) */
+  --text-primary: #F1F5FA;
+  --text-secondary: #B5C1D2;
+
+  /* Borders */
+  --border-subtle: #394252;
+  --border-control: #4A5568;
+
+  /* Primary Blue */
+  --accent-blue: #5B9BF0;
+  --accent-blue-solid: #2E6FD1;
+  --accent-blue-hover: #3B7FE0;
+  --accent-blue-text: #8CC2FF;
+  --accent-blue-link: #8CC2FF;
+  --accent-blue-soft: #1D2E47;
+  --accent-blue-soft-hover: #243A59;
+  --accent-blue-border: #38598A;
+
+  /* Secondary Teal */
+  --accent-teal: #2DD4BF;
+  --accent-teal-solid: #0F8477;
+  --accent-teal-hover: #139B8B;
+  --accent-teal-text: #6EE7D8;
+  --accent-teal-deep: #8BF0E3;
+  --accent-teal-soft: #173332;
+  --accent-teal-border: #28615D;
+
+  /* Amber */
+  --accent-amber: #F2B84B;
+  --accent-amber-text: #FAD484;
+  --accent-amber-soft: #362C1A;
+  --accent-amber-border: #6B5326;
+
+  /* Coral */
+  --accent-coral: #F47768;
+  --accent-coral-solid: #D64B3C;
+  --accent-coral-hover: #E35D4E;
+  --accent-coral-text: #FFA69B;
+  --accent-coral-soft: #3B2023;
+  --accent-coral-border: #73393E;
+
+  /* Sky Blue */
+  --accent-sky: #83C8ED;
+  --accent-sky-text: #9AD7F7;
+  --accent-sky-soft: #1B3040;
+  --accent-sky-border: #315975;
+
+  /* Leaf Green */
+  --accent-green: #74BF88;
+  --accent-green-text: #94E2A9;
+  --accent-green-soft: #1B3325;
+  --accent-green-border: #316144;
+
+  /* Shadows */
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.36);
 }
 
 @layer base {
@@ -67,22 +159,22 @@
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.6;
-    background-color: var(--color-canvas);
-    color: var(--color-ink);
+    background-color: var(--surface-canvas);
+    color: var(--text-primary);
     scroll-behavior: smooth;
   }
 
   body {
     margin: 0;
     min-height: 100vh;
-    background-color: var(--color-canvas);
-    color: var(--color-ink);
+    background-color: var(--surface-canvas);
+    color: var(--text-primary);
     font-size: 1rem;
     line-height: 1.6;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--accent-blue);
     outline-offset: 2px;
   }
 }
@@ -94,7 +186,7 @@
   z-index: 60;
   padding: 0.625rem 1rem;
   border-radius: 0.625rem;
-  background-color: var(--color-primary);
+  background-color: var(--accent-blue-solid);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.875rem;

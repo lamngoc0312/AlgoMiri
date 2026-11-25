@@ -140,21 +140,21 @@ export function ProblemsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <BookOpen className="h-5 w-5 text-[#2664C2]" aria-hidden="true" />
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#202B3B] sm:text-3xl">
+            <BookOpen className="h-5 w-5 text-[var(--accent-blue-link)]" aria-hidden="true" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-primary)] sm:text-3xl">
               {t('library.title')}
             </h1>
           </div>
-          <p className="max-w-2xl text-base leading-relaxed text-[#526075]">
+          <p className="max-w-2xl text-base leading-relaxed text-[var(--text-secondary)]">
             {t('library.description')}
           </p>
         </div>
 
         <Link
           to="/"
-          className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-white px-4 text-xs font-semibold text-[#202B3B] hover:bg-[#F7F9FC]"
+          className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
         >
-          <Sparkles className="h-3.5 w-3.5 text-[#2664C2]" aria-hidden="true" />
+          <Sparkles className="h-3.5 w-3.5 text-[var(--accent-blue-link)]" aria-hidden="true" />
           {t('library.pasteCustom')}
         </Link>
       </div>
@@ -164,7 +164,7 @@ export function ProblemsPage() {
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
           <div className="relative">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#526075]"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
               aria-hidden="true"
             />
             <label htmlFor="library-search" className="sr-only">
@@ -176,7 +176,7 @@ export function ProblemsPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('library.searchPlaceholder')}
-              className="h-10 w-full rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] pl-9 pr-3 text-sm text-[#202B3B] placeholder:text-[#526075]/80 focus:border-[#397BDB] focus:bg-white focus:outline-none"
+              className="h-10 w-full rounded-xl border border-[var(--border-control)] bg-[var(--surface-subtle)] pl-9 pr-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/80 focus:border-[#397BDB] focus:bg-[var(--surface-card)] focus:outline-none"
             />
           </div>
 
@@ -189,7 +189,7 @@ export function ProblemsPage() {
               value={selectedTopic}
               onChange={(e) => setSelectedTopic(e.target.value)}
               aria-label={t('library.topicFilter')}
-              className="h-10 rounded-xl border border-[#D7DCEB] bg-white px-3 text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
+              className="h-10 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-3 text-xs font-semibold text-[var(--text-primary)] focus:border-[#397BDB] focus:outline-none cursor-pointer"
             >
               <option value="all">{t('library.allTopics')}</option>
               {topics.map((topic) => (
@@ -209,7 +209,7 @@ export function ProblemsPage() {
                 setSelectedDifficulty(e.target.value as DifficultyFilter)
               }
               aria-label={t('library.difficultyFilter')}
-              className="h-10 rounded-xl border border-[#D7DCEB] bg-white px-3 text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
+              className="h-10 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-3 text-xs font-semibold text-[var(--text-primary)] focus:border-[#397BDB] focus:outline-none cursor-pointer"
             >
               <option value="all">{t('library.allDifficulties')}</option>
               <option value="Beginner">{t('common.beginner')}</option>
@@ -220,7 +220,7 @@ export function ProblemsPage() {
           <div
             role="group"
             aria-label={t('library.availabilityFilter')}
-            className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
+            className="inline-flex rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1"
           >
             {(
               [
@@ -236,8 +236,8 @@ export function ProblemsPage() {
                 onClick={() => setAvailabilityFilter(opt.id)}
                 className={`min-h-[34px] rounded-lg px-3 text-xs font-semibold transition-colors cursor-pointer ${
                   availabilityFilter === opt.id
-                    ? 'bg-[#2B6CC9] text-white shadow-2xs'
-                    : 'text-[#526075] hover:text-[#202B3B]'
+                    ? 'bg-[var(--accent-blue-solid)] text-white shadow-2xs'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 {opt.label}
@@ -247,7 +247,7 @@ export function ProblemsPage() {
         </div>
 
         {hasActiveFilters && (
-          <div className="mt-3 flex items-center justify-between border-t border-[#E2E8F0] pt-2.5 text-xs text-[#526075]">
+          <div className="mt-3 flex items-center justify-between border-t border-[var(--border-subtle)] pt-2.5 text-xs text-[var(--text-secondary)]">
             <span>
               <Trans
                 i18nKey="library.showing"
@@ -265,10 +265,10 @@ export function ProblemsPage() {
       {/* Empty Filter State */}
       {filteredItems.length === 0 && (
         <Card className="p-8 text-center space-y-3">
-          <p className="text-sm font-bold text-[#202B3B]">
+          <p className="text-sm font-bold text-[var(--text-primary)]">
             {t('library.emptyTitle')}
           </p>
-          <p className="text-xs text-[#526075]">
+          <p className="text-xs text-[var(--text-secondary)]">
             {t('library.emptyDescription')}
           </p>
           <div className="flex justify-center gap-2 pt-1">
@@ -277,7 +277,7 @@ export function ProblemsPage() {
             </Button>
             <Link
               to="/"
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3.5 text-xs font-semibold text-white hover:bg-[#2257A8]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3.5 text-xs font-semibold text-white hover:bg-[var(--accent-blue-hover)]"
             >
               {t('library.analyzeCustom')}
             </Link>
@@ -295,11 +295,11 @@ export function ProblemsPage() {
             <div>
               <h2
                 id="verified-studios-heading"
-                className="text-lg font-extrabold tracking-tight text-[#202B3B]"
+                className="text-lg font-extrabold tracking-tight text-[var(--text-primary)]"
               >
                 {t('library.verifiedTitle')}
               </h2>
-              <p className="text-xs text-[#526075]">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {t('library.verifiedDescription')}
               </p>
             </div>
@@ -321,7 +321,7 @@ export function ProblemsPage() {
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         {t('library.verifiedVisual')}
                       </Badge>
-                      <span className="text-xs font-medium text-[#526075]">
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">
                         {localizeDifficulty(problem.difficulty)}
                       </span>
                     </div>
@@ -332,14 +332,14 @@ export function ProblemsPage() {
                   </CardHeader>
 
                   <CardContent className="flex flex-1 flex-col justify-between gap-4">
-                    <p className="text-sm leading-relaxed text-[#526075]">
+                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                       {localizeSummary(problem.id, problem.summary)}
                     </p>
 
-                    <div className="space-y-3 border-t border-[#E2E8F0] pt-3">
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-[#526075]">
+                    <div className="space-y-3 border-t border-[var(--border-subtle)] pt-3">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
                         <Layers
-                          className="h-3.5 w-3.5 text-[#2664C2]"
+                          className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
                           aria-hidden="true"
                         />
                         {t('library.strategy', { count: problem.strategiesCount ?? 0 })}{' '}
@@ -349,16 +349,16 @@ export function ProblemsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <Link
                           to={problem.studioPath ?? `/studio/${problem.id}`}
-                          className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#2B64B8]"
+                          className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--accent-blue-solid)] px-3 text-xs font-semibold text-white transition-colors hover:bg-[var(--accent-blue-hover)]"
                         >
                           <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
                           {t('library.startLesson')}
                         </Link>
                         <Link
                           to={`${problem.studioPath ?? `/studio/${problem.id}`}?mode=explore`}
-                          className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-[#D7E0EC] bg-white px-3 text-xs font-semibold text-[#202B3B] transition-colors hover:bg-[#F7F9FC]"
+                          className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-3 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-elevated)]"
                         >
-                          <Compass className="h-3.5 w-3.5 text-[#0D7A6E]" aria-hidden="true" />
+                          <Compass className="h-3.5 w-3.5 text-[var(--accent-teal-text)]" aria-hidden="true" />
                           {t('library.explore')}
                         </Link>
                       </div>
@@ -378,11 +378,11 @@ export function ProblemsPage() {
             <div>
               <h2
                 id="ai-guided-heading"
-                className="text-lg font-extrabold tracking-tight text-[#202B3B]"
+                className="text-lg font-extrabold tracking-tight text-[var(--text-primary)]"
               >
                 {t('library.aiTitle')}
               </h2>
-              <p className="text-xs text-[#526075]">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {t('library.aiDescription')}
               </p>
             </div>
@@ -398,7 +398,7 @@ export function ProblemsPage() {
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between gap-2">
                       <Badge variant={topicStyle.badgeVariant}>{localizeTopic(problem.topic)}</Badge>
-                      <span className="text-xs font-medium text-[#526075]">
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">
                         {localizeDifficulty(problem.difficulty)}
                       </span>
                     </div>
@@ -407,13 +407,13 @@ export function ProblemsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-1 flex-col justify-between gap-4">
-                    <p className="text-sm leading-relaxed text-[#526075]">
+                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                       {localizeSummary(problem.id, problem.summary)}
                     </p>
-                    <div className="border-t border-[#E2E8F0] pt-3">
+                    <div className="border-t border-[var(--border-subtle)] pt-3">
                       <Link
                         to={`/?prefill=${problem.id}`}
-                        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[#C2DAFA] bg-[#EAF2FD]/55 px-3 text-xs font-semibold text-[#2257A8] transition-colors hover:bg-[#EAF2FD]"
+                        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]/55 px-3 text-xs font-semibold text-[var(--accent-blue-text)] transition-colors hover:bg-[var(--accent-blue-soft)]"
                       >
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                         {t('library.analyzeConceptually')}
@@ -433,11 +433,11 @@ export function ProblemsPage() {
         <div>
           <h2
             id="external-refs-heading"
-            className="text-sm font-extrabold uppercase tracking-wider text-[#526075]"
+            className="text-sm font-extrabold uppercase tracking-wider text-[var(--text-secondary)]"
           >
             {t('library.referencesTitle')}
           </h2>
-          <p className="text-xs text-[#526075]">
+          <p className="text-xs text-[var(--text-secondary)]">
             {t('library.referencesDescription')}
           </p>
         </div>
@@ -449,13 +449,13 @@ export function ProblemsPage() {
               href={ref.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#202B3B] transition-colors hover:border-[#397BDB]/50 hover:text-[#2257A8]"
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:border-[#397BDB]/50 hover:text-[var(--accent-blue-text)]"
             >
               <span>{ref.title}</span>
-              <span className="font-mono text-[#526075]">
+              <span className="font-mono text-[var(--text-secondary)]">
                 ({ref.referenceId})
               </span>
-              <ExternalLink className="h-3 w-3 text-[#526075]" aria-hidden="true" />
+              <ExternalLink className="h-3 w-3 text-[var(--text-secondary)]" aria-hidden="true" />
             </a>
           ))}
         </div>

@@ -18,7 +18,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
 
   return (
     <label
-      className={`inline-flex items-center gap-1.5 rounded-xl border border-[#D7DCEB] bg-white text-[#526075] focus-within:border-[#397BDB] ${
+      className={`inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] text-[var(--text-secondary)] focus-within:border-[var(--accent-blue)] ${
         compact ? 'h-9 px-2' : 'h-10 px-2.5'
       }`}
     >
@@ -33,7 +33,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
           }
         }}
         aria-label={t('common.language')}
-        className="h-full min-w-0 cursor-pointer bg-transparent text-xs font-bold text-[#202B3B] outline-none"
+        className="h-full min-w-0 cursor-pointer bg-[var(--surface-card)] text-xs font-bold text-[var(--text-primary)] outline-none"
       >
         <option value="en">EN</option>
         <option value="vi">VI</option>

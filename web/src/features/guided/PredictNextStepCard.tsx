@@ -33,7 +33,7 @@ export function PredictNextStepCard({
 
   if (!prompt) {
     return (
-      <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-4 text-sm text-[#526075]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4 text-sm text-[var(--text-secondary)]">
         Reached the final step of this trace. Reset or try a custom input to practice more predictions!
       </div>
     );
@@ -52,10 +52,10 @@ export function PredictNextStepCard({
   return (
     <section
       aria-label="Predict the next step"
-      className="rounded-xl border border-[#C2DAFA] border-l-4 border-l-[#397BDB] bg-[#F7F9FC] p-5 space-y-3.5"
+      className="rounded-xl border border-[var(--accent-blue-border)] border-l-4 border-l-[#397BDB] bg-[var(--surface-subtle)] p-5 space-y-3.5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-sm font-bold text-[#2257A8]">
+        <div className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue-text)]">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           Predict the Next Step
         </div>
@@ -69,7 +69,7 @@ export function PredictNextStepCard({
         </div>
       </div>
 
-      <p className="text-base font-semibold leading-snug text-[#202B3B]">
+      <p className="text-base font-semibold leading-snug text-[var(--text-primary)]">
         {prompt.question}
       </p>
 
@@ -77,13 +77,13 @@ export function PredictNextStepCard({
         {prompt.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
           let style =
-            'border-[#DCE1F0] bg-white text-[#202B3B] hover:border-[#397BDB] hover:bg-[#EAF2FD]/35';
+            'border-[var(--border-control)] bg-[var(--surface-card)] text-[var(--text-primary)] hover:border-[#397BDB] hover:bg-[var(--accent-blue-soft)]/35';
 
           if (isSelected && option.isCorrect) {
             style =
-              'border-[#15A897] bg-[#E6F7F5] text-[#0A594B] font-semibold';
+              'border-[#15A897] bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)] font-semibold';
           } else if (isSelected && !option.isCorrect) {
-            style = 'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08]';
+            style = 'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)]';
           }
 
           return (
@@ -106,8 +106,8 @@ export function PredictNextStepCard({
           role="status"
           className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${
             selectedOption.isCorrect
-              ? 'border-[#15A897]/60 bg-[#E6F7F5] text-[#0A594B]'
-              : 'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08]'
+              ? 'border-[#15A897]/60 bg-[var(--accent-teal-soft)] text-[var(--accent-teal-deep)]'
+              : 'border-[#F2B84B] bg-[var(--accent-amber-soft)] text-[var(--accent-amber-text)]'
           }`}
         >
           <div className="flex items-center gap-1.5 font-bold">
