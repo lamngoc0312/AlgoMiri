@@ -83,7 +83,7 @@ export function PlaybackControls({
               <Badge variant="amber">Completed · Not Found / Invalid</Badge>
             )}
             {status === 'running' && (
-              <span className="font-mono text-[11px] text-[#526075]">
+              <span className="font-mono text-xs text-[#526075]">
                 {progressPercent}%
               </span>
             )}
@@ -199,7 +199,7 @@ export function PlaybackControls({
       </div>
 
       {isForwardBlocked && (
-        <p className="text-[11px] font-medium text-[#925E08]">
+        <p className="text-xs font-medium text-[#925E08]">
           Checkpoint active — answer the prediction below or click Skip &amp; Reveal Next Step to advance.
         </p>
       )}

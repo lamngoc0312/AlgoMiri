@@ -175,7 +175,7 @@ export function StackVisualCanvas({
                       className="flex flex-col items-center gap-1 w-12 sm:w-14"
                     >
                       <span
-                        className={`text-[10px] font-bold ${
+                        className={`text-xs font-bold ${
                           isCurrent
                             ? 'text-[#2664C2]'
                             : 'text-transparent select-none'
@@ -189,7 +189,7 @@ export function StackVisualCanvas({
                         <span className="text-base sm:text-lg font-bold">
                           {ch}
                         </span>
-                        <span className="text-[10px] opacity-75">{idx}</span>
+                        <span className="text-xs opacity-75">{idx}</span>
                       </div>
                     </div>
                   );
@@ -254,7 +254,7 @@ export function StackVisualCanvas({
 
             {/* Vertical U-Shaped Stack Frame */}
             <div className="flex flex-col items-center">
-              <span className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#2664C2]">
+              <span className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#2664C2]">
                 &darr; Push / Pop at TOP &uarr;
               </span>
               <div className="flex min-h-[168px] w-full max-w-[200px] flex-col-reverse justify-start gap-2 rounded-b-2xl border-x-2 border-b-2 border-[#C5CBE3] bg-white px-3 pb-3 pt-4">
@@ -289,7 +289,7 @@ export function StackVisualCanvas({
                           </span>
                         </span>
                         {isTop && (
-                          <span className="rounded-full bg-[#2B6CC9] px-2 py-0.5 font-sans text-[10px] font-bold text-white">
+                          <span className="rounded-full bg-[#2B6CC9] px-2 py-0.5 font-sans text-xs font-bold text-white">
                             TOP
                           </span>
                         )}

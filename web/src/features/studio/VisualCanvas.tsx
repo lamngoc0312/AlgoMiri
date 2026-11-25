@@ -208,12 +208,12 @@ export function VisualCanvas({
                       <div className="min-h-5 flex items-center justify-center">
                         {highlight ? (
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold whitespace-nowrap transition-colors duration-200 ${styles?.badge}`}
+                            className={`rounded-full px-2 py-0.5 text-xs font-bold whitespace-nowrap transition-colors duration-200 ${styles?.badge}`}
                           >
                             {highlight.label}
                           </span>
                         ) : (
-                          <span className="text-[10px] text-transparent select-none">
+                          <span className="text-xs text-transparent select-none">
                             idle
                           </span>
                         )}
@@ -229,7 +229,7 @@ export function VisualCanvas({
                         <span className="text-base sm:text-lg font-bold truncate max-w-[60px]">
                           {value}
                         </span>
-                        <span className="mt-0.5 text-[10px] text-[#526075]">
+                        <span className="mt-0.5 text-xs text-[#526075]">
                           idx {idx}
                         </span>
                       </div>

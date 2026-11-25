@@ -160,19 +160,19 @@ export function CompositionVisualCanvas({
 
               <div className="mt-2.5 grid grid-cols-3 gap-2 text-center font-mono">
                 <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-[10px] text-[#526075]">low</span>
+                  <span className="block text-xs text-[#526075]">low</span>
                   <span className="text-sm font-extrabold text-[#202B3B]">
                     {visualState.low}
                   </span>
                 </div>
                 <div className="rounded-xl border border-[#397BDB]/40 bg-white py-1.5 px-2">
-                  <span className="block text-[10px] text-[#2257A8]">mid</span>
+                  <span className="block text-xs text-[#2257A8]">mid</span>
                   <span className="text-sm font-extrabold text-[#2257A8]">
                     {visualState.mid ?? '—'}
                   </span>
                 </div>
                 <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-[10px] text-[#526075]">high</span>
+                  <span className="block text-xs text-[#526075]">high</span>
                   <span className="text-sm font-extrabold text-[#202B3B]">
                     {visualState.high}
                   </span>
@@ -180,14 +180,14 @@ export function CompositionVisualCanvas({
               </div>
 
               {visualState.boundDecision && (
-                <p className="mt-2 font-mono text-[11px] font-semibold text-[#2257A8]">
+                <p className="mt-2 font-mono text-xs font-semibold text-[#2257A8]">
                   {visualState.boundDecision}
                 </p>
               )}
             </div>
 
             {/* Data Contract Connector */}
-            <div className="flex flex-col items-center justify-center px-1 text-[11px] font-mono text-[#526075]">
+            <div className="flex flex-col items-center justify-center px-1 text-xs font-mono text-[#526075]">
               <span>mid={visualState.mid ?? '?'} &rarr;</span>
               <span className="text-[#0D7A6E] font-semibold">
                 {visualState.feasible === null
@@ -222,7 +222,7 @@ export function CompositionVisualCanvas({
 
               <div className="mt-2.5 grid grid-cols-2 gap-2 text-center font-mono">
                 <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-[10px] text-[#526075]">
+                  <span className="block text-xs text-[#526075]">
                     groups / k
                   </span>
                   <span
@@ -236,7 +236,7 @@ export function CompositionVisualCanvas({
                   </span>
                 </div>
                 <div className="rounded-xl border border-[#DCE1F0] bg-white py-1.5 px-2">
-                  <span className="block text-[10px] text-[#526075]">
+                  <span className="block text-xs text-[#526075]">
                     sum / cap
                   </span>
                   <span className="text-sm font-extrabold text-[#202B3B]">
@@ -275,7 +275,7 @@ export function CompositionVisualCanvas({
                     className="flex flex-col items-center gap-1 w-14 sm:w-16"
                   >
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                         isScanning
                           ? 'bg-[#F2B84B] text-[#202B3B]'
                           : group
@@ -300,7 +300,7 @@ export function CompositionVisualCanvas({
                       <span className="text-sm sm:text-base font-bold truncate max-w-[52px]">
                         {val}
                       </span>
-                      <span className="text-[10px] opacity-75">idx {idx}</span>
+                      <span className="text-xs opacity-75">idx {idx}</span>
                     </div>
                   </div>
                 );
@@ -386,7 +386,7 @@ export function CompositionVisualCanvas({
                       type="button"
                       disabled={locked}
                       onClick={() => onSeek(iter.firstStepIndex)}
-                      className={`rounded-xl border px-2.5 py-1.5 font-mono text-[11px] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`rounded-xl border px-2.5 py-1.5 font-mono text-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                         isCurrentIter
                           ? 'border-[#397BDB] bg-[#EAF2FD] text-[#2257A8] font-bold'
                           : 'border-[#DCE1F0] bg-white text-[#202B3B] hover:border-[#397BDB]'

@@ -594,7 +594,8 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
     await user.click(screen.getByRole('button', { name: /next step/i }));
     expect(screen.getByText('Check 32-bit overflow')).toBeInTheDocument();
 
-    // Switch strategy via compact selector
+    // Open the Approaches tab and switch strategy via compact selector
+    await user.click(screen.getByRole('tab', { name: /approaches/i }));
     await user.click(
       screen.getByRole('button', { name: 'String Reversal' }),
     );

@@ -60,7 +60,6 @@ import { InteractiveSolutionMap } from '../features/solutions/InteractiveSolutio
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { buildProblemAnalysisFromModule } from '../services/aiClient';
 import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 
 type StudioMode = 'guided' | 'explore';
@@ -826,25 +825,21 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
 
             <section
               aria-label="Step walkthrough and explanation panel"
-              className={`space-y-4 ${
+              className={`space-y-3 ${
                 mobileTab === 'walkthrough' ? 'block' : 'hidden lg:block'
               }`}
             >
-              <WalkthroughPane
+              <StudioSecondaryDock
+                problemModule={problemModule}
                 strategy={strategy}
                 step={currentStep}
                 stepIndex={playback.stepIndex}
                 totalSteps={trace.steps.length}
+                learningStage={
+                  mode === 'guided' ? activeStage.title : 'Free Exploration'
+                }
               />
-
-              <StudioTutorDrawer
-                problemModule={problemModule}
-                selectedStrategyId={strategy.id}
-                selectedStrategy={strategy.name}
-                learningStage={mode === 'guided' ? activeStage.title : 'Free Exploration'}
-                executionContext={`Step ${playback.stepIndex + 1} of ${trace.steps.length}: ${currentStep.actionTitle} — ${currentStep.explanation}`}
-              />
-              </section>
+            </section>
             </div>
           </div>
         </>
@@ -853,44 +848,84 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   );
 }
 
-function StudioTutorDrawer({
+function StudioSecondaryDock({
   problemModule,
-  selectedStrategyId,
-  selectedStrategy,
+  strategy,
+  step,
+  stepIndex,
+  totalSteps,
   learningStage,
-  executionContext,
 }: {
   problemModule: AnyProblemModule;
-  selectedStrategyId: string;
-  selectedStrategy: string;
+  strategy: AnyProblemModule['spec']['supportedStrategies'][number];
+  step: GenericExecutionStep;
+  stepIndex: number;
+  totalSteps: number;
   learningStage: string;
-  executionContext: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const analysis = useMemo(
-    () => buildProblemAnalysisFromModule(problemModule, selectedStrategyId),
-    [problemModule, selectedStrategyId],
+  const [activeTab, setActiveTab] = useState<'explanation' | 'tutor'>(
+    'explanation',
   );
+  const analysis = useMemo(
+    () => buildProblemAnalysisFromModule(problemModule, strategy.id),
+    [problemModule, strategy.id],
+  );
+  const executionContext = `Step ${stepIndex + 1} of ${totalSteps}: ${step.actionTitle} — ${step.explanation}`;
 
   return (
-    <div className="space-y-2">
-      <Button
-        variant="secondary"
-        size="sm"
-        aria-expanded={open}
-        onClick={() => setOpen((prev) => !prev)}
-        className="w-full"
+    <div className="space-y-3">
+      <div
+        role="tablist"
+        aria-label="Step details and AI Tutor"
+        className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
       >
-        {open ? 'Hide AI Tutor' : 'Ask AI Tutor About This Step'}
-      </Button>
-      {open && (
-        <AiTutorPanel
-          contextKey={`studio:${problemModule.id}:${selectedStrategy}`}
-          problemAnalysis={analysis}
-          selectedStrategy={selectedStrategy}
-          learningStage={learningStage}
-          executionContext={executionContext}
-        />
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'explanation'}
+          onClick={() => setActiveTab('explanation')}
+          className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
+            activeTab === 'explanation'
+              ? 'bg-[#2B6CC9] text-white'
+              : 'text-[#526075] hover:text-[#202B3B]'
+          }`}
+        >
+          Step Explanation
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'tutor'}
+          onClick={() => setActiveTab('tutor')}
+          className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
+            activeTab === 'tutor'
+              ? 'bg-[#2B6CC9] text-white'
+              : 'text-[#526075] hover:text-[#202B3B]'
+          }`}
+        >
+          Ask AI Tutor
+        </button>
+      </div>
+
+      {activeTab === 'explanation' ? (
+        <div role="tabpanel" aria-label="Step explanation">
+          <WalkthroughPane
+            strategy={strategy}
+            step={step}
+            stepIndex={stepIndex}
+            totalSteps={totalSteps}
+          />
+        </div>
+      ) : (
+        <div role="tabpanel" aria-label="Studio AI Tutor">
+          <AiTutorPanel
+            contextKey={`studio:${problemModule.id}:${strategy.name}`}
+            problemAnalysis={analysis}
+            selectedStrategy={strategy.name}
+            learningStage={learningStage}
+            executionContext={executionContext}
+          />
+        </div>
       )}
     </div>
   );

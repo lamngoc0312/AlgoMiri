@@ -48,7 +48,7 @@ export function AppShell() {
                 <span className="text-lg font-extrabold tracking-tight">
                   Algo<span className="text-[#2664C2]">Miri</span>
                 </span>
-                <span className="text-[11px] font-medium text-[#526075]">
+                <span className="text-xs font-medium text-[#526075]">
                   Visual Algorithm Studio
                 </span>
               </span>

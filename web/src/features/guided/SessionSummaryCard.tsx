@@ -119,7 +119,7 @@ export function SessionSummaryCard({
         {/* Metrics Row */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
               Strategies Explored
             </p>
             <p className="mt-1 font-mono text-xl font-extrabold text-[#202B3B]">
@@ -128,7 +128,7 @@ export function SessionSummaryCard({
           </div>
 
           <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
               Predictions Attempted
             </p>
             <p
@@ -137,7 +137,7 @@ export function SessionSummaryCard({
             >
               {predictionStats.questionsAttempted}
             </p>
-            <p className="mt-1 text-[11px] text-[#526075]">
+            <p className="mt-1 text-xs text-[#526075]">
               <span className="font-semibold text-[#0D7A6E]">
                 {predictionStats.firstTryCorrect} first-try
               </span>
@@ -151,7 +151,7 @@ export function SessionSummaryCard({
           </div>
 
           <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
               Hints Used
             </p>
             <p

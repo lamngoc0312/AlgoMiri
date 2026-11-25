@@ -322,7 +322,7 @@ export function ProgressPage({
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Learning Sessions
                   </span>
                   <Clock className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
@@ -333,14 +333,14 @@ export function ProgressPage({
                 >
                   {summary.totalSessions}
                 </p>
-                <p className="mt-0.5 text-[11px] text-[#526075]">
+                <p className="mt-0.5 text-xs text-[#526075]">
                   Saved in this browser
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Problems Practiced
                   </span>
                   <BookOpen className="h-4 w-4 text-[#0D7A6E]" aria-hidden="true" />
@@ -351,14 +351,14 @@ export function ProgressPage({
                 >
                   {summary.problemsPracticedCount} / {summary.totalAvailableProblems}
                 </p>
-                <p className="mt-0.5 text-[11px] text-[#526075]">
+                <p className="mt-0.5 text-xs text-[#526075]">
                   Verified visual studios
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Strategies Explored
                   </span>
                   <Award className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
@@ -370,14 +370,14 @@ export function ProgressPage({
                   {summary.uniqueStrategiesExploredCount} /{' '}
                   {summary.totalAvailableStrategies}
                 </p>
-                <p className="mt-0.5 text-[11px] text-[#526075]">
+                <p className="mt-0.5 text-xs text-[#526075]">
                   Across all verified studios
                 </p>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Prediction Accuracy
                   </span>
                   <Target className="h-4 w-4 text-[#0D7A6E]" aria-hidden="true" />
@@ -390,7 +390,7 @@ export function ProgressPage({
                     ? `${summary.firstTryAccuracyPercent}%`
                     : '—'}
                 </p>
-                <p className="mt-0.5 text-[11px] text-[#526075]">
+                <p className="mt-0.5 text-xs text-[#526075]">
                   {summary.totalPredictionsAttempted > 0
                     ? `${summary.totalPredictionsFirstTry}/${summary.totalPredictionsAttempted} first-try`
                     : 'No predictions attempted yet'}
@@ -399,7 +399,7 @@ export function ProgressPage({
 
               <Card className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Hints Used
                   </span>
                   <Lightbulb className="h-4 w-4 text-[#F2B84B]" aria-hidden="true" />
@@ -410,7 +410,7 @@ export function ProgressPage({
                 >
                   {summary.totalHintsUsed}
                 </p>
-                <p className="mt-0.5 text-[11px] text-[#526075]">
+                <p className="mt-0.5 text-xs text-[#526075]">
                   {summary.skillsPracticedCount} of {summary.skillSummaries.length}{' '}
                   skills practiced
                 </p>
@@ -514,7 +514,7 @@ export function ProgressPage({
                       </span>
                     )}
                     {summary.overallSolvedPercent !== null && (
-                      <span className="ml-auto font-mono text-[11px] font-semibold text-[#2257A8]">
+                      <span className="ml-auto font-mono text-xs font-semibold text-[#2257A8]">
                         Eventually solved: {summary.overallSolvedPercent}%
                       </span>
                     )}
@@ -610,7 +610,7 @@ export function ProgressPage({
                       <p className="text-sm font-bold text-[#202B3B]">
                         {item.skill.name}
                       </p>
-                      <p className="text-[11px] text-[#526075]">
+                      <p className="text-xs text-[#526075]">
                         {item.skill.category}
                       </p>
                     </div>
@@ -633,7 +633,7 @@ export function ProgressPage({
                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 text-[10px] font-mono text-[#526075]">
+                  <div className="flex flex-wrap gap-1.5 text-xs font-mono text-[#526075]">
                     <span className="rounded bg-white px-1.5 py-0.5 border border-[#E2E8F0]">
                       First-try: {item.counts['first-try-correct']}
                     </span>
@@ -648,7 +648,7 @@ export function ProgressPage({
                     </span>
                   </div>
 
-                  <p className="text-[11px] leading-relaxed text-[#526075]">
+                  <p className="text-xs leading-relaxed text-[#526075]">
                     {item.evidenceNote}
                   </p>
                 </div>
@@ -682,7 +682,7 @@ export function ProgressPage({
                     </div>
                     <dl className="grid grid-cols-2 gap-2 text-xs">
                       <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-[10px] font-semibold uppercase text-[#526075]">
+                        <dt className="text-xs font-semibold uppercase text-[#526075]">
                           Best Stages
                         </dt>
                         <dd className="font-mono font-bold text-[#202B3B]">
@@ -690,7 +690,7 @@ export function ProgressPage({
                         </dd>
                       </div>
                       <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-[10px] font-semibold uppercase text-[#526075]">
+                        <dt className="text-xs font-semibold uppercase text-[#526075]">
                           Strategies
                         </dt>
                         <dd className="font-mono font-bold text-[#202B3B]">
@@ -699,18 +699,18 @@ export function ProgressPage({
                         </dd>
                       </div>
                       <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-[10px] font-semibold uppercase text-[#526075]">
+                        <dt className="text-xs font-semibold uppercase text-[#526075]">
                           Predictions
                         </dt>
                         <dd className="font-mono font-bold text-[#202B3B]">
                           {prob.predictionsFirstTry}/{prob.predictionsAttempted}{' '}
-                          <span className="font-sans text-[10px] font-normal text-[#526075]">
+                          <span className="font-sans text-xs font-normal text-[#526075]">
                             1st try
                           </span>
                         </dd>
                       </div>
                       <div className="rounded-lg bg-[#F7F9FC] p-2">
-                        <dt className="text-[10px] font-semibold uppercase text-[#526075]">
+                        <dt className="text-xs font-semibold uppercase text-[#526075]">
                           Hints Used
                         </dt>
                         <dd className="font-mono font-bold text-[#202B3B]">

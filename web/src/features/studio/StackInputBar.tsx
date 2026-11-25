@@ -48,7 +48,7 @@ export function StackInputBar({
           />
           Custom Brackets Input
         </div>
-        <span className="text-[11px] text-[#526075]">
+        <span className="text-xs text-[#526075]">
           Allowed: ( ) [ ] {'{'} {'}'} · up to 16 chars
         </span>
       </div>
@@ -94,7 +94,7 @@ export function StackInputBar({
       )}
 
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-        <span className="text-[11px] font-semibold text-[#526075] mr-1">
+        <span className="text-xs font-semibold text-[#526075] mr-1">
           Presets:
         </span>
         {presets.map((preset) => (
@@ -102,7 +102,7 @@ export function StackInputBar({
             key={preset.id}
             type="button"
             onClick={() => handlePresetClick(preset.input)}
-            className="rounded-lg border border-[#DCE1F0] bg-white px-2.5 py-1 text-[11px] font-medium text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8] cursor-pointer"
+            className="rounded-lg border border-[#DCE1F0] bg-white px-2.5 py-1 text-xs font-medium text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8] cursor-pointer"
           >
             {preset.label}
           </button>

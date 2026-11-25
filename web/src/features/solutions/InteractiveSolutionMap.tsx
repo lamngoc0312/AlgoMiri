@@ -279,7 +279,7 @@ export function InteractiveSolutionMap({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#526075] truncate">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#526075] truncate">
                         {CATEGORY_LABELS[node.category]}
                       </span>
                       {isActiveForStep && (
@@ -336,7 +336,7 @@ export function InteractiveSolutionMap({
                       {node.learningGoal}
                     </p>
                     {deps.length > 0 && (
-                      <p className="mt-1.5 text-[11px] font-medium text-[#2257A8]">
+                      <p className="mt-1.5 text-xs font-medium text-[#2257A8]">
                         Depends on:{' '}
                         {deps
                           .map((d) => nodeById.get(d.source)?.title ?? d.source)
@@ -402,7 +402,7 @@ export function InteractiveSolutionMap({
             {/* Dependencies & Downstream Connections */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 space-y-1.5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Depends On
                 </p>
                 {incomingEdges.length > 0 ? (
@@ -418,7 +418,7 @@ export function InteractiveSolutionMap({
                           >
                             {src?.title ?? edge.source}
                           </button>
-                          <p className="text-[11px] text-[#526075]">
+                          <p className="text-xs text-[#526075]">
                             {edge.reason}
                           </p>
                         </li>
@@ -433,7 +433,7 @@ export function InteractiveSolutionMap({
               </div>
 
               <div className="rounded-xl border border-[#E2E8F0] bg-white p-3 space-y-1.5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#526075]">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Enables
                 </p>
                 {outgoingEdges.length > 0 ? (
@@ -449,7 +449,7 @@ export function InteractiveSolutionMap({
                           >
                             {tgt?.title ?? edge.target}
                           </button>
-                          <p className="text-[11px] text-[#526075]">
+                          <p className="text-xs text-[#526075]">
                             {edge.reason}
                           </p>
                         </li>
@@ -545,7 +545,7 @@ export function InteractiveSolutionMap({
                   </Badge>
                 ))}
               </div>
-              <span className="inline-flex items-center gap-1 text-[11px] text-[#526075]">
+              <span className="inline-flex items-center gap-1 text-xs text-[#526075]">
                 <Info className="h-3.5 w-3.5 text-[#8B93B0]" aria-hidden="true" />
                 Viewing a node builds intuition; it does not count as skill mastery.
               </span>

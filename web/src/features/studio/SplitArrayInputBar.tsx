@@ -53,7 +53,7 @@ export function SplitArrayInputBar({
           />
           Custom Input
         </div>
-        <span className="text-[11px] text-[#526075]">
+        <span className="text-xs text-[#526075]">
           Nonnegative integers (&ge; 0) · 1 &le; k &le; length (max 10)
         </span>
       </div>
@@ -121,7 +121,7 @@ export function SplitArrayInputBar({
       )}
 
       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-        <span className="text-[11px] font-semibold text-[#526075] mr-1">
+        <span className="text-xs font-semibold text-[#526075] mr-1">
           Presets:
         </span>
         {presets.map((preset) => (
@@ -129,7 +129,7 @@ export function SplitArrayInputBar({
             key={preset.id}
             type="button"
             onClick={() => handlePresetClick(preset.input)}
-            className="rounded-lg border border-[#DCE1F0] bg-white px-2.5 py-1 text-[11px] font-medium text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8] cursor-pointer"
+            className="rounded-lg border border-[#DCE1F0] bg-white px-2.5 py-1 text-xs font-medium text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8] cursor-pointer"
           >
             {preset.label}
           </button>

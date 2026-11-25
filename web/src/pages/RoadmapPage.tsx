@@ -176,7 +176,7 @@ export function RoadmapPage({
               </ul>
               {recommendedNext.focusSkills.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[11px] font-semibold text-[#526075]">
+                  <span className="text-xs font-semibold text-[#526075]">
                     Focus skills:
                   </span>
                   {recommendedNext.focusSkills.map((skillId) => (
@@ -270,7 +270,7 @@ export function RoadmapPage({
                   <CardTitle className="mt-1 text-lg flex items-center gap-2">
                     {step.problemTitle}
                     {step.isRecommendedNext && (
-                      <Badge variant="indigo" className="text-[10px]">
+                      <Badge variant="indigo" className="text-xs">
                         Next
                       </Badge>
                     )}
@@ -289,7 +289,7 @@ export function RoadmapPage({
                         {step.focusSkills.map((skillId) => (
                           <span
                             key={skillId}
-                            className="rounded-md border border-[#E2E8F0] bg-[#F7F9FC] px-2 py-0.5 text-[11px] text-[#202B3B]"
+                            className="rounded-md border border-[#E2E8F0] bg-[#F7F9FC] px-2 py-0.5 text-xs text-[#202B3B]"
                           >
                             {getSkillDefinition(skillId).name}
                           </span>
@@ -302,7 +302,7 @@ export function RoadmapPage({
                         <p className="font-semibold text-[#202B3B]">
                           Suggested prerequisites:
                         </p>
-                        <p className="mt-0.5 text-[11px] text-[#526075]">
+                        <p className="mt-0.5 text-xs text-[#526075]">
                           {step.prerequisiteSkills
                             .map((id) => getSkillDefinition(id).name)
                             .join(', ')}
@@ -419,7 +419,7 @@ export function RoadmapPage({
                       <p className="font-bold text-[#202B3B]">
                         {node.skill.name}
                       </p>
-                      <p className="text-[11px] text-[#526075]">
+                      <p className="text-xs text-[#526075]">
                         {node.firstTryCount} first-try · {node.assistedCount}{' '}
                         assisted · {node.skippedCount} skipped
                       </p>
