@@ -261,7 +261,7 @@ export function ProblemComposer({
         <div
           role="tablist"
           aria-label="Problem input mode"
-          className="flex flex-wrap sm:inline-flex w-full sm:w-auto rounded-xl border border-[#E4E7F1] bg-[#F4F5FA] p-1 gap-1"
+          className="flex flex-wrap sm:inline-flex w-full sm:w-auto rounded-xl border border-[#E2E8F0] bg-[#F4F5FA] p-1 gap-1"
         >
           {(
             [
@@ -280,12 +280,12 @@ export function ProblemComposer({
                 onClick={() => setComposerMode(id)}
                 className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg px-2.5 sm:px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   active
-                    ? 'bg-white text-[#181B2E] shadow-xs ring-1 ring-[#E4E7F1]'
-                    : 'text-[#4E5672] hover:text-[#181B2E]'
+                    ? 'bg-white text-[#202B3B] shadow-xs ring-1 ring-[#E2E8F0]'
+                    : 'text-[#526075] hover:text-[#202B3B]'
                 }`}
               >
                 <Icon
-                  className={`h-4 w-4 ${active ? 'text-[#645BE8]' : ''}`}
+                  className={`h-4 w-4 ${active ? 'text-[#2664C2]' : ''}`}
                   aria-hidden="true"
                 />
                 {label}
@@ -312,14 +312,14 @@ export function ProblemComposer({
               value={problemInput}
               onChange={(e) => onProblemInputChange(e.target.value)}
               placeholder="Paste any algorithm problem statement to analyze its inputs, approach, and intuition..."
-              className="w-full rounded-xl border border-[#D7DCEB] bg-[#F8F9FC] p-4 text-base leading-relaxed text-[#181B2E] placeholder:text-[#4E5672]/75 focus:border-[#645BE8] focus:bg-white focus:outline-none"
+              className="w-full rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] p-4 text-base leading-relaxed text-[#202B3B] placeholder:text-[#526075]/75 focus:border-[#397BDB] focus:bg-white focus:outline-none"
             />
           </div>
 
           {analyzing && (
             <div
               role="status"
-              className="flex items-center gap-2.5 rounded-xl border border-[#D8DCFF] bg-[#EEF0FF]/60 px-4 py-3 text-sm font-medium text-[#4F46D8]"
+              className="flex items-center gap-2.5 rounded-xl border border-[#C2DAFA] bg-[#EAF2FD]/60 px-4 py-3 text-sm font-medium text-[#2257A8]"
             >
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               Analyzing problem structure, example, and key reasoning steps...
@@ -329,22 +329,22 @@ export function ProblemComposer({
           {feedback && (
             <div
               role="alert"
-              className="flex items-start justify-between gap-3 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-4 text-sm leading-relaxed text-[#181B2E]"
+              className="flex items-start justify-between gap-3 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] p-4 text-sm leading-relaxed text-[#202B3B]"
             >
               <div className="flex items-start gap-2.5">
                 <AlertCircle
-                  className="h-5 w-5 shrink-0 text-[#9A630A] mt-0.5"
+                  className="h-5 w-5 shrink-0 text-[#925E08] mt-0.5"
                   aria-hidden="true"
                 />
                 <div className="space-y-1">
-                  <p className="font-semibold text-[#9A630A]">
+                  <p className="font-semibold text-[#925E08]">
                     {feedback.type === 'unsupported'
                       ? 'Not supported in current demo'
                       : feedback.type === 'error'
                         ? 'Analysis request failed'
                         : 'Add a problem statement'}
                   </p>
-                  <p className="text-[#4E5672]">{feedback.message}</p>
+                  <p className="text-[#526075]">{feedback.message}</p>
                 </div>
               </div>
               {feedback.canRetry && (
@@ -362,7 +362,7 @@ export function ProblemComposer({
           )}
 
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <div className="flex flex-wrap items-center gap-1 text-xs text-[#4E5672]">
+            <div className="flex flex-wrap items-center gap-1 text-xs text-[#526075]">
               <span className="font-medium pr-1">Try sample:</span>
               <Button type="button" variant="ghost" size="sm" onClick={onFillTwoSum}>
                 Load Two Sum sample
@@ -426,7 +426,7 @@ export function ProblemComposer({
                   if (urlError) setUrlError(null);
                 }}
                 placeholder="https://leetcode.com/problems/reverse-integer/"
-                className="h-12 flex-1 rounded-xl border border-[#D7DCEB] bg-[#F8F9FC] px-4 text-base text-[#181B2E] placeholder:text-[#7A829E] focus:border-[#645BE8] focus:bg-white focus:outline-none"
+                className="h-12 flex-1 rounded-xl border border-[#D7DCEB] bg-[#F7F9FC] px-4 text-base text-[#202B3B] placeholder:text-[#7A829E] focus:border-[#397BDB] focus:bg-white focus:outline-none"
               />
               <Button
                 type="submit"
@@ -442,7 +442,7 @@ export function ProblemComposer({
                 Inspect URL
               </Button>
             </div>
-            <p className="text-sm text-[#4E5672]">
+            <p className="text-sm text-[#526075]">
               Identifies canonical problem links safely. AlgoMiri never scrapes
               proprietary sites like LeetCode — only explicitly allowlisted public
               raw text files are fetched automatically.
@@ -452,7 +452,7 @@ export function ProblemComposer({
           {urlError && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-4 text-sm text-[#9A630A]"
+              className="flex items-start gap-2.5 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] p-4 text-sm text-[#925E08]"
             >
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{urlError}</span>
@@ -460,12 +460,12 @@ export function ProblemComposer({
           )}
 
           {urlResult && (
-            <div className="rounded-xl border border-[#E4E7F1] bg-[#F8F9FC] p-5 space-y-4">
+            <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="indigo">{urlResult.source_name}</Badge>
                   {urlResult.slug && (
-                    <span className="font-mono text-xs text-[#4E5672]">
+                    <span className="font-mono text-xs text-[#526075]">
                       {urlResult.slug}
                     </span>
                   )}
@@ -474,7 +474,7 @@ export function ProblemComposer({
                   href={urlResult.canonical_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
                 >
                   Open original problem
                   <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -482,24 +482,24 @@ export function ProblemComposer({
               </div>
 
               {urlResult.display_title && (
-                <h3 className="text-lg font-bold text-[#181B2E]">
+                <h3 className="text-lg font-bold text-[#202B3B]">
                   {urlResult.display_title}
                 </h3>
               )}
 
-              <p className="text-sm leading-relaxed text-[#4E5672]">
+              <p className="text-sm leading-relaxed text-[#526075]">
                 {urlResult.message}
               </p>
 
               {urlResult.verified_match?.studio_path && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#BDECE2] bg-[#E6F8F4]/70 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#B4E6DF] bg-[#E6F7F5]/70 px-4 py-3">
                   <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#0A594B]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     Verified Studio available for {urlResult.verified_match.matched_problem_title}
                   </span>
                   <Link
                     to={urlResult.verified_match.studio_path}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#16B89D] px-3.5 text-sm font-semibold text-white hover:bg-[#0E967F]"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0F8477] px-3.5 text-sm font-semibold text-white hover:bg-[#0E8779]"
                   >
                     Open Verified Studio
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -508,10 +508,10 @@ export function ProblemComposer({
               )}
 
               {urlResult.retrieval_status === 'fetched' && urlResult.extracted_text ? (
-                <div className="space-y-3 border-t border-[#E4E7F1] pt-4">
+                <div className="space-y-3 border-t border-[#E2E8F0] pt-4">
                   <label
                     htmlFor="url-extracted-confirm"
-                    className="block text-sm font-bold text-[#181B2E]"
+                    className="block text-sm font-bold text-[#202B3B]"
                   >
                     Review fetched text before analyzing:
                   </label>
@@ -520,7 +520,7 @@ export function ProblemComposer({
                     rows={4}
                     value={urlDraftText}
                     onChange={(e) => setUrlDraftText(e.target.value)}
-                    className="w-full rounded-xl border border-[#D7DCEB] bg-white p-3.5 text-sm leading-relaxed text-[#181B2E] focus:border-[#645BE8] focus:outline-none"
+                    className="w-full rounded-xl border border-[#D7DCEB] bg-white p-3.5 text-sm leading-relaxed text-[#202B3B] focus:border-[#397BDB] focus:outline-none"
                   />
                   <div className="flex justify-end">
                     <Button
@@ -580,18 +580,18 @@ export function ProblemComposer({
             }}
             className={`flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed p-7 text-center transition-colors cursor-pointer ${
               isDragging
-                ? 'border-[#645BE8] bg-[#EEF0FF]/60'
-                : 'border-[#D7DCEB] bg-[#F8F9FC] hover:border-[#645BE8]/70 hover:bg-[#EEF0FF]/25'
+                ? 'border-[#397BDB] bg-[#EAF2FD]/60'
+                : 'border-[#D7DCEB] bg-[#F7F9FC] hover:border-[#397BDB]/70 hover:bg-[#EAF2FD]/25'
             }`}
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white border border-[#E4E7F1] text-[#645BE8] shadow-2xs">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white border border-[#E2E8F0] text-[#2664C2] shadow-2xs">
               <Upload className="h-5 w-5" aria-hidden="true" />
             </span>
             <div className="space-y-1">
-              <p className="text-base font-semibold text-[#181B2E]">
+              <p className="text-base font-semibold text-[#202B3B]">
                 Drop problem screenshots here, or click to browse
               </p>
-              <p className="text-sm text-[#4E5672]">
+              <p className="text-sm text-[#526075]">
                 PNG, JPEG, or WebP · Up to 3 images · Max 4 MB each
               </p>
             </div>
@@ -606,15 +606,15 @@ export function ProblemComposer({
             />
           </div>
 
-          <p className="flex items-center gap-1.5 text-xs text-[#4E5672]">
-            <ShieldCheck className="h-4 w-4 text-[#16B89D] shrink-0" aria-hidden="true" />
+          <p className="flex items-center gap-1.5 text-xs text-[#526075]">
+            <ShieldCheck className="h-4 w-4 text-[#0D7A6E] shrink-0" aria-hidden="true" />
             Images are processed in memory for transcription and are not stored by default.
           </p>
 
           {imageError && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] p-4 text-sm text-[#9A630A]"
+              className="flex items-start gap-2.5 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] p-4 text-sm text-[#925E08]"
             >
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{imageError}</span>
@@ -627,18 +627,18 @@ export function ProblemComposer({
                 {attachments.map((item) => (
                   <li
                     key={item.id}
-                    className="relative flex items-center gap-3 rounded-xl border border-[#E4E7F1] bg-white p-2.5"
+                    className="relative flex items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-2.5"
                   >
                     <img
                       src={item.previewUrl}
                       alt={item.filename}
-                      className="h-12 w-12 shrink-0 rounded-lg object-cover border border-[#E4E7F1]"
+                      className="h-12 w-12 shrink-0 rounded-lg object-cover border border-[#E2E8F0]"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[#181B2E]">
+                      <p className="truncate text-sm font-medium text-[#202B3B]">
                         {item.filename}
                       </p>
-                      <p className="text-xs text-[#4E5672]">
+                      <p className="text-xs text-[#526075]">
                         {formatKb(item.sizeBytes)}
                       </p>
                     </div>
@@ -651,7 +651,7 @@ export function ProblemComposer({
                         );
                         setExtractionResult(null);
                       }}
-                      className="rounded-lg p-1 text-[#4E5672] hover:bg-[#F4F5FA] hover:text-[#181B2E] cursor-pointer"
+                      className="rounded-lg p-1 text-[#526075] hover:bg-[#F4F5FA] hover:text-[#202B3B] cursor-pointer"
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -680,9 +680,9 @@ export function ProblemComposer({
 
           {/* Learner Confirmation Step Before Running Analysis */}
           {extractionResult && (
-            <div className="rounded-xl border border-[#D8DCFF] bg-[#F8F9FC] p-5 space-y-4">
+            <div className="rounded-xl border border-[#C2DAFA] bg-[#F7F9FC] p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-base font-bold text-[#181B2E]">
+                <span className="text-base font-bold text-[#202B3B]">
                   Confirm Extracted Problem Text
                 </span>
                 <Badge
@@ -704,15 +704,15 @@ export function ProblemComposer({
                 rows={5}
                 value={confirmedTextDraft}
                 onChange={(e) => setConfirmedTextDraft(e.target.value)}
-                className="w-full rounded-xl border border-[#D7DCEB] bg-white p-4 text-base leading-relaxed text-[#181B2E] focus:border-[#645BE8] focus:outline-none"
+                className="w-full rounded-xl border border-[#D7DCEB] bg-white p-4 text-base leading-relaxed text-[#202B3B] focus:border-[#397BDB] focus:outline-none"
               />
 
               {extractionResult.diagram_notes.length > 0 && (
                 <div className="space-y-1">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Observed Diagrams / Tables
                   </p>
-                  <ul className="space-y-1 text-sm text-[#181B2E]">
+                  <ul className="space-y-1 text-sm text-[#202B3B]">
                     {extractionResult.diagram_notes.map((note) => (
                       <li key={note}>• {note}</li>
                     ))}
@@ -721,7 +721,7 @@ export function ProblemComposer({
               )}
 
               {extractionResult.uncertain_regions.length > 0 && (
-                <div className="rounded-xl border border-[#F1B34C] bg-[#FEF6E6] px-4 py-3 space-y-1 text-sm text-[#9A630A]">
+                <div className="rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 space-y-1 text-sm text-[#925E08]">
                   <p className="flex items-center gap-1.5 font-bold">
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                     Please verify unclear or missing details:

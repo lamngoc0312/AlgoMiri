@@ -19,17 +19,17 @@ export function DemoNotice({
     <div
       role="status"
       className={cn(
-        'flex flex-col gap-2 rounded-2xl border border-[#F1B34C]/60 bg-[#FEF6E6]/80 px-4 py-3.5 sm:flex-row sm:items-start sm:gap-3',
+        'flex flex-col gap-2 rounded-2xl border border-[#F2B84B]/60 bg-[#FEF7E7]/80 px-4 py-3.5 sm:flex-row sm:items-start sm:gap-3',
         className,
       )}
     >
       <div className="flex items-center gap-2 shrink-0 pt-0.5">
-        <Info className="h-4 w-4 text-[#9A630A]" aria-hidden="true" />
+        <Info className="h-4 w-4 text-[#925E08]" aria-hidden="true" />
         <Badge variant="demo">{badgeText}</Badge>
       </div>
-      <div className="text-sm leading-relaxed text-[#20253B]">
+      <div className="text-sm leading-relaxed text-[#202B3B]">
         <p className="font-semibold">{title}</p>
-        <p className="text-[#555D7A] mt-0.5">{description}</p>
+        <p className="text-[#526075] mt-0.5">{description}</p>
       </div>
     </div>
   );

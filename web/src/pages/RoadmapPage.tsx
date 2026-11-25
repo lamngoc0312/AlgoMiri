@@ -67,8 +67,8 @@ export function RoadmapPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <Compass className="h-5 w-5 text-[#645BE8]" aria-hidden="true" />
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#20253B] sm:text-3xl">
+            <Compass className="h-5 w-5 text-[#2664C2]" aria-hidden="true" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#202B3B] sm:text-3xl">
               Algorithm Learning Roadmap
             </h1>
             <Badge variant="indigo">
@@ -77,16 +77,16 @@ export function RoadmapPage({
             </Badge>
             <Badge variant="neutral">Deterministic Rules</Badge>
           </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-[#555D7A]">
+          <p className="max-w-2xl text-sm leading-relaxed text-[#526075]">
             Your next steps and skill prerequisites adapted transparently from your locally recorded Guided Learning and trace prediction evidence. All verified Studios remain open anytime.
           </p>
         </div>
 
         <Link
           to="/progress"
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#D7DCEB] bg-white px-4 text-sm font-semibold text-[#20253B] transition-colors hover:bg-[#F7F8FC]"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#D7DCEB] bg-white px-4 text-sm font-semibold text-[#202B3B] transition-colors hover:bg-[#F7F9FC]"
         >
-          <TrendingUp className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
+          <TrendingUp className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
           View Progress History
         </Link>
       </div>
@@ -94,10 +94,10 @@ export function RoadmapPage({
       {/* Transparent Local-Only & Non-Mastery Notice */}
       <div
         role="note"
-        className="flex items-start gap-2.5 rounded-2xl border border-[#D8DCFF] bg-[#EEF0FF]/55 px-4 py-3 text-xs leading-relaxed text-[#20253B]"
+        className="flex items-start gap-2.5 rounded-2xl border border-[#C2DAFA] bg-[#EAF2FD]/55 px-4 py-3 text-xs leading-relaxed text-[#202B3B]"
       >
         <Info
-          className="h-4 w-4 shrink-0 text-[#4F46D8] mt-0.5"
+          className="h-4 w-4 shrink-0 text-[#2257A8] mt-0.5"
           aria-hidden="true"
         />
         <p>
@@ -111,7 +111,7 @@ export function RoadmapPage({
       {loadState.warningMessage && (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-xl border border-[#F1B34C] bg-[#FEF6E6] px-4 py-3 text-xs text-[#9A630A]"
+          className="flex items-start gap-2 rounded-xl border border-[#F2B84B] bg-[#FEF7E7] px-4 py-3 text-xs text-[#925E08]"
         >
           <AlertTriangle
             className="h-4 w-4 shrink-0 mt-0.5"
@@ -123,15 +123,15 @@ export function RoadmapPage({
 
       {/* Recommended Next Activity Hero Card */}
       <section aria-labelledby="recommended-next-heading">
-        <Card className="border-2 border-[#645BE8]/50 bg-gradient-to-br from-white to-[#EEF0FF]/45">
+        <Card className="border-2 border-[#397BDB]/50 bg-gradient-to-br from-white to-[#EAF2FD]/45">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Sparkles
-                  className="h-4 w-4 text-[#645BE8]"
+                  className="h-4 w-4 text-[#2664C2]"
                   aria-hidden="true"
                 />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#4F46D8]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#2257A8]">
                   Recommended Next Activity
                 </span>
               </div>
@@ -152,22 +152,22 @@ export function RoadmapPage({
             >
               {recommendedNext.title}
             </CardTitle>
-            <p className="text-sm leading-relaxed text-[#555D7A]">
+            <p className="text-sm leading-relaxed text-[#526075]">
               {recommendedNext.summary}
             </p>
           </CardHeader>
 
           <CardContent className="space-y-4">
             {/* Explicit Explanation of Why Recommended */}
-            <div className="rounded-xl border border-[#D8DCFF] bg-white p-4 space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#4F46D8]">
+            <div className="rounded-xl border border-[#C2DAFA] bg-white p-4 space-y-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#2257A8]">
                 Why this was recommended
               </h3>
-              <ul className="space-y-1.5 text-xs leading-relaxed text-[#20253B]">
+              <ul className="space-y-1.5 text-xs leading-relaxed text-[#202B3B]">
                 {recommendedNext.whyBullets.map((bullet) => (
                   <li key={bullet} className="flex items-start gap-2">
                     <CheckCircle2
-                      className="h-3.5 w-3.5 shrink-0 text-[#16B89D] mt-0.5"
+                      className="h-3.5 w-3.5 shrink-0 text-[#0D7A6E] mt-0.5"
                       aria-hidden="true"
                     />
                     <span>{bullet}</span>
@@ -176,7 +176,7 @@ export function RoadmapPage({
               </ul>
               {recommendedNext.focusSkills.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[11px] font-semibold text-[#555D7A]">
+                  <span className="text-[11px] font-semibold text-[#526075]">
                     Focus skills:
                   </span>
                   {recommendedNext.focusSkills.map((skillId) => (
@@ -192,21 +192,21 @@ export function RoadmapPage({
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <Link
                 to={recommendedNext.targetPath}
-                className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#645BE8] px-5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#4F46D8]"
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#2B6CC9] px-5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#2257A8]"
               >
                 {recommendedNext.ctaLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
 
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="font-semibold text-[#555D7A]">
+                <span className="font-semibold text-[#526075]">
                   Or choose another Studio:
                 </span>
                 {roadmap.alternativeActivities.map((alt) => (
                   <Link
                     key={alt.id}
                     to={alt.targetPath}
-                    className="inline-flex h-9 items-center gap-1 rounded-xl border border-[#D7DCEB] bg-white px-3 font-semibold text-[#20253B] transition-colors hover:bg-[#F7F8FC]"
+                    className="inline-flex h-9 items-center gap-1 rounded-xl border border-[#D7DCEB] bg-white px-3 font-semibold text-[#202B3B] transition-colors hover:bg-[#F7F9FC]"
                   >
                     {alt.ctaLabel}
                   </Link>
@@ -232,17 +232,17 @@ export function RoadmapPage({
           <div>
             <h2
               id="learning-path-heading"
-              className="text-xl font-extrabold tracking-tight text-[#20253B]"
+              className="text-xl font-extrabold tracking-tight text-[#202B3B]"
             >
               Current Learning Path
             </h2>
-            <p className="text-xs text-[#555D7A]">
+            <p className="text-xs text-[#526075]">
               All 3 verified interactive Studios are open anytime — prerequisites are shown as guidance, never lockouts.
             </p>
           </div>
           <Link
             to="/problems"
-            className="text-xs font-semibold text-[#645BE8] hover:underline"
+            className="text-xs font-semibold text-[#2664C2] hover:underline"
           >
             Browse Problem Library &rarr;
           </Link>
@@ -254,13 +254,13 @@ export function RoadmapPage({
               <Card
                 className={`h-full flex flex-col justify-between ${
                   step.isRecommendedNext
-                    ? 'border-2 border-[#645BE8]/70'
-                    : 'border-[#E3E7F2]'
+                    ? 'border-2 border-[#397BDB]/70'
+                    : 'border-[#E2E8F0]'
                 }`}
               >
                 <CardHeader>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-bold text-[#645BE8]">
+                    <span className="font-mono text-xs font-bold text-[#2664C2]">
                       Step 0{idx + 1} · {step.difficulty}
                     </span>
                     <Badge variant={statusBadgeVariant(step.status)}>
@@ -279,17 +279,17 @@ export function RoadmapPage({
 
                 <CardContent className="flex flex-1 flex-col justify-between gap-4">
                   <div className="space-y-3 text-xs">
-                    <p className="text-[#555D7A] leading-relaxed">{step.note}</p>
+                    <p className="text-[#526075] leading-relaxed">{step.note}</p>
 
                     <div>
-                      <p className="font-semibold text-[#20253B]">
+                      <p className="font-semibold text-[#202B3B]">
                         Skills practiced:
                       </p>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         {step.focusSkills.map((skillId) => (
                           <span
                             key={skillId}
-                            className="rounded-md border border-[#E3E7F2] bg-[#F7F8FC] px-2 py-0.5 text-[11px] text-[#20253B]"
+                            className="rounded-md border border-[#E2E8F0] bg-[#F7F9FC] px-2 py-0.5 text-[11px] text-[#202B3B]"
                           >
                             {getSkillDefinition(skillId).name}
                           </span>
@@ -299,10 +299,10 @@ export function RoadmapPage({
 
                     {step.prerequisiteSkills.length > 0 && (
                       <div>
-                        <p className="font-semibold text-[#20253B]">
+                        <p className="font-semibold text-[#202B3B]">
                           Suggested prerequisites:
                         </p>
-                        <p className="mt-0.5 text-[11px] text-[#555D7A]">
+                        <p className="mt-0.5 text-[11px] text-[#526075]">
                           {step.prerequisiteSkills
                             .map((id) => getSkillDefinition(id).name)
                             .join(', ')}
@@ -311,13 +311,13 @@ export function RoadmapPage({
                     )}
                   </div>
 
-                  <div className="border-t border-[#E3E7F2] pt-3">
+                  <div className="border-t border-[#E2E8F0] pt-3">
                     <Link
                       to={step.studioPath}
                       className={`inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl text-xs font-semibold transition-colors ${
                         step.isRecommendedNext
-                          ? 'bg-[#645BE8] text-white hover:bg-[#4F46D8]'
-                          : 'border border-[#D7DCEB] bg-[#F7F8FC] text-[#4F46D8] hover:bg-[#EEF0FF]'
+                          ? 'bg-[#2B6CC9] text-white hover:bg-[#2257A8]'
+                          : 'border border-[#D7DCEB] bg-[#F7F9FC] text-[#2257A8] hover:bg-[#EAF2FD]'
                       }`}
                     >
                       {step.ctaLabel}
@@ -360,20 +360,20 @@ export function RoadmapPage({
                 {roadmap.skillsNeedingReview.map((node) => (
                   <li
                     key={node.skill.id}
-                    className="rounded-xl border border-[#F1B34C]/60 bg-[#FEF6E6]/60 p-3.5 space-y-1.5"
+                    className="rounded-xl border border-[#F2B84B]/60 bg-[#FEF7E7]/60 p-3.5 space-y-1.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-sm font-bold text-[#20253B]">
+                      <span className="text-sm font-bold text-[#202B3B]">
                         {node.skill.name}
                       </span>
                       <Badge variant="amber">{node.status}</Badge>
                     </div>
-                    <p className="text-xs text-[#555D7A] leading-relaxed">
+                    <p className="text-xs text-[#526075] leading-relaxed">
                       {node.statusReason}
                     </p>
                     <Link
                       to={node.skill.recommendedStudioPath}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#9A630A] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#925E08] hover:underline"
                     >
                       Review in Studio
                       <ArrowRight className="h-3 w-3" aria-hidden="true" />
@@ -382,7 +382,7 @@ export function RoadmapPage({
                 ))}
               </ul>
             ) : (
-              <p className="text-xs leading-relaxed text-[#555D7A]">
+              <p className="text-xs leading-relaxed text-[#526075]">
                 {roadmap.isFirstTimeLearner
                   ? 'No skills flagged for review yet — start a Guided Learning session to collect real evidence.'
                   : 'No skills are currently flagged for repeated mistakes, heavy hint reliance, or contradictory evidence.'}
@@ -396,7 +396,7 @@ export function RoadmapPage({
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 <BookOpen
-                  className="h-4 w-4 text-[#16B89D]"
+                  className="h-4 w-4 text-[#0D7A6E]"
                   aria-hidden="true"
                 />
                 <CardTitle>Previously Practiced Concepts</CardTitle>
@@ -413,13 +413,13 @@ export function RoadmapPage({
                 {roadmap.practicedSkills.map((node) => (
                   <li
                     key={node.skill.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] px-3.5 py-2.5 text-xs"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-3.5 py-2.5 text-xs"
                   >
                     <div>
-                      <p className="font-bold text-[#20253B]">
+                      <p className="font-bold text-[#202B3B]">
                         {node.skill.name}
                       </p>
-                      <p className="text-[11px] text-[#555D7A]">
+                      <p className="text-[11px] text-[#526075]">
                         {node.firstTryCount} first-try · {node.assistedCount}{' '}
                         assisted · {node.skippedCount} skipped
                       </p>
@@ -430,7 +430,7 @@ export function RoadmapPage({
                       </Badge>
                       <Link
                         to={node.skill.recommendedStudioPath}
-                        className="font-semibold text-[#645BE8] hover:underline"
+                        className="font-semibold text-[#2664C2] hover:underline"
                       >
                         Revisit
                       </Link>
@@ -439,7 +439,7 @@ export function RoadmapPage({
                 ))}
               </ul>
             ) : (
-              <p className="text-xs leading-relaxed text-[#555D7A]">
+              <p className="text-xs leading-relaxed text-[#526075]">
                 No concepts have active check or prediction evidence yet. Viewing a visualization alone introduces a concept, while answering stage checks and trace predictions records real practice.
               </p>
             )}
@@ -452,7 +452,7 @@ export function RoadmapPage({
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <Layers className="h-4 w-4 text-[#555D7A]" aria-hidden="true" />
+              <Layers className="h-4 w-4 text-[#526075]" aria-hidden="true" />
               <CardTitle className="text-base">
                 Planned Future Topics (Not Implemented Yet)
               </CardTitle>
@@ -465,17 +465,17 @@ export function RoadmapPage({
             {plannedMilestones.map((m) => (
               <li
                 key={m.id}
-                className="rounded-xl border border-[#E3E7F2] bg-[#F7F8FC]/60 p-3.5 space-y-1.5"
+                className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC]/60 p-3.5 space-y-1.5"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-[#20253B]">{m.title}</span>
+                  <span className="font-bold text-[#202B3B]">{m.title}</span>
                   <Lock
-                    className="h-3.5 w-3.5 text-[#555D7A]"
+                    className="h-3.5 w-3.5 text-[#526075]"
                     aria-hidden="true"
                   />
                 </div>
-                <p className="text-[#555D7A] leading-relaxed">{m.description}</p>
-                <p className="text-xs font-medium text-[#555D7A]">
+                <p className="text-[#526075] leading-relaxed">{m.description}</p>
+                <p className="text-xs font-medium text-[#526075]">
                   Planned anchor: {m.sampleProblem}
                 </p>
               </li>

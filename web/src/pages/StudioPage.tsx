@@ -474,7 +474,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       {/* Studio Top Bar + Problem Switcher + Mode Switcher (Streamlined) */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="text-2xl font-extrabold tracking-tight text-[#20253B]">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#202B3B]">
             Learning Studio
           </h1>
           <Badge variant="indigo">{spec.title}</Badge>
@@ -484,7 +484,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           {/* Quick Problem Switcher */}
           <nav
             aria-label="Switch problem"
-            className="inline-flex items-center gap-1 rounded-2xl border border-[#E3E7F2] bg-white p-1"
+            className="inline-flex items-center gap-1 rounded-2xl border border-[#E2E8F0] bg-white p-1"
           >
             {allModules.map((mod) => {
               const isCurrent = mod.id === problemModule.id;
@@ -494,8 +494,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   to={`/studio/${mod.id}${mode === 'explore' ? '?mode=explore' : ''}`}
                   className={`rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-colors ${
                     isCurrent
-                      ? 'bg-[#EEF0FF] text-[#4F46D8]'
-                      : 'text-[#555D7A] hover:text-[#20253B]'
+                      ? 'bg-[#EAF2FD] text-[#2257A8]'
+                      : 'text-[#526075] hover:text-[#202B3B]'
                   }`}
                 >
                   {mod.spec.title}
@@ -504,7 +504,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
             })}
             <Link
               to="/problems"
-              className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-semibold text-[#555D7A] hover:text-[#20253B]"
+              className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-semibold text-[#526075] hover:text-[#202B3B]"
               title="Open Problem Library"
             >
               <Library className="h-3.5 w-3.5" aria-hidden="true" />
@@ -516,7 +516,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           <div
             role="group"
             aria-label="Learning mode switcher"
-            className="inline-flex rounded-2xl border border-[#E3E7F2] bg-white p-1 shadow-[0_1px_2px_rgba(32,37,59,0.04)]"
+            className="inline-flex rounded-2xl border border-[#E2E8F0] bg-white p-1 shadow-[0_1px_2px_rgba(32,37,59,0.04)]"
           >
             <button
               type="button"
@@ -524,8 +524,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               onClick={() => handleSwitchMode('guided')}
               className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-colors cursor-pointer ${
                 mode === 'guided'
-                  ? 'bg-[#645BE8] text-white shadow-xs'
-                  : 'text-[#555D7A] hover:text-[#20253B]'
+                  ? 'bg-[#2B6CC9] text-white shadow-xs'
+                  : 'text-[#526075] hover:text-[#202B3B]'
               }`}
             >
               <GraduationCap className="h-4 w-4" aria-hidden="true" />
@@ -537,8 +537,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
               onClick={() => handleSwitchMode('explore')}
               className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-colors cursor-pointer ${
                 mode === 'explore'
-                  ? 'bg-[#645BE8] text-white shadow-xs'
-                  : 'text-[#555D7A] hover:text-[#20253B]'
+                  ? 'bg-[#2B6CC9] text-white shadow-xs'
+                  : 'text-[#526075] hover:text-[#202B3B]'
               }`}
             >
               <Compass className="h-4 w-4" aria-hidden="true" />
@@ -583,7 +583,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
           <div
             role="tablist"
             aria-label="Learning Studio panes"
-            className="grid grid-cols-3 gap-1.5 rounded-2xl border border-[#E3E7F2] bg-white p-1.5 lg:hidden"
+            className="grid grid-cols-3 gap-1.5 rounded-2xl border border-[#E2E8F0] bg-white p-1.5 lg:hidden"
           >
             {MOBILE_TABS.map(({ id, label, icon: Icon }) => {
               const isActive = mobileTab === id;
@@ -596,8 +596,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                   onClick={() => setMobileTab(id)}
                   className={`flex items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-semibold transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#645BE8] text-white shadow-xs'
-                      : 'text-[#555D7A] hover:bg-[#F7F8FC]'
+                      ? 'bg-[#2B6CC9] text-white shadow-xs'
+                      : 'text-[#526075] hover:bg-[#F7F9FC]'
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -646,14 +646,14 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                 }`}
               >
               {/* Synchronized Micro / Macro Perspective Switcher */}
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#E3E7F2] bg-white px-3.5 py-2.5">
-                <span className="text-xs font-bold text-[#555D7A]">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#E2E8F0] bg-white px-3.5 py-2.5">
+                <span className="text-xs font-bold text-[#526075]">
                   Perspective:
                 </span>
                 <div
                   role="group"
                   aria-label="Micro and Macro view switcher"
-                  className="inline-flex rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-0.5"
+                  className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-0.5"
                 >
                   <button
                     type="button"
@@ -661,8 +661,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                     onClick={() => setPerspective('micro')}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                       perspective === 'micro'
-                        ? 'bg-[#645BE8] text-white shadow-2xs'
-                        : 'text-[#555D7A] hover:text-[#20253B]'
+                        ? 'bg-[#2B6CC9] text-white shadow-2xs'
+                        : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
                     <Eye className="h-3.5 w-3.5" aria-hidden="true" />
@@ -674,8 +674,8 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                     onClick={() => setPerspective('macro')}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                       perspective === 'macro'
-                        ? 'bg-[#645BE8] text-white shadow-2xs'
-                        : 'text-[#555D7A] hover:text-[#20253B]'
+                        ? 'bg-[#2B6CC9] text-white shadow-2xs'
+                        : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
                     <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
@@ -908,24 +908,24 @@ export function StudioPage() {
   if (!problemModule) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-        <Card className="border-[#F1B34C]">
+        <Card className="border-[#F2B84B]">
           <CardContent className="p-6 space-y-4">
-            <div className="flex items-center gap-2 text-[#9A630A]">
+            <div className="flex items-center gap-2 text-[#925E08]">
               <AlertCircle className="h-5 w-5" aria-hidden="true" />
-              <h1 className="text-lg font-extrabold text-[#20253B]">
+              <h1 className="text-lg font-extrabold text-[#202B3B]">
                 Problem Not Available Yet
               </h1>
             </div>
-            <p className="text-sm leading-relaxed text-[#555D7A]">
+            <p className="text-sm leading-relaxed text-[#526075]">
               We don&apos;t have a verified deterministic visual engine for{' '}
-              <code className="font-mono font-semibold text-[#20253B]">
+              <code className="font-mono font-semibold text-[#202B3B]">
                 {resolvedId}
               </code>{' '}
               yet. Choose a supported interactive problem from the Problem Library.
             </p>
             <Link
               to="/problems"
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#645BE8] px-4 text-sm font-semibold text-white hover:bg-[#4F46D8]"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#2B6CC9] px-4 text-sm font-semibold text-white hover:bg-[#2257A8]"
             >
               Browse Problem Library
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

@@ -1,30 +1,61 @@
 @import "tailwindcss";
 
 @theme {
-  /* AlgoMiri Purple Brand Identity + Minimal Educational Workspace Tokens */
-  --color-brand-indigo: #645BE8;
-  --color-brand-indigo-dark: #4F46D8;
-  --color-brand-indigo-soft: #EEF0FF;
-  --color-brand-mint: #16B89D;
-  --color-brand-mint-dark: #0E967F;
-  --color-brand-mint-soft: #E6F8F4;
-  --color-brand-amber: #F1B34C;
-  --color-brand-amber-dark: #C28219;
-  --color-brand-amber-soft: #FEF6E6;
+  /* AlgoMiri — Colorful Minimalism Palette */
+  --color-brand-blue: #397BDB;
+  --color-brand-blue-hover: #2B64B8;
+  --color-brand-blue-text: #2257A8;
+  --color-brand-blue-soft: #EAF2FD;
+  --color-brand-blue-border: #C2DAFA;
 
-  /* High-Contrast Semantic Surfaces & Neutrals (WCAG AA >= 4.5:1) */
-  --color-ink: #181B2E;
-  --color-ink-muted: #4E5672;
-  --color-canvas: #F8F9FC;
+  --color-brand-teal: #15A897;
+  --color-brand-teal-hover: #0E8779;
+  --color-brand-teal-text: #0D7A6E;
+  --color-brand-teal-soft: #E6F7F5;
+  --color-brand-teal-border: #B4E6DF;
+
+  --color-brand-coral: #F47768;
+  --color-brand-coral-text: #B8382A;
+  --color-brand-coral-soft: #FEF0EE;
+  --color-brand-coral-border: #FACAC4;
+
+  --color-brand-amber: #F2B84B;
+  --color-brand-amber-text: #925E08;
+  --color-brand-amber-soft: #FEF7E7;
+  --color-brand-amber-border: #F8DFA8;
+
+  --color-brand-sky: #83C8ED;
+  --color-brand-sky-text: #1B648D;
+  --color-brand-sky-soft: #EDF8FE;
+  --color-brand-sky-border: #C5E7FA;
+
+  --color-brand-green: #74BF88;
+  --color-brand-green-text: #256B3A;
+  --color-brand-green-soft: #EEF8F1;
+  --color-brand-green-border: #C2E5CC;
+
+  /* Semantic Roles */
+  --color-primary: var(--color-brand-blue);
+  --color-secondary: var(--color-brand-teal);
+  --color-success: var(--color-brand-green);
+  --color-warning: var(--color-brand-amber);
+  --color-error: var(--color-brand-coral);
+  --color-info: var(--color-brand-sky);
+  --color-reward: var(--color-brand-amber);
+
+  /* High-Contrast Neutrals & Surfaces (WCAG AA >= 4.5:1) */
+  --color-ink: #202B3B;
+  --color-ink-muted: #526075;
+  --color-canvas: #F7F9FC;
   --color-surface: #FFFFFF;
-  --color-surface-subtle: #F4F5FA;
-  --color-border-subtle: #E4E7F1;
+  --color-surface-subtle: #F1F5FA;
+  --color-border-subtle: #E2E8F0;
 
   /* Typography */
   --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Spacious Educational Rhythm (UI/UX Pro Max Density 4/10) */
+  /* Spacious Educational Rhythm */
   --space-section: 3rem;
   --space-card: 1.5rem;
   --radius-card: 0.875rem;
@@ -51,7 +82,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-indigo);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -63,7 +94,7 @@
   z-index: 60;
   padding: 0.625rem 1rem;
   border-radius: 0.625rem;
-  background-color: var(--color-brand-indigo);
+  background-color: var(--color-primary);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.875rem;

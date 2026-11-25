@@ -87,7 +87,7 @@ export function ProblemAnalysisView({
         {isStale && (
           <div
             role="alert"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F1B34C] bg-[#FEF6E6] px-5 py-3.5 text-sm text-[#9A630A]"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"
           >
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -118,10 +118,10 @@ export function ProblemAnalysisView({
                 </Badge>
               )}
             </div>
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#181B2E]">
+            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#202B3B]">
               Live AI analysis is not enabled on this server
             </h3>
-            <p className="text-base leading-relaxed text-[#4E5672]">
+            <p className="text-base leading-relaxed text-[#526075]">
               Your pasted problem was not analyzed by an AI model because no live
               LLM key is configured. Your statement stays intact above — or you can
               practice right now in a verified interactive studio below.
@@ -129,13 +129,13 @@ export function ProblemAnalysisView({
           </div>
 
           {match.studio_path ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#BDECE2] bg-[#E6F8F4]/60 px-5 py-4">
-              <p className="text-sm font-medium text-[#181B2E]">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#B4E6DF] bg-[#E6F7F5]/60 px-5 py-4">
+              <p className="text-sm font-medium text-[#202B3B]">
                 {match.reason}
               </p>
               <Link
                 to={match.studio_path}
-                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#16B89D] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0E967F]"
+                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#0F8477] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0E8779]"
               >
                 {match.status === 'verified'
                   ? `Open Verified ${match.matched_problem_title} Studio`
@@ -144,8 +144,8 @@ export function ProblemAnalysisView({
               </Link>
             </div>
           ) : (
-            <div className="space-y-3 border-t border-[#E4E7F1] pt-5">
-              <p className="text-sm font-semibold text-[#181B2E]">
+            <div className="space-y-3 border-t border-[#E2E8F0] pt-5">
+              <p className="text-sm font-semibold text-[#202B3B]">
                 Try a verified interactive lesson instead:
               </p>
               <div className="flex flex-wrap gap-2.5">
@@ -153,7 +153,7 @@ export function ProblemAnalysisView({
                   <Link
                     key={studio.id}
                     to={studio.studioPath ?? `/studio/${studio.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E4E7F1] bg-[#F8F9FC] px-4 py-2.5 text-sm font-semibold text-[#181B2E] transition-colors hover:border-[#645BE8] hover:bg-[#EEF0FF]/60 hover:text-[#4F46D8]"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-4 py-2.5 text-sm font-semibold text-[#202B3B] transition-colors hover:border-[#397BDB] hover:bg-[#EAF2FD]/60 hover:text-[#2257A8]"
                   >
                     {studio.title}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -177,7 +177,7 @@ export function ProblemAnalysisView({
       {isStale && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F1B34C] bg-[#FEF6E6] px-5 py-4 text-sm text-[#9A630A]"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-4 text-sm text-[#925E08]"
         >
           <div className="flex items-start gap-2.5">
             <AlertTriangle
@@ -188,7 +188,7 @@ export function ProblemAnalysisView({
               <p className="font-bold">
                 Outdated Analysis — Problem Statement Changed
               </p>
-              <p className="mt-0.5 text-sm text-[#4E5672]">
+              <p className="mt-0.5 text-sm text-[#526075]">
                 Re-analyze to refresh this walkthrough and reset the AI Tutor.
               </p>
             </div>
@@ -202,7 +202,7 @@ export function ProblemAnalysisView({
         </div>
       )}
 
-      <Card className="overflow-hidden divide-y divide-[#E4E7F1]">
+      <Card className="overflow-hidden divide-y divide-[#E2E8F0]">
         {/* 1. Concise Header, Summary & Interactive Example Card */}
         <div className="p-6 sm:p-8 space-y-6">
           <div
@@ -210,7 +210,7 @@ export function ProblemAnalysisView({
             className="flex flex-wrap items-center justify-between gap-2 text-xs"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-[#4F46D8]">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[#2257A8]">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 AI-Generated · Conceptual (Not Verified)
               </span>
@@ -218,41 +218,41 @@ export function ProblemAnalysisView({
                 ·
               </span>
               {match.status === 'verified' && (
-                <span className="inline-flex items-center gap-1 font-semibold text-[#0D7D6A]">
+                <span className="inline-flex items-center gap-1 font-semibold text-[#0D7A6E]">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
                   Verified Deterministic Studio Available
                 </span>
               )}
               {match.status === 'ambiguous' && (
-                <span className="inline-flex items-center gap-1 font-semibold text-[#9A630A]">
+                <span className="inline-flex items-center gap-1 font-semibold text-[#925E08]">
                   <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
                   Ambiguous Match — Please Choose
                 </span>
               )}
               {match.status === 'conceptual_only' && (
-                <span className="font-medium text-[#4E5672]">
+                <span className="font-medium text-[#526075]">
                   Conceptual Analysis Only
                 </span>
               )}
             </div>
-            <span className="font-medium text-[#4E5672]">
+            <span className="font-medium text-[#526075]">
               {analysis.inferred_problem_type}
             </span>
           </div>
 
           <div className="space-y-2.5">
-            <h3 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#181B2E] leading-tight">
+            <h3 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#202B3B] leading-tight">
               {analysis.title}
             </h3>
-            <p className="text-base leading-[1.7] text-[#181B2E]">
+            <p className="text-base leading-[1.7] text-[#202B3B]">
               {analysis.plain_language_summary}
             </p>
           </div>
 
           {/* Interactive Visual Input -> Output Example */}
-          <div className="rounded-2xl bg-[#F8F9FC] border border-[#E4E7F1] p-5 space-y-4">
+          <div className="rounded-2xl bg-[#F7F9FC] border border-[#E2E8F0] p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                 Worked Example (Conceptual Illustration)
               </span>
               {walkthroughBeats.length > 1 && (
@@ -264,11 +264,11 @@ export function ProblemAnalysisView({
                     onClick={() =>
                       setActiveBeatIdx((idx) => Math.max(0, idx - 1))
                     }
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E4E7F1] bg-white text-[#181B2E] hover:border-[#645BE8] disabled:opacity-40 cursor-pointer"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#202B3B] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
-                  <span className="min-w-[44px] text-center font-mono text-xs font-semibold text-[#4E5672]">
+                  <span className="min-w-[44px] text-center font-mono text-xs font-semibold text-[#526075]">
                     {activeBeatIdx + 1} / {walkthroughBeats.length}
                   </span>
                   <button
@@ -280,7 +280,7 @@ export function ProblemAnalysisView({
                         Math.min(walkthroughBeats.length - 1, idx + 1),
                       )
                     }
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E4E7F1] bg-white text-[#181B2E] hover:border-[#645BE8] disabled:opacity-40 cursor-pointer"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#202B3B] hover:border-[#397BDB] disabled:opacity-40 cursor-pointer"
                   >
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
@@ -289,20 +289,20 @@ export function ProblemAnalysisView({
             </div>
 
             <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-              <div className="rounded-xl bg-white border border-[#E4E7F1] px-4 py-3">
-                <span className="block text-xs font-semibold text-[#4E5672]">
+              <div className="rounded-xl bg-white border border-[#E2E8F0] px-4 py-3">
+                <span className="block text-xs font-semibold text-[#526075]">
                   Input
                 </span>
-                <p className="mt-1 font-mono text-sm font-semibold text-[#181B2E] break-words">
+                <p className="mt-1 font-mono text-sm font-semibold text-[#202B3B] break-words">
                   {analysis.worked_example.input_summary}
                 </p>
               </div>
               <ArrowRight
-                className="hidden sm:block h-5 w-5 text-[#645BE8]"
+                className="hidden sm:block h-5 w-5 text-[#2664C2]"
                 aria-hidden="true"
               />
-              <div className="rounded-xl bg-[#E6F8F4]/60 border border-[#BDECE2] px-4 py-3">
-                <span className="block text-xs font-semibold text-[#0D7D6A]">
+              <div className="rounded-xl bg-[#E6F7F5]/60 border border-[#B4E6DF] px-4 py-3">
+                <span className="block text-xs font-semibold text-[#0D7A6E]">
                   Output
                 </span>
                 <p className="mt-1 font-mono text-sm font-bold text-[#0A594B] break-words">
@@ -314,7 +314,7 @@ export function ProblemAnalysisView({
             {activeBeat && (
               <p
                 aria-live="polite"
-                className="rounded-xl bg-white border border-[#E4E7F1] px-4 py-3 text-base leading-relaxed text-[#181B2E]"
+                className="rounded-xl bg-white border border-[#E2E8F0] px-4 py-3 text-base leading-relaxed text-[#202B3B]"
               >
                 {activeBeat}
               </p>
@@ -330,10 +330,10 @@ export function ProblemAnalysisView({
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h4 className="text-lg font-bold tracking-tight text-[#181B2E]">
+                <h4 className="text-lg font-bold tracking-tight text-[#202B3B]">
                   Walk Through the Logic
                 </h4>
-                <p className="text-sm text-[#4E5672]">
+                <p className="text-sm text-[#526075]">
                   Step {activeStep.stepNumber} of {conceptualSteps.length} ·
                   Conceptual guide (not an executed trace)
                 </p>
@@ -357,10 +357,10 @@ export function ProblemAnalysisView({
                       onClick={() => setActiveStepIdx(idx)}
                       className={`h-8 min-w-[32px] rounded-lg px-2.5 font-mono text-xs font-bold transition-colors cursor-pointer ${
                         isActive
-                          ? 'bg-[#645BE8] text-white'
+                          ? 'bg-[#2B6CC9] text-white'
                           : isVisited
-                            ? 'bg-[#EEF0FF] text-[#4F46D8] hover:bg-[#E1E4FF]'
-                            : 'bg-[#F4F5FA] text-[#4E5672] hover:bg-[#E4E7F1]'
+                            ? 'bg-[#EAF2FD] text-[#2257A8] hover:bg-[#DCEBFC]'
+                            : 'bg-[#F4F5FA] text-[#526075] hover:bg-[#E2E8F0]'
                       }`}
                     >
                       {step.stepNumber}
@@ -374,22 +374,22 @@ export function ProblemAnalysisView({
             <div
               role="tabpanel"
               aria-live="polite"
-              className="rounded-2xl border border-[#D8DCFF] bg-[#F8F9FC] p-5 sm:p-6 space-y-2.5"
+              className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-5 sm:p-6 space-y-2.5"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-2 text-base sm:text-lg font-bold text-[#181B2E]">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#645BE8] font-mono text-xs font-bold text-white">
+                <span className="inline-flex items-center gap-2 text-base sm:text-lg font-bold text-[#202B3B]">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#2B6CC9] font-mono text-xs font-bold text-white">
                     {activeStep.stepNumber}
                   </span>
                   {activeStep.title}
                 </span>
                 {activeStep.dependsOn.length > 0 && (
-                  <span className="text-xs font-medium text-[#4F46D8]">
+                  <span className="text-xs font-medium text-[#2257A8]">
                     Builds on {activeStep.dependsOn.join(', ')}
                   </span>
                 )}
               </div>
-              <p className="text-base leading-[1.7] text-[#181B2E] pl-9">
+              <p className="text-base leading-[1.7] text-[#202B3B] pl-9">
                 {activeStep.goal}
               </p>
             </div>
@@ -440,7 +440,7 @@ export function ProblemAnalysisView({
         {analysis.candidate_strategies.length > 0 && activeStrategy && (
           <div className="p-6 sm:p-8 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h4 className="text-lg font-bold tracking-tight text-[#181B2E]">
+              <h4 className="text-lg font-bold tracking-tight text-[#202B3B]">
                 Compare Approaches
               </h4>
               <div
@@ -458,8 +458,8 @@ export function ProblemAnalysisView({
                       onClick={() => onSelectStrategy(strat.name)}
                       className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-[#645BE8] text-white'
-                          : 'border border-[#E4E7F1] bg-[#F8F9FC] text-[#181B2E] hover:border-[#645BE8]'
+                          ? 'bg-[#2B6CC9] text-white'
+                          : 'border border-[#E2E8F0] bg-[#F7F9FC] text-[#202B3B] hover:border-[#397BDB]'
                       }`}
                     >
                       {strat.name}
@@ -469,22 +469,22 @@ export function ProblemAnalysisView({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#E4E7F1] bg-[#F8F9FC] p-5 space-y-3">
+            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-sm font-bold text-[#4F46D8]">
+                <span className="text-sm font-bold text-[#2257A8]">
                   {activeStrategy.technique}
                 </span>
                 <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#202B3B] border border-[#E2E8F0]">
                     <Clock
-                      className="h-3.5 w-3.5 text-[#645BE8]"
+                      className="h-3.5 w-3.5 text-[#2664C2]"
                       aria-hidden="true"
                     />
                     {activeStrategy.time_complexity}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#181B2E] border border-[#E4E7F1]">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-[#202B3B] border border-[#E2E8F0]">
                     <Database
-                      className="h-3.5 w-3.5 text-[#16B89D]"
+                      className="h-3.5 w-3.5 text-[#0D7A6E]"
                       aria-hidden="true"
                     />
                     {activeStrategy.space_complexity}
@@ -492,10 +492,10 @@ export function ProblemAnalysisView({
                 </div>
               </div>
 
-              <p className="text-base leading-relaxed text-[#181B2E]">
+              <p className="text-base leading-relaxed text-[#202B3B]">
                 {activeStrategy.intuition}
               </p>
-              <p className="text-sm leading-relaxed text-[#4E5672]">
+              <p className="text-sm leading-relaxed text-[#526075]">
                 {activeStrategy.why_it_applies}
               </p>
             </div>
@@ -504,12 +504,12 @@ export function ProblemAnalysisView({
 
         {/* 4. Guiding Question & Single Clear Next Action */}
         <div className="p-6 sm:p-8 space-y-5">
-          <div className="rounded-xl border-l-4 border-[#645BE8] bg-[#F8F9FC] px-5 py-4 space-y-1">
-            <p className="flex items-center gap-2 text-sm font-bold text-[#4F46D8]">
+          <div className="rounded-xl border-l-4 border-[#397BDB] bg-[#F7F9FC] px-5 py-4 space-y-1">
+            <p className="flex items-center gap-2 text-sm font-bold text-[#2257A8]">
               <HelpCircle className="h-4 w-4" aria-hidden="true" />
               Check Your Intuition
             </p>
-            <p className="text-base leading-relaxed text-[#181B2E]">
+            <p className="text-base leading-relaxed text-[#202B3B]">
               {guidingQuestion}
             </p>
           </div>
@@ -517,13 +517,13 @@ export function ProblemAnalysisView({
           <div className="flex flex-wrap items-center justify-between gap-3">
             {match.studio_path ? (
               <>
-                <p className="text-sm text-[#4E5672] max-w-md">{match.reason}</p>
+                <p className="text-sm text-[#526075] max-w-md">{match.reason}</p>
                 <Link
                   to={match.studio_path}
                   className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors ${
                     match.status === 'verified'
-                      ? 'bg-[#16B89D] text-white hover:bg-[#0E967F]'
-                      : 'border border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A] hover:bg-[#FDEBC8]'
+                      ? 'bg-[#0F8477] text-white hover:bg-[#0E8779]'
+                      : 'border border-[#F2B84B] bg-[#FEF7E7] text-[#925E08] hover:bg-[#FDEBC8]'
                   }`}
                 >
                   {match.status === 'verified'
@@ -534,7 +534,7 @@ export function ProblemAnalysisView({
               </>
             ) : onOpenTutor ? (
               <>
-                <p className="text-sm text-[#4E5672]">
+                <p className="text-sm text-[#526075]">
                   Want a simpler explanation or a Socratic hint?
                 </p>
                 <Button variant="primary" size="md" onClick={onOpenTutor}>
@@ -548,32 +548,32 @@ export function ProblemAnalysisView({
 
         {/* 5. Progressive Disclosure: Constraints, Edge Cases, Complexity & Prerequisites */}
         <details className="group">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 sm:px-8 py-4 text-sm font-bold text-[#181B2E] hover:bg-[#F8F9FC]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 sm:px-8 py-4 text-sm font-bold text-[#202B3B] hover:bg-[#F7F9FC]">
             <span>
               Constraints, Edge Cases, Complexity Notes &amp; Prerequisites
             </span>
             <ChevronDown
-              className="h-4 w-4 shrink-0 text-[#4E5672] transition-transform group-open:rotate-180"
+              className="h-4 w-4 shrink-0 text-[#526075] transition-transform group-open:rotate-180"
               aria-hidden="true"
             />
           </summary>
           <div className="px-6 sm:px-8 pb-7 pt-2 space-y-5 text-sm">
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Inputs
                 </h5>
-                <ul className="space-y-1 text-[#181B2E]">
+                <ul className="space-y-1 text-[#202B3B]">
                   {analysis.inputs.map((inp) => (
                     <li key={inp}>• {inp}</li>
                   ))}
                 </ul>
               </div>
               <div className="space-y-1.5">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Outputs
                 </h5>
-                <ul className="space-y-1 text-[#181B2E]">
+                <ul className="space-y-1 text-[#202B3B]">
                   {analysis.outputs.map((out) => (
                     <li key={out}>• {out}</li>
                   ))}
@@ -583,20 +583,20 @@ export function ProblemAnalysisView({
 
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Constraints &amp; Assumptions
                 </h5>
-                <ul className="space-y-1 text-[#181B2E]">
+                <ul className="space-y-1 text-[#202B3B]">
                   {analysis.constraints_and_assumptions.map((c) => (
                     <li key={c}>• {c}</li>
                   ))}
                 </ul>
               </div>
               <div className="space-y-1.5">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Important Edge Cases
                 </h5>
-                <ul className="space-y-1 text-[#181B2E]">
+                <ul className="space-y-1 text-[#202B3B]">
                   {analysis.edge_cases.map((e) => (
                     <li key={e}>• {e}</li>
                   ))}
@@ -605,23 +605,23 @@ export function ProblemAnalysisView({
             </div>
 
             {activeStrategy && (
-              <div className="rounded-xl bg-[#F8F9FC] border border-[#E4E7F1] p-4 space-y-1">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-[#4E5672]">
+              <div className="rounded-xl bg-[#F7F9FC] border border-[#E2E8F0] p-4 space-y-1">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Complexity Assumptions &amp; Limitations ({activeStrategy.name})
                 </h5>
-                <p className="text-[#181B2E]">
+                <p className="text-[#202B3B]">
                   <strong>Assumptions:</strong>{' '}
                   {activeStrategy.complexity_assumptions}
                 </p>
-                <p className="text-[#4E5672]">
+                <p className="text-[#526075]">
                   <strong>Limitations:</strong> {activeStrategy.limitations}
                 </p>
               </div>
             )}
 
             {analysis.prerequisite_concepts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E4E7F1]">
-                <span className="text-xs font-bold text-[#4E5672]">
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E2E8F0]">
+                <span className="text-xs font-bold text-[#526075]">
                   Prerequisites:
                 </span>
                 {analysis.prerequisite_concepts.map((concept) => (
@@ -632,7 +632,7 @@ export function ProblemAnalysisView({
               </div>
             )}
 
-            <p className="text-xs text-[#4E5672] pt-2 border-t border-[#E4E7F1]">
+            <p className="text-xs text-[#526075] pt-2 border-t border-[#E2E8F0]">
               {analysis.confidence_notes} {match.user_input_note}
             </p>
           </div>

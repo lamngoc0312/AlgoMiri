@@ -33,7 +33,7 @@ export function PredictNextStepCard({
 
   if (!prompt) {
     return (
-      <div className="rounded-xl border border-[#E4E7F1] bg-[#F8F9FC] p-4 text-sm text-[#4E5672]">
+      <div className="rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-4 text-sm text-[#526075]">
         Reached the final step of this trace. Reset or try a custom input to practice more predictions!
       </div>
     );
@@ -52,10 +52,10 @@ export function PredictNextStepCard({
   return (
     <section
       aria-label="Predict the next step"
-      className="rounded-xl border border-[#D8DCFF] border-l-4 border-l-[#645BE8] bg-[#F8F9FC] p-5 space-y-3.5"
+      className="rounded-xl border border-[#C2DAFA] border-l-4 border-l-[#397BDB] bg-[#F7F9FC] p-5 space-y-3.5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-sm font-bold text-[#4F46D8]">
+        <div className="flex items-center gap-2 text-sm font-bold text-[#2257A8]">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           Predict the Next Step
         </div>
@@ -69,7 +69,7 @@ export function PredictNextStepCard({
         </div>
       </div>
 
-      <p className="text-base font-semibold leading-snug text-[#181B2E]">
+      <p className="text-base font-semibold leading-snug text-[#202B3B]">
         {prompt.question}
       </p>
 
@@ -77,13 +77,13 @@ export function PredictNextStepCard({
         {prompt.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
           let style =
-            'border-[#DCE1F0] bg-white text-[#181B2E] hover:border-[#645BE8] hover:bg-[#EEF0FF]/35';
+            'border-[#DCE1F0] bg-white text-[#202B3B] hover:border-[#397BDB] hover:bg-[#EAF2FD]/35';
 
           if (isSelected && option.isCorrect) {
             style =
-              'border-[#16B89D] bg-[#E6F8F4] text-[#0A594B] font-semibold';
+              'border-[#15A897] bg-[#E6F7F5] text-[#0A594B] font-semibold';
           } else if (isSelected && !option.isCorrect) {
-            style = 'border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A]';
+            style = 'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08]';
           }
 
           return (
@@ -106,8 +106,8 @@ export function PredictNextStepCard({
           role="status"
           className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${
             selectedOption.isCorrect
-              ? 'border-[#16B89D]/60 bg-[#E6F8F4] text-[#0A594B]'
-              : 'border-[#F1B34C] bg-[#FEF6E6] text-[#9A630A]'
+              ? 'border-[#15A897]/60 bg-[#E6F7F5] text-[#0A594B]'
+              : 'border-[#F2B84B] bg-[#FEF7E7] text-[#925E08]'
           }`}
         >
           <div className="flex items-center gap-1.5 font-bold">

@@ -69,12 +69,12 @@ export function PlaybackControls({
   return (
     <div
       aria-label="Trace playback controls"
-      className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC] p-3.5 sm:p-4 space-y-3"
+      className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] p-3.5 sm:p-4 space-y-3"
     >
       {/* Timeline & Step Counter */}
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="font-mono font-semibold text-[#20253B]">
+          <span className="font-mono font-semibold text-[#202B3B]">
             Step {stepIndex + 1} of {totalSteps}
           </span>
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function PlaybackControls({
               <Badge variant="amber">Completed · Not Found / Invalid</Badge>
             )}
             {status === 'running' && (
-              <span className="font-mono text-[11px] text-[#555D7A]">
+              <span className="font-mono text-[11px] text-[#526075]">
                 {progressPercent}%
               </span>
             )}
@@ -99,7 +99,7 @@ export function PlaybackControls({
           onChange={(e) => handleSliderChange(Number(e.target.value))}
           aria-label="Trace step timeline"
           aria-valuetext={`Step ${stepIndex + 1} of ${totalSteps}`}
-          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#DCE1F0] accent-[#645BE8] disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#DCE1F0] accent-[#397BDB] disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>
 
@@ -178,7 +178,7 @@ export function PlaybackControls({
         <div className="flex items-center gap-2">
           <label
             htmlFor="playback-speed"
-            className="text-xs font-semibold text-[#555D7A]"
+            className="text-xs font-semibold text-[#526075]"
           >
             Speed
           </label>
@@ -187,7 +187,7 @@ export function PlaybackControls({
             value={speed}
             onChange={(e) => onSpeedChange(Number(e.target.value))}
             aria-label="Playback speed"
-            className="h-9 rounded-xl border border-[#D7DCEB] bg-white px-2.5 font-mono text-xs font-semibold text-[#20253B] focus:border-[#645BE8] focus:outline-none cursor-pointer"
+            className="h-9 rounded-xl border border-[#D7DCEB] bg-white px-2.5 font-mono text-xs font-semibold text-[#202B3B] focus:border-[#397BDB] focus:outline-none cursor-pointer"
           >
             {PLAYBACK_SPEEDS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -199,7 +199,7 @@ export function PlaybackControls({
       </div>
 
       {isForwardBlocked && (
-        <p className="text-[11px] font-medium text-[#9A630A]">
+        <p className="text-[11px] font-medium text-[#925E08]">
           Checkpoint active — answer the prediction below or click Skip &amp; Reveal Next Step to advance.
         </p>
       )}

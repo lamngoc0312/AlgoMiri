@@ -73,20 +73,20 @@ function nodeBorderClasses(
   isRecommended: boolean,
 ): string {
   if (isSelected) {
-    return 'border-[#645BE8] bg-[#EEF0FF]/70 ring-2 ring-[#645BE8]/35';
+    return 'border-[#397BDB] bg-[#EAF2FD]/70 ring-2 ring-[#397BDB]/35';
   }
   if (isRecommended) {
-    return 'border-[#645BE8]/70 bg-[#EEF0FF]/35 hover:bg-[#EEF0FF]/60';
+    return 'border-[#397BDB]/70 bg-[#EAF2FD]/35 hover:bg-[#EAF2FD]/60';
   }
   switch (status) {
     case 'Strong Guided Recall':
-      return 'border-[#16B89D]/60 bg-[#E6F8F4]/45 hover:bg-[#E6F8F4]/75';
+      return 'border-[#15A897]/60 bg-[#E6F7F5]/45 hover:bg-[#E6F7F5]/75';
     case 'Needs Practice':
-      return 'border-[#F1B34C] bg-[#FEF6E6]/65 hover:bg-[#FEF6E6]';
+      return 'border-[#F2B84B] bg-[#FEF7E7]/65 hover:bg-[#FEF7E7]';
     case 'Guided Progress':
-      return 'border-[#D8DCFF] bg-white hover:bg-[#F7F8FC]';
+      return 'border-[#C2DAFA] bg-white hover:bg-[#F7F9FC]';
     default:
-      return 'border-[#E3E7F2] bg-white hover:bg-[#F7F8FC]';
+      return 'border-[#E2E8F0] bg-white hover:bg-[#F7F9FC]';
   }
 }
 
@@ -201,15 +201,15 @@ export function InteractiveSkillMap({
 
   return (
     <Card>
-      <CardHeader className="border-b border-[#E3E7F2]">
+      <CardHeader className="border-b border-[#E2E8F0]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <GitBranch className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
+              <GitBranch className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
               <CardTitle>Interactive Skill Prerequisite Map</CardTitle>
               <Badge variant="neutral">Conceptual Dependencies</Badge>
             </div>
-            <p className="text-xs leading-relaxed text-[#555D7A]">
+            <p className="text-xs leading-relaxed text-[#526075]">
               Shows genuine learning prerequisites between concepts (not an algorithm execution trace). Select any skill with mouse or arrow keys to highlight its connections, evidence, and linked Studios.
             </p>
           </div>
@@ -217,7 +217,7 @@ export function InteractiveSkillMap({
           <div
             role="group"
             aria-label="Skill map view mode"
-            className="inline-flex rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] p-1"
+            className="inline-flex rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] p-1"
           >
             <button
               type="button"
@@ -225,8 +225,8 @@ export function InteractiveSkillMap({
               onClick={() => setViewMode('map')}
               className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                 viewMode === 'map'
-                  ? 'bg-[#645BE8] text-white shadow-2xs'
-                  : 'text-[#555D7A] hover:text-[#20253B]'
+                  ? 'bg-[#2B6CC9] text-white shadow-2xs'
+                  : 'text-[#526075] hover:text-[#202B3B]'
               }`}
             >
               <Network className="h-3.5 w-3.5" aria-hidden="true" />
@@ -238,8 +238,8 @@ export function InteractiveSkillMap({
               onClick={() => setViewMode('list')}
               className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                 viewMode === 'list'
-                  ? 'bg-[#645BE8] text-white shadow-2xs'
-                  : 'text-[#555D7A] hover:text-[#20253B]'
+                  ? 'bg-[#2B6CC9] text-white shadow-2xs'
+                  : 'text-[#526075] hover:text-[#202B3B]'
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden="true" />
@@ -287,7 +287,7 @@ export function InteractiveSkillMap({
                     markerHeight="6"
                     orient="auto-start-reverse"
                   >
-                    <path d="M 0 1 L 7 4 L 0 7 z" fill="#645BE8" />
+                    <path d="M 0 1 L 7 4 L 0 7 z" fill="#397BDB" />
                   </marker>
                 </defs>
                 {connectors.map((line) => {
@@ -300,7 +300,7 @@ export function InteractiveSkillMap({
                       key={line.id}
                       d={line.path}
                       fill="none"
-                      stroke={isHighlighted ? '#645BE8' : '#C5CCE8'}
+                      stroke={isHighlighted ? '#397BDB' : '#C5CCE8'}
                       strokeWidth={isHighlighted ? 2.25 : 1.5}
                       strokeOpacity={isHighlighted ? 0.9 : 0.65}
                       markerEnd={
@@ -318,10 +318,10 @@ export function InteractiveSkillMap({
               {graphValidation.layers.map((layerIds, layerIndex) => (
                 <div
                   key={layerIndex}
-                  className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC]/75 p-3 space-y-2.5"
+                  className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC]/75 p-3 space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                       {layerIndex + 1}. {LAYER_TITLES[layerIndex] ?? 'Advanced'}
                     </span>
                   </div>
@@ -348,23 +348,23 @@ export function InteractiveSkillMap({
                           aria-pressed={isSelected}
                           onClick={() => setSelectedSkillId(skillId)}
                           onKeyDown={(e) => handleNodeKeyDown(e, skillId)}
-                          className={`w-full rounded-xl border p-3 text-left transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#645BE8] ${nodeBorderClasses(
+                          className={`w-full rounded-xl border p-3 text-left transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#397BDB] ${nodeBorderClasses(
                             node.status,
                             isSelected,
                             isRecommended,
                           )} ${
                             isRelatedToSelected && !isSelected
-                              ? 'ring-1 ring-[#645BE8]/45'
+                              ? 'ring-1 ring-[#397BDB]/45'
                               : ''
                           }`}
                         >
                           <div className="flex items-start justify-between gap-1.5">
-                            <span className="text-xs font-bold text-[#20253B] leading-snug">
+                            <span className="text-xs font-bold text-[#202B3B] leading-snug">
                               {node.skill.name}
                             </span>
                             {isRecommended && (
                               <Sparkles
-                                className="h-3.5 w-3.5 shrink-0 text-[#645BE8]"
+                                className="h-3.5 w-3.5 shrink-0 text-[#2664C2]"
                                 aria-label="Recommended goal"
                               />
                             )}
@@ -380,14 +380,14 @@ export function InteractiveSkillMap({
                           </div>
 
                           {node.prerequisites.length > 0 ? (
-                            <p className="mt-2 text-xs text-[#555D7A] leading-snug">
+                            <p className="mt-2 text-xs text-[#526075] leading-snug">
                               Needs:{' '}
                               {node.prerequisites
                                 .map((id) => getSkillDefinition(id).name)
                                 .join(', ')}
                             </p>
                           ) : (
-                            <p className="mt-2 text-xs text-[#0D7D6A] font-medium">
+                            <p className="mt-2 text-xs text-[#0D7A6E] font-medium">
                               Independent foundation
                             </p>
                           )}
@@ -422,7 +422,7 @@ export function InteractiveSkillMap({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-bold text-[#20253B]">
+                        <span className="text-sm font-bold text-[#202B3B]">
                           {node.skill.name}
                         </span>
                         <Badge variant={badgeVariantForStatus(node.status)}>
@@ -435,15 +435,15 @@ export function InteractiveSkillMap({
                       <button
                         type="button"
                         onClick={() => setSelectedSkillId(skillId)}
-                        className="inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-xs font-semibold text-[#645BE8] hover:bg-[#EEF0FF] cursor-pointer"
+                        className="inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-xs font-semibold text-[#2664C2] hover:bg-[#EAF2FD] cursor-pointer"
                       >
                         {isSelected ? 'Inspecting' : 'Inspect details'}
                       </button>
                     </div>
-                    <p className="mt-1 text-xs text-[#555D7A]">
+                    <p className="mt-1 text-xs text-[#526075]">
                       {node.skill.description}
                     </p>
-                    <p className="mt-1.5 text-xs text-[#555D7A]">
+                    <p className="mt-1.5 text-xs text-[#526075]">
                       <strong>Prerequisites:</strong>{' '}
                       {node.prerequisites.length > 0
                         ? node.prerequisites
@@ -471,51 +471,51 @@ export function InteractiveSkillMap({
         {selectedNode && (
           <aside
             aria-label={`Skill details for ${selectedNode.skill.name}`}
-            className="rounded-2xl border border-[#D8DCFF] bg-[#F7F8FC] p-4 sm:p-5 grid gap-5 lg:grid-cols-[1.15fr_1fr]"
+            className="rounded-2xl border border-[#C2DAFA] bg-[#F7F9FC] p-4 sm:p-5 grid gap-5 lg:grid-cols-[1.15fr_1fr]"
           >
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     {selectedNode.skill.category}
                   </span>
                   <Badge variant={badgeVariantForStatus(selectedNode.status)}>
                     {selectedNode.status}
                   </Badge>
                 </div>
-                <h3 className="text-base font-extrabold text-[#20253B]">
+                <h3 className="text-base font-extrabold text-[#202B3B]">
                   {selectedNode.skill.name}
                 </h3>
-                <p className="text-xs leading-relaxed text-[#555D7A]">
+                <p className="text-xs leading-relaxed text-[#526075]">
                   {selectedNode.skill.description}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#E3E7F2] bg-white p-3.5 space-y-2 text-xs">
-                <p className="font-semibold text-[#20253B]">Recorded Evidence</p>
-                <p className="text-[#555D7A] leading-relaxed">
+              <div className="rounded-xl border border-[#E2E8F0] bg-white p-3.5 space-y-2 text-xs">
+                <p className="font-semibold text-[#202B3B]">Recorded Evidence</p>
+                <p className="text-[#526075] leading-relaxed">
                   {selectedNode.statusReason}
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-1 font-mono text-xs text-[#555D7A]">
-                  <span className="rounded bg-[#F7F8FC] px-2 py-0.5 border border-[#E3E7F2]">
+                <div className="flex flex-wrap gap-1.5 pt-1 font-mono text-xs text-[#526075]">
+                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
                     First-try: {selectedNode.firstTryCount}
                   </span>
-                  <span className="rounded bg-[#F7F8FC] px-2 py-0.5 border border-[#E3E7F2]">
+                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
                     Assisted: {selectedNode.assistedCount}
                   </span>
-                  <span className="rounded bg-[#F7F8FC] px-2 py-0.5 border border-[#E3E7F2]">
+                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
                     Mistakes: {selectedNode.unresolvedOrWrongCount}
                   </span>
-                  <span className="rounded bg-[#F7F8FC] px-2 py-0.5 border border-[#E3E7F2]">
+                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
                     Skips: {selectedNode.skippedCount}
                   </span>
-                  <span className="rounded bg-[#F7F8FC] px-2 py-0.5 border border-[#E3E7F2]">
+                  <span className="rounded bg-[#F7F9FC] px-2 py-0.5 border border-[#E2E8F0]">
                     Hints: {selectedNode.hintsAssociated}
                   </span>
                 </div>
                 {selectedNode.hasContradictoryEvidence &&
                   selectedNode.contradictionNote && (
-                    <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F1B34C] bg-[#FEF6E6] p-2.5 text-xs text-[#9A630A]">
+                    <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-[#F2B84B] bg-[#FEF7E7] p-2.5 text-xs text-[#925E08]">
                       <AlertTriangle
                         className="h-4 w-4 shrink-0 mt-0.5"
                         aria-hidden="true"
@@ -532,7 +532,7 @@ export function InteractiveSkillMap({
                     <Link
                       key={problemId}
                       to={`/studio/${problemId}`}
-                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-[#645BE8] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#4F46D8]"
+                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-[#2B6CC9] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#2257A8]"
                     >
                       Open {mod?.spec.title ?? problemId}
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -545,7 +545,7 @@ export function InteractiveSkillMap({
             <div className="space-y-4">
               {/* Prerequisites with Rationale */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                   Prerequisites ({selectedNode.prerequisites.length})
                 </h4>
                 {selectedNode.prerequisites.length > 0 ? (
@@ -559,13 +559,13 @@ export function InteractiveSkillMap({
                       return (
                         <li
                           key={prereqId}
-                          className="rounded-xl border border-[#E3E7F2] bg-white p-3 text-xs space-y-1"
+                          className="rounded-xl border border-[#E2E8F0] bg-white p-3 text-xs space-y-1"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <button
                               type="button"
                               onClick={() => selectAndFocusSkill(prereqId)}
-                              className="inline-flex min-h-[34px] items-center font-bold text-[#4F46D8] hover:underline cursor-pointer"
+                              className="inline-flex min-h-[34px] items-center font-bold text-[#2257A8] hover:underline cursor-pointer"
                             >
                               {getSkillDefinition(prereqId).name}
                             </button>
@@ -576,7 +576,7 @@ export function InteractiveSkillMap({
                             )}
                           </div>
                           {rationale && (
-                            <p className="text-xs text-[#555D7A] leading-relaxed">
+                            <p className="text-xs text-[#526075] leading-relaxed">
                               {rationale}
                             </p>
                           )}
@@ -585,7 +585,7 @@ export function InteractiveSkillMap({
                     })}
                   </ul>
                 ) : (
-                  <p className="flex items-center gap-1.5 text-xs text-[#0D7D6A]">
+                  <p className="flex items-center gap-1.5 text-xs text-[#0D7A6E]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     Independent foundation — no prerequisites required.
                   </p>
@@ -595,7 +595,7 @@ export function InteractiveSkillMap({
               {/* Dependent Skills */}
               {selectedNode.dependents.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#555D7A]">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#526075]">
                     Prepares You For
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -604,7 +604,7 @@ export function InteractiveSkillMap({
                         key={depId}
                         type="button"
                         onClick={() => selectAndFocusSkill(depId)}
-                        className="inline-flex min-h-[36px] items-center rounded-xl border border-[#D8DCFF] bg-white px-3 py-1.5 text-xs font-semibold text-[#4F46D8] hover:bg-[#EEF0FF] cursor-pointer"
+                        className="inline-flex min-h-[36px] items-center rounded-xl border border-[#C2DAFA] bg-white px-3 py-1.5 text-xs font-semibold text-[#2257A8] hover:bg-[#EAF2FD] cursor-pointer"
                       >
                         {getSkillDefinition(depId).name} &rarr;
                       </button>
@@ -616,8 +616,8 @@ export function InteractiveSkillMap({
           </aside>
         )}
 
-        <div className="flex items-start gap-2 rounded-xl border border-[#E3E7F2] bg-[#F7F8FC] px-3.5 py-2.5 text-xs text-[#555D7A]">
-          <Info className="h-4 w-4 shrink-0 text-[#645BE8] mt-0.5" aria-hidden="true" />
+        <div className="flex items-start gap-2 rounded-xl border border-[#E2E8F0] bg-[#F7F9FC] px-3.5 py-2.5 text-xs text-[#526075]">
+          <Info className="h-4 w-4 shrink-0 text-[#2664C2] mt-0.5" aria-hidden="true" />
           <p>
             <strong>Cautious labels:</strong> &ldquo;Strong Guided Recall&rdquo; reflects consistent first-try answers inside Guided Learning and trace predictions — it does <strong>not</strong> claim independent mastery without a future unassisted assessment.
           </p>

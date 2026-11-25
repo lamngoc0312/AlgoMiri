@@ -17,6 +17,7 @@ import {
 import { ProblemComposer } from '../features/composer/ProblemComposer';
 import { ProblemAnalysisView } from '../features/analyzer/ProblemAnalysisView';
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
+import { getTopicVisualStyle } from '../styles/topicColors';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -251,11 +252,11 @@ export function LandingPage() {
       {/* Focused Single-Column Hero & Main Problem Input */}
       <section className="mx-auto max-w-3xl space-y-7 text-center">
         <div className="space-y-3.5">
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#181B2E] sm:text-5xl leading-[1.12]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#202B3B] sm:text-5xl leading-[1.12]">
             Understand the logic{' '}
-            <span className="text-[#645BE8]">before you code.</span>
+            <span className="text-[#2664C2]">before you code.</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#4E5672] sm:text-lg">
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-[#526075] sm:text-lg">
             Paste any programming problem for a step-by-step conceptual breakdown,
             or practice interactively in a verified visual studio.
           </p>
@@ -284,7 +285,7 @@ export function LandingPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2
               id="ai-analysis-heading"
-              className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#181B2E]"
+              className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#202B3B]"
             >
               {analysisResult.mode === 'offline-demo'
                 ? 'Analysis Status'
@@ -296,7 +297,7 @@ export function LandingPage() {
                 <div
                   role="tablist"
                   aria-label="Analysis and AI Tutor views"
-                  className="inline-flex rounded-xl border border-[#E4E7F1] bg-white p-1"
+                  className="inline-flex rounded-xl border border-[#E2E8F0] bg-white p-1"
                 >
                   <button
                     type="button"
@@ -305,8 +306,8 @@ export function LandingPage() {
                     onClick={() => setActiveWorkspaceTab('analysis')}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'analysis'
-                        ? 'bg-[#645BE8] text-white'
-                        : 'text-[#4E5672] hover:text-[#181B2E]'
+                        ? 'bg-[#2B6CC9] text-white'
+                        : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
                     Learn (Analysis)
@@ -318,8 +319,8 @@ export function LandingPage() {
                     onClick={() => setActiveWorkspaceTab('tutor')}
                     className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                       activeWorkspaceTab === 'tutor'
-                        ? 'bg-[#645BE8] text-white'
-                        : 'text-[#4E5672] hover:text-[#181B2E]'
+                        ? 'bg-[#2B6CC9] text-white'
+                        : 'text-[#526075] hover:text-[#202B3B]'
                     }`}
                   >
                     Ask AI Tutor
@@ -359,7 +360,7 @@ export function LandingPage() {
               {isAnalysisStale && (
                 <div
                   role="alert"
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F1B34C] bg-[#FEF6E6] px-5 py-3.5 text-sm text-[#9A630A]"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F2B84B] bg-[#FEF7E7] px-5 py-3.5 text-sm text-[#925E08]"
                 >
                   <span className="font-bold">
                     Outdated Analysis — Problem Statement Changed
@@ -390,17 +391,17 @@ export function LandingPage() {
           <div>
             <h2
               id="curated-studios-heading"
-              className="text-2xl font-extrabold tracking-tight text-[#181B2E]"
+              className="text-2xl font-extrabold tracking-tight text-[#202B3B]"
             >
               Curated Visual Studios
             </h2>
-            <p className="mt-1 text-base text-[#4E5672]">
+            <p className="mt-1 text-base text-[#526075]">
               Step through verified, deterministic visualizations before writing code.
             </p>
           </div>
           <Link
             to="/problems"
-            className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
+            className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
           >
             Browse Problem Library
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -408,40 +409,45 @@ export function LandingPage() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          {verifiedStudios.map((studio) => (
-            <Card
-              key={studio.id}
-              className="flex flex-col justify-between transition-colors hover:border-[#645BE8]/50"
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between gap-2">
-                  <Badge variant="mint">Verified Studio</Badge>
-                  <span className="text-xs font-medium text-[#4E5672]">
-                    {studio.topic}
-                  </span>
-                </div>
-                <CardTitle className="mt-2.5 text-xl">{studio.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col justify-between gap-5">
-                <p className="text-sm leading-relaxed text-[#4E5672]">
-                  {studio.summary}
-                </p>
-                <div className="flex items-center justify-between border-t border-[#E4E7F1] pt-3.5">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#4E5672]">
-                    <Layers className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
-                    {studio.stagesCount}-stage lesson
-                  </span>
-                  <Link
-                    to={studio.studioPath ?? `/studio/${studio.id}`}
-                    className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#645BE8] hover:text-[#4F46D8]"
-                  >
-                    Open Studio
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {verifiedStudios.map((studio) => {
+            const topicStyle = getTopicVisualStyle(studio.topic);
+            return (
+              <Card
+                key={studio.id}
+                className="overflow-hidden flex flex-col justify-between transition-colors hover:border-[#397BDB]/60"
+              >
+                <div
+                  className={`h-1 w-full ${topicStyle.accentBarClass}`}
+                  aria-hidden="true"
+                />
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="teal">Verified Studio</Badge>
+                    <Badge variant={topicStyle.badgeVariant}>{studio.topic}</Badge>
+                  </div>
+                  <CardTitle className="mt-2.5 text-xl">{studio.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-between gap-5">
+                  <p className="text-sm leading-relaxed text-[#526075]">
+                    {studio.summary}
+                  </p>
+                  <div className="flex items-center justify-between border-t border-[#E2E8F0] pt-3.5">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#526075]">
+                      <Layers className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+                      {studio.stagesCount}-stage lesson
+                    </span>
+                    <Link
+                      to={studio.studioPath ?? `/studio/${studio.id}`}
+                      className="inline-flex min-h-[36px] items-center gap-1 text-sm font-semibold text-[#2664C2] hover:text-[#2257A8]"
+                    >
+                      Open Studio
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
     </div>

@@ -19,12 +19,12 @@ export function SolutionMapPreview({
   return (
     <section
       aria-label="Conceptual Solution Map"
-      className="rounded-2xl border border-[#E3E7F2] bg-[#F7F8FC]/80 p-4"
+      className="rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC]/80 p-4"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <GitBranch className="h-4 w-4 text-[#645BE8]" aria-hidden="true" />
-          <h3 className="text-sm font-bold text-[#20253B]">
+          <GitBranch className="h-4 w-4 text-[#2664C2]" aria-hidden="true" />
+          <h3 className="text-sm font-bold text-[#202B3B]">
             Conceptual Solution Map
           </h3>
         </div>
@@ -39,16 +39,16 @@ export function SolutionMapPreview({
               key={node.id}
               className={`relative rounded-xl border p-3 transition-colors duration-200 ${
                 isCurrent
-                  ? 'border-[#645BE8] bg-white shadow-xs'
-                  : 'border-[#E3E7F2] bg-white/75'
+                  ? 'border-[#397BDB] bg-white shadow-xs'
+                  : 'border-[#E2E8F0] bg-white/75'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <span
                   className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                     isCurrent
-                      ? 'bg-[#645BE8] text-white'
-                      : 'bg-[#EEF0FF] text-[#4F46D8]'
+                      ? 'bg-[#2B6CC9] text-white'
+                      : 'bg-[#EAF2FD] text-[#2257A8]'
                   }`}
                 >
                   {index + 1}
@@ -60,10 +60,10 @@ export function SolutionMapPreview({
                   />
                 )}
               </div>
-              <p className="mt-2 text-xs font-bold text-[#20253B]">
+              <p className="mt-2 text-xs font-bold text-[#202B3B]">
                 {node.title}
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-[#555D7A]">
+              <p className="mt-1 text-xs leading-relaxed text-[#526075]">
                 {node.learningGoal}
               </p>
             </li>
