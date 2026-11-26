@@ -313,12 +313,12 @@ export const en = {
     exploreLibrary: 'Browse Problem Library',
     summaryAria: 'Learning journey summary',
     topics: {
-      title: 'Topic-Level Learning Activity',
-      subtitle: 'Evidence-based status across verified visual Studios — never arbitrary mastery percentages.',
+      title: 'Verified Studio Activity',
+      subtitle: 'Evidence-based status across AlgoMiri’s 3 verified visual Studios — extensible for future topics, never arbitrary mastery percentages.',
       status: {
         practiced: 'Practiced',
         explored: 'Explored',
-        'not-started': 'Not yet explored',
+        'not-started': 'Not yet started',
       },
       stagesCount: 'Best guided stages: {{best}}/{{total}}',
       sessionsCount_one: '{{count}} saved session',

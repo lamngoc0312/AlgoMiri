@@ -222,15 +222,20 @@ describe('Phase 6A — Personal Learning Profile page & navigation', () => {
     expect(screen.getByTestId('profile-topic-valid-parentheses')).toHaveTextContent(/explored/i);
     expect(
       screen.getByTestId('profile-topic-split-array-largest-sum'),
-    ).toHaveTextContent(/not yet explored/i);
+    ).toHaveTextContent(/not yet started/i);
 
-    // Edit & persist optional display name
+    // Edit & persist optional display name, then verify Reset clears it cleanly
     await user.click(screen.getByRole('button', { name: /edit display name/i }));
     const nameInput = screen.getByLabelText(/optional display name/i);
     await user.type(nameInput, 'Ngoc Lam');
     await user.click(screen.getByRole('button', { name: /^save$/i }));
     expect(screen.getByTestId('profile-display-name')).toHaveTextContent('Ngoc Lam');
     expect(new LocalStorageProfileRepository().load().displayName).toBe('Ngoc Lam');
+
+    await user.click(screen.getByRole('button', { name: /edit display name/i }));
+    await user.click(screen.getByRole('button', { name: /^reset$/i }));
+    expect(screen.getByTestId('profile-display-name')).toHaveTextContent('Algorithm Learner');
+    expect(new LocalStorageProfileRepository().load().displayName).toBeNull();
 
     // Switch to Vietnamese + Dark Mode
     await user.click(screen.getAllByRole('button', { name: /dark mode/i })[0]);
@@ -245,6 +250,6 @@ describe('Phase 6A — Personal Learning Profile page & navigation', () => {
     );
     expect(
       screen.getByTestId('profile-topic-split-array-largest-sum'),
-    ).toHaveTextContent(/chưa khám phá/i);
+    ).toHaveTextContent(/chưa bắt đầu/i);
   });
 });

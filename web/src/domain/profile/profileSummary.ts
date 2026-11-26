@@ -5,7 +5,7 @@ import { getVerifiedLibraryItems } from '../problems/libraryCatalog';
 
 export type TopicActivityStatus = 'practiced' | 'explored' | 'not-started';
 
-export interface ProfileTopicSummary {
+export interface VerifiedStudioActivitySummary {
   problemId: string;
   problemTitle: string;
   topic: string;
@@ -18,13 +18,17 @@ export interface ProfileTopicSummary {
   activeStudySeconds: number | null;
 }
 
+/** Backward-compatible alias while keeping terminology accurate to Verified Studios. */
+export type ProfileTopicSummary = VerifiedStudioActivitySummary;
+
 /**
- * Derives honest, evidence-based topic-level learning activity strictly from
- * verified LearningSession records. Never fabricates mastery percentages.
+ * Derives honest, evidence-based activity across the implemented Verified Visual Studios
+ * strictly from saved LearningSession records. Structured so future topic/island modules
+ * can plug in without rewriting evidence rules. Never fabricates mastery percentages.
  */
 export function buildProfileTopicSummaries(
   sessions: LearningSession[],
-): ProfileTopicSummary[] {
+): VerifiedStudioActivitySummary[] {
   const verifiedItems = getVerifiedLibraryItems();
 
   return verifiedItems.map((item) => {

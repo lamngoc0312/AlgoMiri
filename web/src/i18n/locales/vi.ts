@@ -313,12 +313,12 @@ export const vi = {
     exploreLibrary: 'Khám phá Thư viện bài toán',
     summaryAria: 'Tóm tắt hành trình học tập',
     topics: {
-      title: 'Hoạt động học tập theo chủ đề',
-      subtitle: 'Trạng thái dựa trên bằng chứng thực tế tại các Studio trực quan đã kiểm chứng — không bịa phần trăm thành thạo.',
+      title: 'Hoạt động tại Studio Đã kiểm chứng',
+      subtitle: 'Trạng thái dựa trên bằng chứng tại 3 Studio trực quan đã kiểm chứng — sẵn sàng mở rộng cho các chủ đề mới, không bịa phần trăm thành thạo.',
       status: {
         practiced: 'Đã luyện tập',
         explored: 'Đã khám phá',
-        'not-started': 'Chưa khám phá',
+        'not-started': 'Chưa bắt đầu',
       },
       stagesCount: 'Giai đoạn hướng dẫn tốt nhất: {{best}}/{{total}}',
       sessionsCount_one: '{{count}} phiên đã lưu',
