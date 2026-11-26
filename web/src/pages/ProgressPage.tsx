@@ -6,9 +6,11 @@ import {
   ArrowRight,
   Award,
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   Clock,
   Compass,
+  Flame,
   HardDrive,
   Info,
   Lightbulb,
@@ -16,9 +18,12 @@ import {
   Target,
   Trash2,
   TrendingUp,
+  Trophy,
 } from 'lucide-react';
 import { aggregateLearningProgress } from '../domain/learning/analytics';
+import { aggregateStudyActivity } from '../domain/learning/activityStreak';
 import { formatStudyDuration } from '../domain/learning/studyTimer';
+import { ActivityHeatmap } from '../features/progress/ActivityHeatmap';
 import type {
   LearningSession,
   ProblemProgressSummary,
@@ -103,6 +108,10 @@ export function ProgressPage({
   const sessions: LearningSession[] = loadState.sessions;
   const summary = useMemo(
     () => aggregateLearningProgress(sessions),
+    [sessions],
+  );
+  const studyActivity = useMemo(
+    () => aggregateStudyActivity(sessions),
     [sessions],
   );
 
@@ -487,6 +496,80 @@ export function ProgressPage({
                 </p>
               </Card>
             </div>
+          </section>
+
+          {/* Study Streak & Active Days Summary */}
+          <section aria-label={t('activity.streakSectionAria')} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                    {t('activity.kpi.currentStreak')}
+                  </span>
+                  <Flame
+                    className="h-4 w-4 text-[var(--accent-coral)]"
+                    aria-hidden="true"
+                  />
+                </div>
+                <p
+                  data-testid="progress-current-streak"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
+                >
+                  {t('activity.days', { count: studyActivity.currentStreak })}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                  {studyActivity.practicedToday
+                    ? t('activity.kpi.practicedToday')
+                    : studyActivity.practicedYesterdayOnly
+                      ? t('activity.kpi.practicedYesterday')
+                      : t('activity.kpi.noCurrentStreak')}
+                </p>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                    {t('activity.kpi.longestStreak')}
+                  </span>
+                  <Trophy
+                    className="h-4 w-4 text-[var(--accent-amber)]"
+                    aria-hidden="true"
+                  />
+                </div>
+                <p
+                  data-testid="progress-longest-streak"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
+                >
+                  {t('activity.days', { count: studyActivity.longestObservedStreak })}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                  {t('activity.kpi.withinRetainedHistory')}
+                </p>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                    {t('activity.kpi.activeDays')}
+                  </span>
+                  <CalendarDays
+                    className="h-4 w-4 text-[var(--accent-teal-text)]"
+                    aria-hidden="true"
+                  />
+                </div>
+                <p
+                  data-testid="progress-active-days"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
+                >
+                  {t('activity.days', { count: studyActivity.totalActiveDaysInRange })}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                  {t('activity.kpi.last52WeeksLocal')}
+                </p>
+              </Card>
+            </div>
+
+            <ActivityHeatmap activity={studyActivity} />
           </section>
 
           {/* Prediction Outcomes Breakdown Chart */}
