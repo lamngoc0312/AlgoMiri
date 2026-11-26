@@ -144,6 +144,66 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
     }
   });
 
+  test('@smoke keeps desktop header navigation single-line without wrapping or overflow in EN and VI across desktop widths', async ({
+    page,
+  }) => {
+    const desktopWidths = [1024, 1280, 1440, 1920];
+    for (const lang of ['en', 'vi'] as const) {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/', { waitUntil: 'networkidle' });
+      await page.getByLabel(/language|ngôn ngữ/i).first().selectOption(lang);
+
+      for (const width of desktopWidths) {
+        await page.setViewportSize({ width, height: 900 });
+        const headerMetrics = await page.evaluate(() => {
+          const header = document.querySelector('header');
+          const nav = document.querySelector('header nav');
+          if (!header || !nav) return null;
+          const headerRect = header.getBoundingClientRect();
+          const links = Array.from(nav.querySelectorAll('a')).map((a) => {
+            const rect = a.getBoundingClientRect();
+            return {
+              text: a.textContent?.trim() ?? '',
+              height: Math.round(rect.height),
+              left: Math.round(rect.left),
+              right: Math.round(rect.right),
+              top: Math.round(rect.top),
+            };
+          });
+          return {
+            overflowPx: Math.max(
+              0,
+              document.documentElement.scrollWidth - window.innerWidth,
+            ),
+            headerHeight: Math.round(headerRect.height),
+            headerRight: Math.round(headerRect.right),
+            links,
+          };
+        });
+
+        expect(headerMetrics, `Header metrics missing (${lang} @ ${width}px)`).not.toBeNull();
+        expect(headerMetrics!.overflowPx, `Overflow (${lang} @ ${width}px)`).toBe(0);
+        expect(headerMetrics!.links).toHaveLength(6);
+        // Every link stays strictly single-line (height <= 44px) and shares the same row
+        const firstTop = headerMetrics!.links[0].top;
+        for (const link of headerMetrics!.links) {
+          expect(
+            link.height,
+            `Wrapped nav link "${link.text}" (${lang} @ ${width}px)`,
+          ).toBeLessThanOrEqual(44);
+          expect(
+            Math.abs(link.top - firstTop),
+            `Multi-row nav link "${link.text}" (${lang} @ ${width}px)`,
+          ).toBeLessThanOrEqual(2);
+          expect(
+            link.right,
+            `Clipped nav link "${link.text}" (${lang} @ ${width}px)`,
+          ).toBeLessThanOrEqual(headerMetrics!.headerRight);
+        }
+      }
+    }
+  });
+
   test('@smoke passes automated axe-core WCAG 2.0/2.1 A+AA checks on representative routes (desktop & mobile)', async ({
     page,
   }, testInfo) => {
