@@ -10,6 +10,7 @@ import {
   Menu,
   Sparkles,
   TrendingUp,
+  UserRound,
   X,
 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
@@ -140,10 +141,25 @@ export function AppShell() {
             ))}
           </nav>
 
-          {/* Utility controls: Theme & Language switchers (redundant Browse Problems CTA removed) */}
+          {/* Utility controls: compact Profile avatar button, Theme & Language switchers */}
           <div className="hidden lg:flex shrink-0 items-center gap-2">
             <ThemeSwitcher compact />
             <LanguageSwitcher compact />
+            <NavLink
+              to="/profile"
+              aria-label={t('shell.nav.profile')}
+              title={t('shell.nav.profile')}
+              className={({ isActive }) =>
+                cn(
+                  'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-blue)]',
+                  isActive
+                    ? 'border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                    : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:border-[var(--border-control)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]',
+                )
+              }
+            >
+              <UserRound className="h-4 w-4" aria-hidden="true" />
+            </NavLink>
           </div>
 
           {/* Mobile & tablet navigation drawer toggle */}
@@ -191,6 +207,21 @@ export function AppShell() {
                   <span>{t(labelKey)}</span>
                 </NavLink>
               ))}
+              <NavLink
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    'flex min-h-[44px] items-center gap-2.5 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-blue)]',
+                    isActive
+                      ? 'bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] hover:text-[var(--text-primary)]',
+                  )
+                }
+              >
+                <UserRound className="h-4 w-4 shrink-0 text-[var(--accent-blue-link)]" aria-hidden="true" />
+                <span>{t('shell.nav.profile')}</span>
+              </NavLink>
               <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
                 <ThemeSwitcher />
                 <LanguageSwitcher />

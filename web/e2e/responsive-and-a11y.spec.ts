@@ -10,6 +10,7 @@ const ALL_ROUTES = [
   '/progress',
   '/roadmap',
   '/history',
+  '/profile',
 ] as const;
 
 const VIEWPORTS = [

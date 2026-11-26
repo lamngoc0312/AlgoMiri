@@ -205,7 +205,7 @@ describe('Phase 5B — Pure activity & streak aggregation rules', () => {
       completedAt: 'not-a-valid-date',
     };
     const futureSession = makePracticeSession('future', localIso(2026, 11, 28));
-    const validToday = makePracticeSession('valid', localIso(2026, 11, 26));
+    const validToday = makePracticeSession('valid', localIso(2026, 11, 26, 11, 0));
 
     const summary = aggregateStudyActivity(
       [invalidSession, futureSession, validToday],

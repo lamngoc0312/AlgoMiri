@@ -13,6 +13,7 @@ import { StudioPage } from '../pages/StudioPage';
 import { RoadmapPage } from '../pages/RoadmapPage';
 import { ProgressPage } from '../pages/ProgressPage';
 import { HistoryPage } from '../pages/HistoryPage';
+import { ProfilePage } from '../pages/ProfilePage';
 
 function LegacyStudioRedirect() {
   const location = useLocation();
@@ -31,6 +32,7 @@ export function AppRoutes() {
           <Route path="/roadmap" element={<RoadmapPage />} />
           <Route path="/progress" element={<ProgressPage />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

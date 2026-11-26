@@ -204,9 +204,11 @@ export function aggregateStudyActivity(
     if (!isEligiblePracticeSession(session)) continue;
     const completedDate = new Date(session.completedAt);
     if (Number.isNaN(completedDate.getTime())) continue;
+    // Reject timestamps later than actual current time (even on the same local calendar date)
+    if (completedDate.getTime() > now.getTime()) continue;
 
     const dateKey = toLocalDateKey(completedDate);
-    // Reject future-dated timestamps so clock tampering cannot inflate streaks
+    // Reject future-dated calendar keys so clock skew cannot inflate streaks
     if (dateKey > todayDateKey) continue;
 
     totalEligibleSessions += 1;
@@ -302,7 +304,12 @@ export function aggregateStudyActivity(
       const cellDate = parseLocalDateKey(dateKey);
       if (dayIdx === 0 && !isFuture) {
         const m = cellDate.getMonth();
+        const prevLabel = monthLabels[monthLabels.length - 1];
         if (m !== lastLabeledMonth) {
+          // Avoid overlapping adjacent month labels when week 0 has only a few days of the prior month
+          if (prevLabel && weekIdx - prevLabel.weekIndex < 3) {
+            monthLabels.pop();
+          }
           monthLabels.push({
             weekIndex: weekIdx,
             year: cellDate.getFullYear(),

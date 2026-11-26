@@ -24,6 +24,7 @@ import { aggregateLearningProgress } from '../domain/learning/analytics';
 import { aggregateStudyActivity } from '../domain/learning/activityStreak';
 import { formatStudyDuration } from '../domain/learning/studyTimer';
 import { ActivityHeatmap } from '../features/progress/ActivityHeatmap';
+import { useLocalDateKey } from '../features/progress/useLocalDateKey';
 import type {
   LearningSession,
   ProblemProgressSummary,
@@ -110,9 +111,12 @@ export function ProgressPage({
     () => aggregateLearningProgress(sessions),
     [sessions],
   );
+  const localDateKey = useLocalDateKey();
   const studyActivity = useMemo(
-    () => aggregateStudyActivity(sessions),
-    [sessions],
+    () => aggregateStudyActivity(sessions, { now: new Date() }),
+    // Recalculate streaks when local calendar date rolls over (e.g. tab left open overnight)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessions, localDateKey],
   );
 
   const handleConfirmClear = () => {
