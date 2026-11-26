@@ -6,6 +6,7 @@ const MAX_RECORDS = 100;
 const MAX_STATEMENT_CHARS = 20_000;
 
 export type AiProblemSource = 'curated-ai' | 'custom-pasted';
+export type AiProblemHistoryStatus = 'ai-conceptual' | 'bookmarked';
 
 export interface AiProblemHistoryRecord {
   id: string;
@@ -16,7 +17,7 @@ export interface AiProblemHistoryRecord {
   locale: SupportedLanguage;
   savedAt: string;
   updatedAt: string;
-  status: 'ai-conceptual';
+  status: AiProblemHistoryStatus;
   /** Present only after explicit consent for custom pasted problems. */
   problemStatement?: string;
 }
@@ -44,11 +45,14 @@ export interface AiHistoryLoadResult {
 }
 
 export interface SaveAiProblemInput {
+  /** Optional stable record ID when intentionally updating a known record. */
+  recordId?: string | null;
   title: string;
   source: AiProblemSource;
   problemId?: string | null;
   topic?: string | null;
   locale: SupportedLanguage;
+  status?: AiProblemHistoryStatus;
   problemStatement?: string | null;
   consentToStoreStatement: boolean;
 }
@@ -94,6 +98,11 @@ export function sanitizeAiHistoryRecord(raw: unknown): AiProblemHistoryRecord | 
       : null;
   const locale = raw.locale === 'en' || raw.locale === 'vi' ? raw.locale : null;
 
+  const status: AiProblemHistoryStatus | null =
+    raw.status === 'ai-conceptual' || raw.status === 'bookmarked'
+      ? raw.status
+      : null;
+
   if (
     !id ||
     !title ||
@@ -101,7 +110,7 @@ export function sanitizeAiHistoryRecord(raw: unknown): AiProblemHistoryRecord | 
     !updatedAt ||
     !source ||
     !locale ||
-    raw.status !== 'ai-conceptual'
+    !status
   ) {
     return null;
   }
@@ -122,7 +131,7 @@ export function sanitizeAiHistoryRecord(raw: unknown): AiProblemHistoryRecord | 
     locale,
     savedAt,
     updatedAt,
-    status: 'ai-conceptual',
+    status,
     ...(problemStatement ? { problemStatement } : {}),
   };
 }
@@ -135,12 +144,54 @@ function deduplicate(records: AiProblemHistoryRecord[]): AiProblemHistoryRecord[
     .slice(0, MAX_RECORDS);
 }
 
-function duplicateKey(record: Pick<AiProblemHistoryRecord, 'source' | 'problemId' | 'title' | 'locale'>): string {
-  return [
-    record.source,
-    record.problemId ?? record.title.toLocaleLowerCase(record.locale),
-    record.locale,
-  ].join(':');
+export function normalizeStatementIdentity(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function findMatchingRecord(
+  records: AiProblemHistoryRecord[],
+  candidate: {
+    recordId: string | null;
+    source: AiProblemSource;
+    problemId: string | null;
+    locale: SupportedLanguage;
+    statement?: string;
+  },
+): AiProblemHistoryRecord | undefined {
+  // 1. Explicit stable record identity always wins when source matches.
+  if (candidate.recordId) {
+    const byId = records.find(
+      (record) =>
+        record.id === candidate.recordId && record.source === candidate.source,
+    );
+    if (byId) return byId;
+  }
+
+  // 2. Curated problems deduplicate only on genuine curated problemId + locale.
+  if (candidate.source === 'curated-ai' && candidate.problemId) {
+    return records.find(
+      (record) =>
+        record.source === 'curated-ai' &&
+        record.problemId === candidate.problemId &&
+        record.locale === candidate.locale,
+    );
+  }
+
+  // 3. Custom problems NEVER deduplicate by title or matched problem family.
+  //    Only deduplicate when BOTH records store identical normalized statements
+  //    in the same locale; otherwise keep separate records.
+  if (candidate.source === 'custom-pasted' && candidate.statement) {
+    const normalizedCandidate = normalizeStatementIdentity(candidate.statement);
+    return records.find(
+      (record) =>
+        record.source === 'custom-pasted' &&
+        record.locale === candidate.locale &&
+        typeof record.problemStatement === 'string' &&
+        normalizeStatementIdentity(record.problemStatement) === normalizedCandidate,
+    );
+  }
+
+  return undefined;
 }
 
 function createId(): string {
@@ -236,21 +287,30 @@ export class LocalStorageAiProblemHistoryRepository
 
     const loaded = this.load();
     const now = new Date().toISOString();
-    const candidate = {
-      source: input.source,
-      problemId: cleanText(input.problemId, 120),
-      title,
-      locale: input.locale,
-    };
-    const existing = loaded.records.find(
-      (record) => duplicateKey(record) === duplicateKey(candidate),
-    );
+    const requestedStatus: AiProblemHistoryStatus =
+      input.status === 'bookmarked' ? 'bookmarked' : 'ai-conceptual';
     const statement =
       input.source === 'custom-pasted' &&
       input.consentToStoreStatement &&
       typeof input.problemStatement === 'string'
         ? input.problemStatement.trim().slice(0, MAX_STATEMENT_CHARS)
         : undefined;
+    const candidate = {
+      recordId: cleanText(input.recordId, 120),
+      source: input.source,
+      problemId: cleanText(input.problemId, 120),
+      locale: input.locale,
+      statement,
+    };
+    const existing = findMatchingRecord(loaded.records, candidate);
+    // Preserve 'ai-conceptual' status if a curated problem was already analyzed and is bookmarked again offline.
+    const nextStatus: AiProblemHistoryStatus =
+      existing?.status === 'ai-conceptual' ? 'ai-conceptual' : requestedStatus;
+    const preservedStatement =
+      statement ??
+      (input.source === 'custom-pasted' && input.consentToStoreStatement
+        ? existing?.problemStatement
+        : undefined);
     const record: AiProblemHistoryRecord = {
       id: existing?.id ?? createId(),
       title,
@@ -260,8 +320,8 @@ export class LocalStorageAiProblemHistoryRepository
       locale: input.locale,
       savedAt: existing?.savedAt ?? now,
       updatedAt: now,
-      status: 'ai-conceptual',
-      ...(statement ? { problemStatement: statement } : {}),
+      status: nextStatus,
+      ...(preservedStatement ? { problemStatement: preservedStatement } : {}),
     };
     const next = existing
       ? loaded.records.map((item) => (item.id === existing.id ? record : item))

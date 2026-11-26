@@ -25,7 +25,10 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { DEFAULT_LANGUAGE, isSupportedLanguage, type SupportedLanguage } from '../i18n';
-import { defaultAiProblemHistoryRepository } from '../services/aiProblemHistoryRepository';
+import {
+  defaultAiProblemHistoryRepository,
+  normalizeStatementIdentity,
+} from '../services/aiProblemHistoryRepository';
 
 /**
  * Strict curated shortcut matcher for the secondary "Open Curated Studio" action.
@@ -186,6 +189,17 @@ export function LandingPage() {
   const isAnalysisLocaleMismatch = Boolean(
     analysisResult && analysisLocale && analysisLocale !== language,
   );
+  const isCurrentInputCuratedPrefill = Boolean(
+    prefillProblem?.originalPrompt &&
+      normalizeStatementIdentity(problemInput) ===
+        normalizeStatementIdentity(prefillProblem.originalPrompt),
+  );
+  const isAnalyzedStatementCuratedPrefill = Boolean(
+    prefillProblem?.originalPrompt &&
+      analyzedStatement !== null &&
+      normalizeStatementIdentity(analyzedStatement) ===
+        normalizeStatementIdentity(prefillProblem.originalPrompt),
+  );
 
   const runAiAnalysis = async (overrideText?: string) => {
     const trimmed = (overrideText ?? problemInput).trim();
@@ -315,17 +329,48 @@ export function LandingPage() {
   };
 
   const handleSaveAiHistory = (consentToStoreStatement: boolean) => {
-    if (!analysisResult || analysisResult.mode === 'offline-demo') return;
+    if (!analysisResult) return;
+    if (analysisResult.mode === 'offline-demo') {
+      if (!isAnalyzedStatementCuratedPrefill || !prefillProblem) return;
+      setHistorySaveState('saving');
+      const result = defaultAiProblemHistoryRepository.save({
+        title: prefillProblem.title,
+        source: 'curated-ai',
+        problemId: prefillProblem.id,
+        topic: prefillProblem.topic,
+        locale: analysisLocale ?? language,
+        status: 'bookmarked',
+        consentToStoreStatement: false,
+      });
+      setHistorySaveState(result.saved ? 'saved' : 'error');
+      return;
+    }
+
+    const isCurated = isAnalyzedStatementCuratedPrefill && Boolean(prefillProblem);
+    const matchingHistoryRecordId =
+      !isCurated &&
+      historyRecord?.problemStatement &&
+      analyzedStatement !== null &&
+      normalizeStatementIdentity(historyRecord.problemStatement) ===
+        normalizeStatementIdentity(analyzedStatement)
+        ? historyRecord.id
+        : null;
+
     setHistorySaveState('saving');
     const result = defaultAiProblemHistoryRepository.save({
+      recordId: matchingHistoryRecordId,
       title: analysisResult.analysis.title,
-      source: prefillProblem ? 'curated-ai' : 'custom-pasted',
-      problemId:
-        prefillProblem?.id ?? analysisResult.verified_match.matched_problem_id,
-      topic: prefillProblem?.topic ?? analysisResult.analysis.inferred_problem_type,
+      source: isCurated ? 'curated-ai' : 'custom-pasted',
+      problemId: isCurated
+        ? prefillProblem!.id
+        : analysisResult.verified_match.matched_problem_id,
+      topic: isCurated
+        ? prefillProblem!.topic
+        : analysisResult.analysis.inferred_problem_type,
       locale: analysisLocale ?? language,
-      problemStatement: analyzedStatement,
-      consentToStoreStatement,
+      status: 'ai-conceptual',
+      problemStatement: isCurated ? null : analyzedStatement,
+      consentToStoreStatement: isCurated ? false : consentToStoreStatement,
     });
     setHistorySaveState(result.saved ? 'saved' : 'error');
   };
@@ -353,7 +398,7 @@ export function LandingPage() {
 
         <ProblemComposer
           problemInput={problemInput}
-          prefillProblem={prefillProblem}
+          prefillProblem={isCurrentInputCuratedPrefill ? prefillProblem : undefined}
           analyzing={analyzing}
           feedback={feedback}
           onProblemInputChange={handleInputChange}
@@ -498,7 +543,8 @@ export function LandingPage() {
               <div className="mt-4">
                 <SaveAiHistoryPanel
                   key={`ai-history-save-${analysisRevision}`}
-                  isCustomProblem={!prefillProblem}
+                  variant="ai-analysis"
+                  isCustomProblem={!isAnalyzedStatementCuratedPrefill}
                   saved={historySaveState === 'saved'}
                   saving={historySaveState === 'saving'}
                   error={historySaveState === 'error'}
@@ -506,6 +552,22 @@ export function LandingPage() {
                 />
               </div>
             )}
+            {analysisResult.mode === 'offline-demo' &&
+              !isAnalysisStale &&
+              isAnalyzedStatementCuratedPrefill &&
+              prefillProblem && (
+                <div className="mt-4">
+                  <SaveAiHistoryPanel
+                    key={`ai-history-bookmark-${analysisRevision}`}
+                    variant="curated-bookmark"
+                    isCustomProblem={false}
+                    saved={historySaveState === 'saved'}
+                    saving={historySaveState === 'saving'}
+                    error={historySaveState === 'error'}
+                    onSave={handleSaveAiHistory}
+                  />
+                </div>
+              )}
           </div>
 
           {analysisResult.mode !== 'offline-demo' && (

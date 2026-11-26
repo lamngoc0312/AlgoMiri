@@ -78,7 +78,11 @@ export function HistoryPage() {
   const removeRecord = (record: AiProblemHistoryRecord) => {
     if (!window.confirm(t('history.deleteConfirm', { title: record.title }))) return;
     const result = defaultAiProblemHistoryRepository.remove(record.id);
-    if (result.removed) setAiLoad(defaultAiProblemHistoryRepository.load());
+    if (result.removed) {
+      setAiLoad(defaultAiProblemHistoryRepository.load());
+    } else if (result.warning) {
+      setAiLoad((current) => ({ ...current, warning: result.warning }));
+    }
   };
 
   const locale = i18n.resolvedLanguage ?? 'en';
@@ -228,14 +232,22 @@ export function HistoryPage() {
                       <div className={`h-1.5 ${style.accentBarClass}`} />
                       <div className="flex flex-1 flex-col p-5">
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="indigo">{t('history.ai.status')}</Badge>
+                          <Badge variant={record.status === 'bookmarked' ? 'neutral' : 'indigo'}>
+                            {record.status === 'bookmarked'
+                              ? t('history.ai.bookmarkedStatus')
+                              : t('history.ai.status')}
+                          </Badge>
                           <Badge variant={style.badgeVariant}>{topic}</Badge>
                         </div>
                         <h3 className="mt-3 text-lg font-bold text-[var(--text-primary)]">{record.title}</h3>
                         <p className="mt-1 text-xs text-[var(--text-secondary)]">
                           {record.source === 'curated-ai' ? t('history.ai.curatedSource') : t('history.ai.customSource')}
                         </p>
-                        <p className="mt-3 text-xs leading-relaxed text-[var(--text-secondary)]">{t('history.ai.notSolved')}</p>
+                        <p className="mt-3 text-xs leading-relaxed text-[var(--text-secondary)]">
+                          {record.status === 'bookmarked'
+                            ? t('history.ai.bookmarkedNotSolved')
+                            : t('history.ai.notSolved')}
+                        </p>
                         <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
                           <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                           {t('history.savedOn', { date: formatDate(record.updatedAt, locale, t('history.unknownDate')) })}

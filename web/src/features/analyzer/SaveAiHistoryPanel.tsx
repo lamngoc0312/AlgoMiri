@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 
 interface SaveAiHistoryPanelProps {
+  variant?: 'ai-analysis' | 'curated-bookmark';
   isCustomProblem: boolean;
   saved: boolean;
   saving: boolean;
@@ -13,6 +14,7 @@ interface SaveAiHistoryPanelProps {
 }
 
 export function SaveAiHistoryPanel({
+  variant = 'ai-analysis',
   isCustomProblem,
   saved,
   saving,
@@ -22,6 +24,7 @@ export function SaveAiHistoryPanel({
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
   const [consent, setConsent] = useState(false);
+  const isBookmark = variant === 'curated-bookmark';
 
   if (saved) {
     return (
@@ -31,7 +34,7 @@ export function SaveAiHistoryPanel({
       >
         <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent-teal-text)]">
           <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-          {t('aiHistory.save.saved')}
+          {isBookmark ? t('aiHistory.save.bookmarkSaved') : t('aiHistory.save.saved')}
         </span>
         <Link to="/history" className="text-sm font-semibold text-[var(--accent-blue-link)] hover:underline">
           {t('aiHistory.save.viewHistory')}
@@ -45,13 +48,25 @@ export function SaveAiHistoryPanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-bold text-[var(--text-primary)]">
-            {t('aiHistory.save.title')}
+            {isBookmark ? t('aiHistory.save.bookmarkTitle') : t('aiHistory.save.title')}
           </p>
           <p className="mt-0.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-            {t('aiHistory.save.metadataOnly')}
+            {isBookmark
+              ? t('aiHistory.save.bookmarkDescription')
+              : t('aiHistory.save.metadataOnly')}
           </p>
         </div>
-        {!showOptions ? (
+        {isBookmark ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={saving}
+            onClick={() => onSave(false)}
+          >
+            <BookmarkPlus className="h-4 w-4" aria-hidden="true" />
+            {saving ? t('aiHistory.save.saving') : t('aiHistory.save.bookmarkAction')}
+          </Button>
+        ) : !showOptions ? (
           <Button variant="secondary" size="sm" onClick={() => setShowOptions(true)}>
             <BookmarkPlus className="h-4 w-4" aria-hidden="true" />
             {t('aiHistory.save.action')}
@@ -69,7 +84,7 @@ export function SaveAiHistoryPanel({
         )}
       </div>
 
-      {showOptions && isCustomProblem && (
+      {!isBookmark && showOptions && isCustomProblem && (
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--accent-amber-border)] bg-[var(--accent-amber-soft)]/45 p-3 text-sm">
           <input
             type="checkbox"
