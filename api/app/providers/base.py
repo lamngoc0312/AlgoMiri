@@ -4,6 +4,7 @@ from typing import Protocol
 
 from ..schemas import (
     ImageExtractionPayload,
+    Locale,
     ProblemAnalysis,
     TutorPayload,
     TutorRequest,
@@ -47,7 +48,9 @@ class MalformedProviderOutputError(ProviderError):
 
 
 class LLMProvider(Protocol):
-    async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis: ...
+    async def analyze_problem(
+        self, problem_statement: str, locale: Locale = "en"
+    ) -> ProblemAnalysis: ...
 
     async def tutor(self, request: TutorRequest) -> TutorPayload: ...
 

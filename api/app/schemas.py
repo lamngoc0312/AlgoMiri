@@ -61,6 +61,8 @@ SupportedProblemId = Literal[
     "split-array-largest-sum",
 ]
 
+Locale = Literal["en", "vi"]
+
 
 class VerifiedMatchInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -78,6 +80,7 @@ class AnalyzeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     problem_statement: str = Field(min_length=10, max_length=6000)
+    locale: Locale = "en"
 
 
 class AnalyzeResponse(BaseModel):
@@ -107,6 +110,7 @@ class TutorRequest(BaseModel):
 
     problem_analysis: ProblemAnalysis
     action: TutorAction
+    locale: Locale = "en"
     selected_strategy: Optional[str] = Field(default=None, max_length=200)
     learning_stage: Optional[str] = Field(default=None, max_length=200)
     execution_context: Optional[str] = Field(default=None, max_length=1500)

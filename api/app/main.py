@@ -29,7 +29,7 @@ from .providers.base import (
     ProviderTransientError,
 )
 from .providers.gemini_provider import GeminiProvider
-from .providers.offline_provider import OFFLINE_NOTICE, OfflineDemoProvider
+from .providers.offline_provider import OFFLINE_NOTICE, OfflineDemoProvider, offline_notice
 from .routing import match_verified_problem
 from .schemas import (
     AnalyzeRequest,
@@ -321,7 +321,8 @@ def create_app(
 
         try:
             analysis = await active_provider.analyze_problem(
-                payload.problem_statement
+                payload.problem_statement,
+                payload.locale,
             )
         except ProviderError as exc:
             _raise_provider_http_error(exc)
@@ -340,7 +341,7 @@ def create_app(
             verified_execution=False,
             analysis=analysis,
             verified_match=verified_match,
-            notice=None if is_live_ai else OFFLINE_NOTICE,
+            notice=None if is_live_ai else offline_notice(payload.locale),
         )
 
     @app.post("/api/tutor", response_model=TutorResponse)
@@ -386,7 +387,14 @@ def create_app(
             reply=tutor_payload.reply,
             guiding_question=tutor_payload.guiding_question,
             progressive_hint=tutor_payload.progressive_hint,
-            notice=None if is_live_ai else OFFLINE_NOTICE,
+            mastery_disclaimer=(
+                "Gia sư AI hỗ trợ hiểu khái niệm nhưng không xác minh việc thực thi mã "
+                "hoặc đo lường mức độ thành thạo kỹ năng lâu dài."
+                if payload.locale == "vi"
+                else "AI tutoring supports conceptual understanding and does not verify code "
+                "execution or measure long-term skill mastery."
+            ),
+            notice=None if is_live_ai else offline_notice(payload.locale),
         )
 
     @app.post("/api/inspect-url", response_model=InspectUrlResponse)

@@ -28,7 +28,9 @@ VALID_PNG_BYTES = (
 
 
 class FakeVisionProvider:
-    async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
+    async def analyze_problem(
+        self, problem_statement: str, locale: str = "en"
+    ) -> ProblemAnalysis:
         raise NotImplementedError
 
     async def tutor(self, request: TutorRequest) -> TutorPayload:

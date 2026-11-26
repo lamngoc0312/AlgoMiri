@@ -84,7 +84,9 @@ class MockSuccessProvider:
         self._analysis = analysis or make_sample_analysis()
         self.closed = False
 
-    async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
+    async def analyze_problem(
+        self, problem_statement: str, locale: str = "en"
+    ) -> ProblemAnalysis:
         return self._analysis
 
     async def tutor(self, request: TutorRequest) -> TutorPayload:
@@ -102,7 +104,9 @@ class MockFailingProvider:
     def __init__(self, exc: Exception) -> None:
         self._exc = exc
 
-    async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
+    async def analyze_problem(
+        self, problem_statement: str, locale: str = "en"
+    ) -> ProblemAnalysis:
         raise self._exc
 
     async def tutor(self, request: TutorRequest) -> TutorPayload:
@@ -363,7 +367,9 @@ def test_concurrency_limit_returns_429_and_releases_slot() -> None:
         release = asyncio.Event()
 
         class BlockingProvider(MockSuccessProvider):
-            async def analyze_problem(self, problem_statement: str) -> ProblemAnalysis:
+            async def analyze_problem(
+                self, problem_statement: str, locale: str = "en"
+            ) -> ProblemAnalysis:
                 started.set()
                 await release.wait()
                 return self._analysis
