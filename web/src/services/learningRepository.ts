@@ -1,4 +1,5 @@
 import { isValidSkillId } from '../domain/learning/skills';
+import { sanitizeActiveStudySeconds } from '../domain/learning/studyTimer';
 import type {
   EvidenceLevel,
   LearningSession,
@@ -6,7 +7,7 @@ import type {
 } from '../domain/learning/types';
 
 export const LEARNING_STORAGE_KEY = 'algomiri.learning.history';
-export const LEARNING_SCHEMA_VERSION = 1;
+export const LEARNING_SCHEMA_VERSION = 2;
 const MAX_STORED_SESSIONS = 100;
 
 export interface StoredLearningEnvelope {
@@ -280,6 +281,8 @@ export function sanitizeStoredSession(raw: unknown): LearningSession | null {
     ? (raw.outcome as SessionOutcome)
     : 'partial-attempt';
 
+  const activeStudySeconds = sanitizeActiveStudySeconds(raw.activeStudySeconds);
+
   return {
     sessionId,
     problemId,
@@ -288,6 +291,7 @@ export function sanitizeStoredSession(raw: unknown): LearningSession | null {
     strategiesExplored,
     startedAt,
     completedAt,
+    ...(activeStudySeconds !== undefined ? { activeStudySeconds } : {}),
     stageStatuses,
     totalStages: asNonNegativeInt(raw.totalStages),
     completedStagesCount: asNonNegativeInt(raw.completedStagesCount),

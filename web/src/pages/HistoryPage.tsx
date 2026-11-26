@@ -7,11 +7,16 @@ import {
   BookOpenCheck,
   BrainCircuit,
   CalendarDays,
+  Clock,
   History,
   Search,
   Trash2,
 } from 'lucide-react';
 import { groupLearningSessionsByProblem } from '../domain/history/problemHistory';
+import {
+  formatStudyDuration,
+  sanitizeActiveStudySeconds,
+} from '../domain/learning/studyTimer';
 import { defaultLearningRepository } from '../services/learningRepository';
 import {
   defaultAiProblemHistoryRepository,
@@ -52,6 +57,18 @@ export function HistoryPage() {
     () => groupLearningSessionsByProblem(learningLoad.sessions),
     [learningLoad.sessions],
   );
+  const totalVerifiedActiveSeconds = useMemo(() => {
+    let sum = 0;
+    let timedCount = 0;
+    for (const s of learningLoad.sessions) {
+      const clean = sanitizeActiveStudySeconds(s.activeStudySeconds);
+      if (clean !== undefined) {
+        sum += clean;
+        timedCount += 1;
+      }
+    }
+    return timedCount > 0 ? sum : null;
+  }, [learningLoad.sessions]);
   const normalizedQuery = query.trim().toLocaleLowerCase(i18n.resolvedLanguage ?? 'en');
   const matches = (...values: Array<string | null>) =>
     !normalizedQuery ||
@@ -166,7 +183,17 @@ export function HistoryPage() {
                 </h2>
                 <p className="mt-1 max-w-3xl text-sm text-[var(--text-secondary)]">{t('history.verified.description')}</p>
               </div>
-              <Badge variant="mint">{t('history.problemCount', { count: visibleVerified.length })}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                {totalVerifiedActiveSeconds !== null && (
+                  <Badge variant="neutral" data-testid="history-active-study-total">
+                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                    {t('studyTime.verifiedTotalBadge', {
+                      duration: formatStudyDuration(totalVerifiedActiveSeconds, t),
+                    })}
+                  </Badge>
+                )}
+                <Badge variant="mint">{t('history.problemCount', { count: visibleVerified.length })}</Badge>
+              </div>
             </div>
             {visibleVerified.length === 0 ? (
               <Card className="p-6 text-sm text-[var(--text-secondary)]">{t('history.noMatchingVerified')}</Card>
@@ -189,6 +216,12 @@ export function HistoryPage() {
                         <div className="rounded-xl bg-[var(--surface-subtle)] p-3">
                           <dt className="text-xs text-[var(--text-secondary)]">{t('history.bestStages')}</dt>
                           <dd className="mt-1 font-mono font-bold text-[var(--text-primary)]">{problem.bestCompletedStages}/{problem.totalStages}</dd>
+                        </div>
+                        <div className="col-span-2 rounded-xl bg-[var(--surface-subtle)] p-3">
+                          <dt className="text-xs text-[var(--text-secondary)]">{t('studyTime.problemCardLabel')}</dt>
+                          <dd className="mt-1 font-mono font-bold text-[var(--text-primary)]">
+                            {formatStudyDuration(problem.totalActiveStudySeconds, t)}
+                          </dd>
                         </div>
                       </dl>
                       <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">

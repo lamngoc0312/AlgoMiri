@@ -96,6 +96,8 @@ export interface LearningSession {
   strategiesExplored: string[];
   startedAt: string;
   completedAt: string;
+  /** Estimated active study time in whole seconds while Studio was visible, focused, and active. Undefined for older pre-Phase-5A sessions. */
+  activeStudySeconds?: number;
   stageStatuses: StageStatusMap;
   totalStages: number;
   completedStagesCount: number;
@@ -144,6 +146,8 @@ export interface ProblemProgressSummary {
   predictionsSolved: number;
   predictionsSkipped: number;
   hintsUsed: number;
+  /** Sum of known active study seconds across saved sessions for this problem, or null if none recorded. */
+  totalActiveStudySeconds: number | null;
   lastPracticedAt: string | null;
   lastOutcome: SessionOutcome | null;
 }
@@ -179,6 +183,10 @@ export interface LearningProgressSummary {
   /** Percentage of attempted predictions eventually solved, or null if none attempted. */
   overallSolvedPercent: number | null;
   totalHintsUsed: number;
+  /** Sum of known estimated active study seconds across saved sessions, or null if all historical sessions lack timing data. */
+  totalActiveStudySeconds: number | null;
+  /** Number of saved sessions that include a known active study duration. */
+  timedSessionsCount: number;
   skillsPracticedCount: number;
   skillSummaries: SkillProgressSummary[];
   problemSummaries: ProblemProgressSummary[];

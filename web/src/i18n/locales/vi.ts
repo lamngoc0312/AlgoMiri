@@ -242,6 +242,23 @@ export const vi = {
     noMatchingVerified: 'Không có bài Học có hướng dẫn nào khớp với tìm kiếm và bộ lọc hiện tại.',
     noMatchingAi: 'Không có bài toán AI đã lưu nào khớp với tìm kiếm và bộ lọc hiện tại.',
   },
+  studyTime: {
+    notRecorded: 'Chưa ghi nhận',
+    seconds_one: '{{count}} giây',
+    seconds_other: '{{count}} giây',
+    minutes_one: '{{count}} phút',
+    minutes_other: '{{count}} phút',
+    hours_one: '{{count}} giờ',
+    hours_other: '{{count}} giờ',
+    hoursMinutes: '{{hours}} {{minutes}}',
+    totalLabel: 'Thời gian học chủ động',
+    estimatedSubtitle: 'Ước tính thời gian học chủ động',
+    partialCoverage: 'Ước tính · đã đo {{timed}}/{{total}} phiên',
+    noTimedSessions: 'Các phiên cũ chưa ghi nhận thời gian',
+    sessionLabel: 'Thời gian chủ động:',
+    problemCardLabel: 'Thời gian học chủ động',
+    verifiedTotalBadge: 'Học chủ động: {{duration}}',
+  },
   composer: {
     modeLabel: 'Chế độ nhập bài toán',
     modes: {

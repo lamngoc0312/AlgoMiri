@@ -242,6 +242,23 @@ export const en = {
     noMatchingVerified: 'No Guided Learning problems match the current search and filter.',
     noMatchingAi: 'No saved AI problems match the current search and filter.',
   },
+  studyTime: {
+    notRecorded: 'Not recorded',
+    seconds_one: '{{count}} second',
+    seconds_other: '{{count}} seconds',
+    minutes_one: '{{count}} minute',
+    minutes_other: '{{count}} minutes',
+    hours_one: '{{count}} hour',
+    hours_other: '{{count}} hours',
+    hoursMinutes: '{{hours}} {{minutes}}',
+    totalLabel: 'Active Study Time',
+    estimatedSubtitle: 'Estimated active Studio time',
+    partialCoverage: 'Estimated · measured in {{timed}}/{{total}} sessions',
+    noTimedSessions: 'Older sessions predate active timing',
+    sessionLabel: 'Active time:',
+    problemCardLabel: 'Active study time',
+    verifiedTotalBadge: 'Active study: {{duration}}',
+  },
   composer: {
     modeLabel: 'Problem input mode',
     modes: {

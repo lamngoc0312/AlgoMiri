@@ -30,6 +30,8 @@ interface AiTutorPanelProps {
   selectedStrategy?: string | null;
   learningStage?: string | null;
   executionContext?: string | null;
+  /** Optional callback so Studio active-study timer can pause while waiting for AI replies. */
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 const ESSENTIAL_TUTOR_ACTIONS: TutorActionType[] = ['simplify', 'hint'];
@@ -44,6 +46,7 @@ export function AiTutorPanel({
   selectedStrategy = null,
   learningStage = null,
   executionContext = null,
+  onLoadingChange,
 }: AiTutorPanelProps) {
   const { t, i18n } = useTranslation();
   const language: SupportedLanguage = isSupportedLanguage(i18n.resolvedLanguage)
@@ -75,12 +78,17 @@ export function AiTutorPanel({
   }, [contextKey]);
 
   useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
+
+  useEffect(() => {
     return () => {
+      onLoadingChange?.(false);
       seqRef.current += 1;
       abortRef.current?.abort();
       abortRef.current = null;
     };
-  }, []);
+  }, [onLoadingChange]);
 
   const runTutorAction = async (
     action: TutorActionType,

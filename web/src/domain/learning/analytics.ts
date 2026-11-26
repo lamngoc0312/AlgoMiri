@@ -1,4 +1,5 @@
 import { getAllProblemModules } from '../problems/registry';
+import { sanitizeActiveStudySeconds } from './studyTimer';
 import {
   summarizePredictions,
   type PredictionRecord,
@@ -41,6 +42,7 @@ export interface BuildSessionParams {
   strategiesExplored: Iterable<string>;
   startedAt: string;
   completedAt?: string;
+  activeStudySeconds?: number;
   stageIds: string[];
   stageStatuses: StageStatusMap;
   /** Optional explicit set of stage IDs that were skipped at any point in this session (preserved even if later revisited & completed). */
@@ -290,6 +292,10 @@ export function buildLearningSession(
     timestamp: completedAt,
   });
 
+  const activeStudySeconds = sanitizeActiveStudySeconds(
+    params.activeStudySeconds,
+  );
+
   return {
     sessionId: params.sessionId,
     problemId: params.problemId,
@@ -298,6 +304,7 @@ export function buildLearningSession(
     strategiesExplored,
     startedAt: params.startedAt,
     completedAt,
+    ...(activeStudySeconds !== undefined ? { activeStudySeconds } : {}),
     stageStatuses: stageStatusesCopy,
     totalStages: params.stageIds.length,
     completedStagesCount,
@@ -563,8 +570,17 @@ export function aggregateLearningProgress(
   let totalPredictionsUnresolved = 0;
   let totalPredictionQuestions = 0;
   let totalHintsUsed = 0;
+  let totalActiveStudySecondsSum = 0;
+  let timedSessionsCount = 0;
 
   for (const session of sortedSessions) {
+    const cleanActiveSeconds = sanitizeActiveStudySeconds(
+      session.activeStudySeconds,
+    );
+    if (cleanActiveSeconds !== undefined) {
+      totalActiveStudySecondsSum += cleanActiveSeconds;
+      timedSessionsCount += 1;
+    }
     uniqueProblemIds.add(session.problemId);
     for (const stratId of session.strategiesExplored) {
       uniqueStrategyKeys.add(`${session.problemId}:${stratId}`);
@@ -671,6 +687,8 @@ export function aggregateLearningProgress(
     let predictionsSolved = 0;
     let predictionsSkipped = 0;
     let hintsUsed = 0;
+    let problemActiveSecondsSum = 0;
+    let problemTimedCount = 0;
 
     for (const s of matching) {
       for (const strat of s.strategiesExplored) {
@@ -682,6 +700,11 @@ export function aggregateLearningProgress(
       predictionsSolved += s.predictionSummary.totalSolved;
       predictionsSkipped += s.predictionSummary.skippedCount;
       hintsUsed += s.hintsUsed;
+      const cleanSec = sanitizeActiveStudySeconds(s.activeStudySeconds);
+      if (cleanSec !== undefined) {
+        problemActiveSecondsSum += cleanSec;
+        problemTimedCount += 1;
+      }
     }
 
     return {
@@ -698,6 +721,8 @@ export function aggregateLearningProgress(
       predictionsSolved,
       predictionsSkipped,
       hintsUsed,
+      totalActiveStudySeconds:
+        problemTimedCount > 0 ? problemActiveSecondsSum : null,
       lastPracticedAt: matching[0]?.completedAt ?? null,
       lastOutcome: matching[0]?.outcome ?? null,
     };
@@ -742,6 +767,9 @@ export function aggregateLearningProgress(
     firstTryAccuracyPercent,
     overallSolvedPercent,
     totalHintsUsed,
+    totalActiveStudySeconds:
+      timedSessionsCount > 0 ? totalActiveStudySecondsSum : null,
+    timedSessionsCount,
     skillsPracticedCount,
     skillSummaries,
     problemSummaries,

@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { aggregateLearningProgress } from '../domain/learning/analytics';
+import { formatStudyDuration } from '../domain/learning/studyTimer';
 import type {
   LearningSession,
   ProblemProgressSummary,
@@ -340,7 +341,35 @@ export function ProgressPage({
         <>
           {/* KPI Overview Grid */}
           <section aria-label={t('progress.statsAria')}>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                    {t('studyTime.totalLabel')}
+                  </span>
+                  <Clock
+                    className="h-4 w-4 text-[var(--accent-teal-text)]"
+                    aria-hidden="true"
+                  />
+                </div>
+                <p
+                  data-testid="progress-active-study-time"
+                  className="mt-2 font-mono text-2xl font-extrabold text-[var(--text-primary)]"
+                >
+                  {formatStudyDuration(summary.totalActiveStudySeconds, t)}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                  {summary.timedSessionsCount === 0
+                    ? t('studyTime.noTimedSessions')
+                    : summary.timedSessionsCount < summary.totalSessions
+                      ? t('studyTime.partialCoverage', {
+                          timed: summary.timedSessionsCount,
+                          total: summary.totalSessions,
+                        })
+                      : t('studyTime.estimatedSubtitle')}
+                </p>
+              </Card>
+
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
@@ -877,6 +906,11 @@ export function ProgressPage({
                           })}{' '}
                         · {t('progress.recentSessions.hints')}{' '}
                         <strong>{session.hintsUsed}</strong>
+                        {' · '}
+                        {t('studyTime.sessionLabel')}{' '}
+                        <strong>
+                          {formatStudyDuration(session.activeStudySeconds, t)}
+                        </strong>
                       </p>
                     </div>
                     <span className="text-xs font-medium text-[var(--text-secondary)]">

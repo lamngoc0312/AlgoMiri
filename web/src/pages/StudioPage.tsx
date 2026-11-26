@@ -54,6 +54,7 @@ import { CompositionVisualCanvas } from '../features/studio/CompositionVisualCan
 import { PlaybackControls } from '../features/studio/PlaybackControls';
 import { WalkthroughPane } from '../features/studio/WalkthroughPane';
 import { useTracePlayback } from '../features/studio/useTracePlayback';
+import { useActiveStudyTimer } from '../features/studio/useActiveStudyTimer';
 import { GuidedLessonBar } from '../features/guided/GuidedLessonBar';
 import { GuidedStagePanel } from '../features/guided/GuidedStagePanel';
 import { SessionSummaryCard } from '../features/guided/SessionSummaryCard';
@@ -116,6 +117,11 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
   const [savedSessionRecord, setSavedSessionRecord] =
     useState<LearningSession | null>(null);
   const [saveWarning, setSaveWarning] = useState<string | null>(null);
+  const [tutorLoading, setTutorLoading] = useState(false);
+  const activeStudyTimer = useActiveStudyTimer({
+    sessionKey: sessionUuid,
+    paused: tutorLoading,
+  });
   const [mode, setMode] = useState<StudioMode>(initialMode);
   const [perspective, setPerspective] = useState<PerspectiveView>('micro');
   const [activeStageId, setActiveStageId] = useState<string>(firstStageId);
@@ -304,6 +310,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
       mode,
       strategiesExplored,
       startedAt: sessionStartedAt,
+      activeStudySeconds: activeStudyTimer.getActiveStudySeconds(),
       stageIds: lesson.stages.map((s) => s.id),
       stageStatuses: statusesToUse,
       previouslySkippedStageIds: skippedStagesToUse,
@@ -886,6 +893,7 @@ function StudioWorkspace({ problemModule, initialMode }: StudioWorkspaceProps) {
                 learningStage={
                   mode === 'guided' ? activeStage.title : 'Free Exploration'
                 }
+                onTutorLoadingChange={setTutorLoading}
               />
             </section>
             </div>
@@ -903,6 +911,7 @@ function StudioSecondaryDock({
   stepIndex,
   totalSteps,
   learningStage,
+  onTutorLoadingChange,
 }: {
   problemModule: AnyProblemModule;
   strategy: AnyProblemModule['spec']['supportedStrategies'][number];
@@ -910,6 +919,7 @@ function StudioSecondaryDock({
   stepIndex: number;
   totalSteps: number;
   learningStage: string;
+  onTutorLoadingChange?: (loading: boolean) => void;
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'explanation' | 'tutor'>(
@@ -1008,6 +1018,7 @@ function StudioSecondaryDock({
           selectedStrategy={strategy.name}
           learningStage={learningStage}
           executionContext={executionContext}
+          onLoadingChange={onTutorLoadingChange}
         />
       </div>
     </div>
