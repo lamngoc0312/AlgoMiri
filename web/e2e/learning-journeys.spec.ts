@@ -165,4 +165,146 @@ test.describe('End-to-End Learning Journeys (Live Local Servers)', () => {
       page.getByText(/live ai unavailable \(offline mode\)/i),
     ).toBeVisible();
   });
+
+  test('Phase 4A: a successful AI analysis is saved only after explicit action and defaults to metadata only', async ({ page }) => {
+    await page.route('**/api/analyze', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          mode: 'ai', is_ai_generated: true, verified_execution: false, notice: null,
+          analysis: {
+            title: 'Minimum Coin Change', inferred_problem_type: 'Dynamic Programming',
+            plain_language_summary: 'Find the fewest coins needed for a target.',
+            inputs: ['coins', 'amount'], outputs: ['minimum count'],
+            constraints_and_assumptions: ['positive denominations'],
+            clarifications_or_ambiguities: [],
+            worked_example: { input_summary: '[1,2,5], 11', output_summary: '3', walkthrough: '5 + 5 + 1.' },
+            edge_cases: ['amount zero'], prerequisite_concepts: ['Subproblems'],
+            subproblem_decomposition: [{ id: 'dp', title: 'Define state', goal: 'Track the best result per amount.', depends_on: [] }],
+            candidate_strategies: [{
+              name: 'Bottom-Up DP', technique: 'Dynamic Programming', intuition: 'Build smaller answers first.',
+              why_it_applies: 'The problem has overlapping subproblems.', time_complexity: 'O(amount * coins)',
+              space_complexity: 'O(amount)', complexity_assumptions: 'Integer amount.', limitations: 'Uses target-sized memory.',
+            }],
+            confidence_notes: 'Conceptual only.',
+          },
+          verified_match: {
+            status: 'conceptual_only', matched_problem_id: null, matched_problem_title: null,
+            studio_path: null, reason: 'No verified engine.', compatibility_checks: [],
+            user_input_note: 'Conceptual only.',
+          },
+        }),
+      });
+    });
+
+    const statement = 'Given positive coin denominations and a target amount, return the minimum number of coins needed.';
+    await page.getByLabel(/paste a problem statement/i).fill(statement);
+    await page.getByRole('button', { name: /analyze problem \(ai\)/i }).click();
+    await expect(page.getByText('Minimum Coin Change', { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem('algomiri.ai.problem-history'))).toBeNull();
+
+    await page.getByRole('button', { name: /save to history/i }).click();
+    await page.getByRole('button', { name: /confirm save/i }).click();
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('algomiri.ai.problem-history')!));
+    expect(saved.records).toHaveLength(1);
+    expect(saved.records[0].status).toBe('ai-conceptual');
+    expect(saved.records[0].problemStatement).toBeUndefined();
+
+    await page.getByRole('link', { name: /view history/i }).click();
+    await page.waitForURL('**/history');
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.getByText('Minimum Coin Change', { exact: true })).toBeVisible();
+    await expect(page.getByText(/conceptual ai analysis is not execution evidence/i)).toBeVisible();
+  });
+
+  test('@smoke Phase 4A: grouped Problem History persists, filters, localizes, themes, and deletes only one AI record', async ({
+    page,
+  }, testInfo) => {
+    await page.evaluate(() => {
+      const baseSession = {
+        problemId: 'two-sum',
+        problemTitle: 'Two Sum',
+        mode: 'guided',
+        strategiesExplored: ['hash-map'],
+        startedAt: '2026-11-24T04:00:00.000Z',
+        stageStatuses: { understand: 'completed' },
+        totalStages: 4,
+        completedStagesCount: 1,
+        skippedStagesCount: 0,
+        attemptedStagesCount: 1,
+        predictionSummary: {
+          questionsAttempted: 0, firstTryCorrect: 0, solvedAfterRetry: 0,
+          totalSolved: 0, totalRetries: 0, skippedCount: 0,
+          skippedAfterAttempt: 0, skippedWithoutAttempt: 0,
+          unresolvedAttempt: 0, totalQuestions: 0,
+        },
+        hintsUsed: 0,
+        hintsByStage: {},
+        attempts: [],
+        skillEvidence: [],
+        events: [],
+        outcome: 'partial-attempt',
+      };
+      localStorage.setItem('algomiri.learning.history', JSON.stringify({
+        schemaVersion: 1,
+        updatedAt: '2026-11-25T04:00:00.000Z',
+        sessions: [
+          { ...baseSession, sessionId: 'history-e2e-1', completedAt: '2026-11-24T04:00:00.000Z' },
+          { ...baseSession, sessionId: 'history-e2e-2', completedAt: '2026-11-25T04:00:00.000Z', completedStagesCount: 2 },
+        ],
+      }));
+      localStorage.setItem('algomiri.ai.problem-history', JSON.stringify({
+        schemaVersion: 1,
+        updatedAt: '2026-11-26T04:00:00.000Z',
+        records: [
+          {
+            id: 'ai-e2e-curated', title: 'Top-K Most Frequent Values', source: 'curated-ai',
+            problemId: 'top-k-frequent-values', topic: 'Hashing & Frequency', locale: 'en',
+            savedAt: '2026-11-26T03:00:00.000Z', updatedAt: '2026-11-26T03:00:00.000Z',
+            status: 'ai-conceptual',
+          },
+          {
+            id: 'ai-e2e-custom', title: 'Custom Graph Walk', source: 'custom-pasted',
+            problemId: null, topic: 'Graphs & BFS', locale: 'en',
+            savedAt: '2026-11-26T04:00:00.000Z', updatedAt: '2026-11-26T04:00:00.000Z',
+            status: 'ai-conceptual',
+          },
+        ],
+      }));
+    });
+
+    await page.goto('/history', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: 'Problem History' })).toBeVisible();
+    await expect(page.getByText('Recorded sessions').locator('..').getByText('2')).toBeVisible();
+    await expect(page.getByText(/does not prove the coding problem was solved independently/i)).toBeVisible();
+    await expect(page.getByText('AI conceptual · not verified')).toHaveCount(2);
+
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.getByText('Top-K Most Frequent Values')).toBeVisible();
+    await page.getByLabel('Filter records').selectOption('custom');
+    await expect(page.getByText('Custom Graph Walk')).toBeVisible();
+    await expect(page.getByText('Top-K Most Frequent Values')).toBeHidden();
+    await page.getByLabel('Filter records').selectOption('all');
+
+    const desktopLightPath = testInfo.outputPath('history-desktop-light.png');
+    await page.screenshot({ path: desktopLightPath, fullPage: true });
+    await testInfo.attach('history-desktop-light.png', { path: desktopLightPath, contentType: 'image/png' });
+
+    await page.getByRole('button', { name: /switch to dark mode/i }).click();
+    await page.setViewportSize({ width: 375, height: 812 });
+    const mobileDarkPath = testInfo.outputPath('history-mobile-dark.png');
+    await page.screenshot({ path: mobileDarkPath, fullPage: true });
+    await testInfo.attach('history-mobile-dark.png', { path: mobileDarkPath, contentType: 'image/png' });
+
+    await page.getByRole('button', { name: /open navigation menu/i }).click();
+    await page.locator('select[aria-label="Language"]:visible').selectOption('vi');
+    await expect(page.getByRole('heading', { name: 'Lịch sử Bài toán' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Bài toán AI Đã lưu' })).toBeVisible();
+
+    page.once('dialog', (dialog) => dialog.accept());
+    await page.getByRole('button', { name: /xóa custom graph walk khỏi lịch sử ai đã lưu/i }).click();
+    await expect(page.getByText('Custom Graph Walk')).toBeHidden();
+    await expect(page.getByText('Top-K Most Frequent Values')).toBeVisible();
+  });
 });

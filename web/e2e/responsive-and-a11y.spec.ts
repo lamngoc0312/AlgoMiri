@@ -9,6 +9,7 @@ const ALL_ROUTES = [
   '/studio/split-array-largest-sum',
   '/progress',
   '/roadmap',
+  '/history',
 ] as const;
 
 const VIEWPORTS = [
@@ -70,7 +71,7 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
     await expect(page.getByText('Chưa có phiên học nào được ghi nhận')).toBeVisible();
 
     await page.setViewportSize({ width: 320, height: 640 });
-    for (const route of ['/', '/problems', '/studio/two-sum', '/roadmap', '/progress']) {
+    for (const route of ['/', '/problems', '/studio/two-sum', '/roadmap', '/progress', '/history']) {
       await page.goto(route, { waitUntil: 'networkidle' });
       const overflowPx = await page.evaluate(() =>
         Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
@@ -79,7 +80,7 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
     }
   });
 
-  test('renders all 7 major routes with zero horizontal overflow and zero errors across mobile, tablet, and desktop', async ({
+  test('renders all 8 major routes with zero horizontal overflow and zero errors across mobile, tablet, and desktop', async ({
     page,
   }) => {
     const consoleErrors: string[] = [];
@@ -168,6 +169,7 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
       },
       { label: 'desktop-progress', route: '/progress', width: 1440, height: 900 },
       { label: 'desktop-roadmap', route: '/roadmap', width: 1440, height: 900 },
+      { label: 'desktop-history', route: '/history', width: 1440, height: 900 },
       { label: 'mobile-home', route: '/', width: 375, height: 812 },
       {
         label: 'mobile-two-sum',
@@ -176,6 +178,7 @@ test.describe('Responsive Layout, Navigation & Accessibility', () => {
         height: 812,
       },
       { label: 'mobile-roadmap', route: '/roadmap', width: 375, height: 812 },
+      { label: 'mobile-history', route: '/history', width: 375, height: 812 },
     ];
 
     for (const item of checks) {

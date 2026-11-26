@@ -6,6 +6,7 @@ import {
   Compass,
   Layers,
   Library,
+  History,
   Menu,
   Sparkles,
   TrendingUp,
@@ -43,6 +44,13 @@ const NAV_ITEMS = [
     labelKey: 'shell.nav.roadmap',
     icon: Compass,
     iconColor: 'text-[var(--accent-sky)]',
+    end: false,
+  },
+  {
+    to: '/history',
+    labelKey: 'shell.nav.history',
+    icon: History,
+    iconColor: 'text-[var(--accent-coral-text)]',
     end: false,
   },
   {

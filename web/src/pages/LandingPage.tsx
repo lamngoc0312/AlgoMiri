@@ -18,12 +18,14 @@ import {
 import { formatAiErrorMessage } from '../services/aiErrorMessages';
 import { ProblemComposer } from '../features/composer/ProblemComposer';
 import { ProblemAnalysisView } from '../features/analyzer/ProblemAnalysisView';
+import { SaveAiHistoryPanel } from '../features/analyzer/SaveAiHistoryPanel';
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
 import { getTopicVisualStyle } from '../styles/topicColors';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { DEFAULT_LANGUAGE, isSupportedLanguage, type SupportedLanguage } from '../i18n';
+import { defaultAiProblemHistoryRepository } from '../services/aiProblemHistoryRepository';
 
 /**
  * Strict curated shortcut matcher for the secondary "Open Curated Studio" action.
@@ -93,9 +95,15 @@ export function LandingPage() {
   const [searchParams] = useSearchParams();
   const prefillId = searchParams.get('prefill');
   const prefillProblem = prefillId ? getAiGuidedProblemById(prefillId) : undefined;
+  const historyRecordId = searchParams.get('historyRecord');
+  const historyRecord = historyRecordId
+    ? defaultAiProblemHistoryRepository
+        .load()
+        .records.find((record) => record.id === historyRecordId)
+    : undefined;
 
   const [problemInput, setProblemInput] = useState(
-    () => prefillProblem?.originalPrompt ?? '',
+    () => prefillProblem?.originalPrompt ?? historyRecord?.problemStatement ?? '',
   );
   const [feedback, setFeedback] = useState<{
     type: 'empty' | 'unsupported' | 'error';
@@ -110,6 +118,9 @@ export function LandingPage() {
   );
   const [analysisLocale, setAnalysisLocale] = useState<SupportedLanguage | null>(null);
   const [analysisRevision, setAnalysisRevision] = useState(0);
+  const [historySaveState, setHistorySaveState] = useState<
+    'idle' | 'saving' | 'saved' | 'error'
+  >('idle');
   const [selectedStrategyName, setSelectedStrategyName] = useState<
     string | null
   >(null);
@@ -144,8 +155,11 @@ export function LandingPage() {
     if (prefillProblem?.originalPrompt) {
       setProblemInput(prefillProblem.originalPrompt);
       setFeedback(null);
+    } else if (historyRecord?.problemStatement) {
+      setProblemInput(historyRecord.problemStatement);
+      setFeedback(null);
     }
-  }, [prefillProblem]);
+  }, [historyRecord?.problemStatement, prefillProblem]);
 
   useEffect(() => {
     return () => {
@@ -207,6 +221,7 @@ export function LandingPage() {
       setAnalyzedStatement(trimmed);
       setAnalysisLocale(requestLocale);
       setAnalysisRevision((rev) => rev + 1);
+      setHistorySaveState('idle');
       setActiveWorkspaceTab('analysis');
       setSelectedStrategyName(
         response.analysis.candidate_strategies[0]?.name ?? null,
@@ -270,6 +285,7 @@ export function LandingPage() {
     setSelectedStrategyName(null);
     setActiveWorkspaceTab('analysis');
     setFeedback(null);
+    setHistorySaveState('idle');
   };
 
   const handleInputChange = (nextText: string) => {
@@ -296,6 +312,22 @@ export function LandingPage() {
     handleInputChange(
       'Split Array Largest Sum: Given an array of nonnegative integers nums and an integer k, split nums into k nonempty contiguous subarrays to minimize the largest subarray sum.',
     );
+  };
+
+  const handleSaveAiHistory = (consentToStoreStatement: boolean) => {
+    if (!analysisResult || analysisResult.mode === 'offline-demo') return;
+    setHistorySaveState('saving');
+    const result = defaultAiProblemHistoryRepository.save({
+      title: analysisResult.analysis.title,
+      source: prefillProblem ? 'curated-ai' : 'custom-pasted',
+      problemId:
+        prefillProblem?.id ?? analysisResult.verified_match.matched_problem_id,
+      topic: prefillProblem?.topic ?? analysisResult.analysis.inferred_problem_type,
+      locale: analysisLocale ?? language,
+      problemStatement: analyzedStatement,
+      consentToStoreStatement,
+    });
+    setHistorySaveState(result.saved ? 'saved' : 'error');
   };
 
   const verifiedStudios = getVerifiedLibraryItems();
@@ -462,6 +494,18 @@ export function LandingPage() {
               onSelectStrategy={setSelectedStrategyName}
               onOpenTutor={() => setActiveWorkspaceTab('tutor')}
             />
+            {analysisResult.mode !== 'offline-demo' && !isAnalysisStale && (
+              <div className="mt-4">
+                <SaveAiHistoryPanel
+                  key={`ai-history-save-${analysisRevision}`}
+                  isCustomProblem={!prefillProblem}
+                  saved={historySaveState === 'saved'}
+                  saving={historySaveState === 'saving'}
+                  error={historySaveState === 'error'}
+                  onSave={handleSaveAiHistory}
+                />
+              </div>
+            )}
           </div>
 
           {analysisResult.mode !== 'offline-demo' && (
