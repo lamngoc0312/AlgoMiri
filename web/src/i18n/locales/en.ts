@@ -66,9 +66,23 @@ export const en = {
     localeMismatchDescription: 'Keep reading it, or explicitly regenerate it in {{selectedLanguage}}. No API quota is used until you choose regenerate.',
     regenerateLanguage: 'Regenerate in {{language}}',
     recognitionLimitation: 'Verified matching currently uses English-oriented recognition patterns. Vietnamese statements may remain conceptual or ambiguous; verification safeguards are not relaxed.',
+    matchingSummaryTitle: 'Verified Studio Matching',
+    matchingStatusSummary: {
+      verified: 'Matched the verified {{title}} deterministic Studio. Opening the Studio loads curated examples first; pasted text is never executed.',
+      ambiguous: 'This resembles {{title}}, but required constraints could not be verified automatically. Stay in conceptual analysis or inspect the curated Studio only if your constraints match.',
+      conceptual_only: 'No verified deterministic Studio matches this statement. Showing conceptual AI guidance only; no execution trace was generated.',
+    },
+    matchingChecksLabel: 'Compatibility checks',
     errors: {
       network: 'Could not reach the AlgoMiri API backend (expected at http://localhost:8000). Start the FastAPI server or use the built-in verified Learning Studio.',
       timeout: 'The request timed out while waiting for the AlgoMiri API. Please retry.',
+      gatewayTimeout: 'AI request timed out on the server. Please retry in a moment.',
+      rateLimit: 'Rate limit exceeded. Please wait before sending another request.',
+      payloadTooLarge: 'The request is too large for the server limit. Shorten the text or reduce attachments and retry.',
+      validation: 'The request could not be processed. Check your problem statement and try again.',
+      serviceUnavailable: 'The AI service is temporarily unavailable. Built-in verified Studios remain available.',
+      badGateway: 'The upstream AI provider could not complete the request. Please retry.',
+      server: 'The server encountered an unexpected error. Please retry.',
     },
   },
   shell: {

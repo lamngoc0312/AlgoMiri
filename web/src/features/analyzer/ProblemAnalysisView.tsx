@@ -45,7 +45,8 @@ export function ProblemAnalysisView({
   onSelectStrategy,
   onOpenTutor,
 }: ProblemAnalysisViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEnglish = (i18n.resolvedLanguage ?? 'en').startsWith('en');
   const { analysis, verified_match: match, mode } = result;
   const isOffline = mode === 'offline-demo';
   const verifiedStudios = getVerifiedLibraryItems();
@@ -773,16 +774,44 @@ export function ProblemAnalysisView({
               </div>
             )}
 
-            <p className="text-xs text-[var(--text-secondary)] border-t border-[var(--border-subtle)] pt-4">
-              {analysis.confidence_notes}{' '}
-              {match.status === 'verified'
-                ? t('aiAnalysis.verifiedBadge')
-                : match.status === 'ambiguous'
-                  ? t('aiAnalysis.ambiguousBadge')
-                  : t('aiAnalysis.conceptualBadge')}
-            </p>
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                  {t('aiAnalysis.matchingSummaryTitle')}
+                </h4>
+                <span className="text-xs font-semibold text-[var(--text-primary)]">
+                  {match.status === 'verified'
+                    ? t('aiAnalysis.verifiedBadge')
+                    : match.status === 'ambiguous'
+                      ? t('aiAnalysis.ambiguousBadge')
+                      : t('aiAnalysis.conceptualBadge')}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--text-primary)]">
+                {t(`aiAnalysis.matchingStatusSummary.${match.status}`, {
+                  title: match.matched_problem_title ?? '',
+                })}
+              </p>
+              {/* Backend compatibility_checks strings are currently English-only; render them only in English to avoid mixed-language UI or brittle string replacement. */}
+              {isEnglish && match.compatibility_checks.length > 0 && (
+                <div className="space-y-1 pt-1">
+                  <span className="block text-xs font-semibold text-[var(--text-secondary)]">
+                    {t('aiAnalysis.matchingChecksLabel')}
+                  </span>
+                  <ul className="space-y-1 text-xs text-[var(--text-secondary)]">
+                    {match.compatibility_checks.map((check) => (
+                      <li key={check}>• {check}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p className="text-xs text-[var(--text-secondary)] pt-1 border-t border-[var(--border-subtle)]">
+                {t('aiAnalysis.recognitionLimitation')}
+              </p>
+            </div>
+
             <p className="text-xs text-[var(--text-secondary)]">
-              {t('aiAnalysis.recognitionLimitation')}
+              {analysis.confidence_notes}
             </p>
           </div>
         )}

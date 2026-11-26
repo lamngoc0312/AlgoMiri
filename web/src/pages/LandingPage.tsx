@@ -15,6 +15,7 @@ import {
   analyzeProblem,
   type AnalyzeResponseDto,
 } from '../services/aiClient';
+import { formatAiErrorMessage } from '../services/aiErrorMessages';
 import { ProblemComposer } from '../features/composer/ProblemComposer';
 import { ProblemAnalysisView } from '../features/analyzer/ProblemAnalysisView';
 import { AiTutorPanel } from '../features/analyzer/AiTutorPanel';
@@ -148,7 +149,9 @@ export function LandingPage() {
 
   useEffect(() => {
     return () => {
+      analyzeSeqRef.current += 1;
       analyzeAbortRef.current?.abort();
+      analyzeAbortRef.current = null;
     };
   }, []);
 
@@ -215,18 +218,10 @@ export function LandingPage() {
       if (err instanceof AiClientError && err.kind === 'aborted') {
         return;
       }
-      const baseMessage =
-        err instanceof AiClientError
-          ? err.kind === 'network'
-            ? t('aiAnalysis.errors.network')
-            : err.kind === 'timeout' && !err.status
-              ? t('aiAnalysis.errors.timeout')
-              : err.message
-          : t('landing.validation.analysisFailed');
-      const message =
-        err instanceof AiClientError && err.retryAfterSeconds
-          ? `${baseMessage} (${t('landing.validation.suggestedWait', { seconds: err.retryAfterSeconds })})`
-          : baseMessage;
+      const message = formatAiErrorMessage(err, t, {
+        fallbackKey: 'landing.validation.analysisFailed',
+        suggestedWaitKey: 'landing.validation.suggestedWait',
+      });
       setFeedback({
         type: 'error',
         message,
@@ -264,14 +259,24 @@ export function LandingPage() {
     });
   };
 
+  const handleClearAnalysis = () => {
+    analyzeSeqRef.current += 1;
+    analyzeAbortRef.current?.abort();
+    analyzeAbortRef.current = null;
+    setAnalyzing(false);
+    setAnalysisResult(null);
+    setAnalyzedStatement(null);
+    setAnalysisLocale(null);
+    setSelectedStrategyName(null);
+    setActiveWorkspaceTab('analysis');
+    setFeedback(null);
+  };
+
   const handleInputChange = (nextText: string) => {
     setProblemInput(nextText);
     if (feedback) setFeedback(null);
-    if (nextText.trim() === '' && analysisResult) {
-      setAnalysisResult(null);
-      setAnalyzedStatement(null);
-      setAnalysisLocale(null);
-      setSelectedStrategyName(null);
+    if (nextText.trim() === '' && (analysisResult || analyzing)) {
+      handleClearAnalysis();
     }
   };
 
@@ -397,13 +402,7 @@ export function LandingPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  setAnalysisResult(null);
-                  setAnalyzedStatement(null);
-                  setAnalysisLocale(null);
-                  setSelectedStrategyName(null);
-                  setActiveWorkspaceTab('analysis');
-                }}
+                onClick={handleClearAnalysis}
               >
                 {t('common.clear')}
               </Button>

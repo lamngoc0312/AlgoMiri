@@ -18,6 +18,7 @@ import {
   type TutorActionType,
   type TutorResponseDto,
 } from '../../services/aiClient';
+import { formatAiErrorMessage } from '../../services/aiErrorMessages';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -75,7 +76,9 @@ export function AiTutorPanel({
 
   useEffect(() => {
     return () => {
+      seqRef.current += 1;
       abortRef.current?.abort();
+      abortRef.current = null;
     };
   }, []);
 
@@ -117,21 +120,15 @@ export function AiTutorPanel({
       if (seqRef.current !== requestSeq) {
         return;
       }
-      if (err instanceof AiClientError) {
-        if (err.kind === 'aborted') return;
-        const baseMessage =
-          err.kind === 'network'
-            ? t('aiAnalysis.errors.network')
-            : err.kind === 'timeout' && !err.status
-              ? t('aiAnalysis.errors.timeout')
-              : err.message;
-        const retryHint = err.retryAfterSeconds
-          ? ` (${t('aiTutor.suggestedWait', { seconds: err.retryAfterSeconds })})`
-          : '';
-        setError(`${baseMessage}${retryHint}`);
-      } else {
-        setError(t('aiTutor.error'));
+      if (err instanceof AiClientError && err.kind === 'aborted') {
+        return;
       }
+      setError(
+        formatAiErrorMessage(err, t, {
+          fallbackKey: 'aiTutor.error',
+          suggestedWaitKey: 'aiTutor.suggestedWait',
+        }),
+      );
     } finally {
       if (seqRef.current === requestSeq) {
         setLoading(false);

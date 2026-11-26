@@ -361,4 +361,253 @@ describe('Phase 3C.2 — Bilingual AI Analysis & Tutor Integration', () => {
     ).toBeInTheDocument();
     expect(document.documentElement.dataset.theme).toBe('dark');
   });
+
+  it('aborts an in-flight regeneration on Clear and prevents late responses from repopulating Landing', async () => {
+    let resolveRegen!: (value: Response) => void;
+    let regenSignal: AbortSignal | undefined;
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => EN_ANALYZE_RESPONSE,
+      } as Response)
+      .mockImplementationOnce((_url, init) => {
+        regenSignal = init?.signal ?? undefined;
+        return new Promise<Response>((resolve) => {
+          resolveRegen = resolve;
+        });
+      });
+
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      screen.getByLabelText(/paste a problem statement/i),
+      'Given coin denominations and a target amount, find minimum coins.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /analyze problem \(ai\)/i }),
+    );
+    expect(await screen.findByText('Minimum Coin Change')).toBeInTheDocument();
+
+    // Switch to Vietnamese and start regeneration (stays pending)
+    await user.selectOptions(screen.getAllByLabelText(/language/i)[0], 'vi');
+    await user.click(
+      screen.getByRole('button', { name: /tạo lại bằng tiếng việt/i }),
+    );
+    expect(regenSignal).toBeDefined();
+    expect(regenSignal?.aborted).toBe(false);
+
+    // Click Clear while regeneration is in progress
+    await user.click(screen.getByRole('button', { name: /^xóa$/i }));
+
+    expect(regenSignal?.aborted).toBe(true);
+    expect(screen.queryByText('Minimum Coin Change')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /phân tích bài toán \(ai\)/i }),
+    ).toBeEnabled();
+
+    // Resolve the late response anyway — it must NOT repopulate the page
+    resolveRegen({
+      ok: true,
+      status: 200,
+      json: async () => VI_ANALYZE_RESPONSE,
+    } as Response);
+
+    await new Promise((r) => setTimeout(r, 25));
+    expect(screen.queryByText('Đổi Tiền Ít Đồng Nhất')).not.toBeInTheDocument();
+  });
+
+  it('aborts a pending analysis request cleanly on unmount/navigation', async () => {
+    let pendingSignal: AbortSignal | undefined;
+    let resolvePending!: (value: Response) => void;
+
+    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((_url, init) => {
+      pendingSignal = init?.signal ?? undefined;
+      return new Promise<Response>((resolve) => {
+        resolvePending = resolve;
+      });
+    });
+
+    const user = userEvent.setup();
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      screen.getByLabelText(/paste a problem statement/i),
+      'Given coin denominations and a target amount, find minimum coins.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /analyze problem \(ai\)/i }),
+    );
+
+    expect(pendingSignal).toBeDefined();
+    expect(pendingSignal?.aborted).toBe(false);
+
+    unmount();
+    expect(pendingSignal?.aborted).toBe(true);
+
+    // Resolving after unmount should settle cleanly without throwing
+    resolvePending({
+      ok: true,
+      status: 200,
+      json: async () => EN_ANALYZE_RESPONSE,
+    } as Response);
+    await new Promise((r) => setTimeout(r, 20));
+  });
+
+  it('localizes HTTP 429, 504, 413, and 503 API errors in Vietnamese without leaking raw English backend text', async () => {
+    await i18n.changeLanguage('vi');
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        headers: new Headers({ 'Retry-After': '20' }),
+        json: async () => ({
+          detail: 'Rate limit exceeded. Please wait before sending another request.',
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 504,
+        headers: new Headers(),
+        json: async () => ({
+          detail: 'AI request timed out. Please retry in a moment.',
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 413,
+        headers: new Headers(),
+        json: async () => ({
+          detail: 'Request payload exceeds the 65536-byte limit.',
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => VI_ANALYZE_RESPONSE,
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        headers: new Headers(),
+        json: async () => ({
+          detail: 'AI provider is temporarily unavailable. Please retry in a moment.',
+        }),
+      } as Response);
+
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      screen.getByLabelText(/dán một đề bài/i),
+      'Cho mảng mệnh giá xu và tổng mục tiêu, tìm số đồng xu ít nhất.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /phân tích bài toán \(ai\)/i }),
+    );
+
+    // 429 localized in Vietnamese with preserved retry-after duration
+    const rateAlert = await screen.findByRole('alert');
+    expect(rateAlert).toHaveTextContent(/đã vượt quá giới hạn tần suất yêu cầu/i);
+    expect(rateAlert).toHaveTextContent(/~20 giây/i);
+    expect(rateAlert).not.toHaveTextContent(/rate limit exceeded/i);
+
+    // Retry -> 504 localized gateway timeout
+    await user.click(screen.getByRole('button', { name: /thử lại/i }));
+    const timeoutAlert = await screen.findByRole('alert');
+    expect(timeoutAlert).toHaveTextContent(/hết thời gian chờ trên máy chủ/i);
+    expect(timeoutAlert).not.toHaveTextContent(/AI request timed out/i);
+
+    // Retry -> 413 localized payload too large
+    await user.click(screen.getByRole('button', { name: /thử lại/i }));
+    const payloadAlert = await screen.findByRole('alert');
+    expect(payloadAlert).toHaveTextContent(/vượt quá giới hạn dung lượng/i);
+    expect(payloadAlert).not.toHaveTextContent(/65536-byte/i);
+
+    // Retry -> analysis succeeds, then Tutor hits 503 localized service unavailable
+    await user.click(screen.getByRole('button', { name: /thử lại/i }));
+    expect(await screen.findByText('Đổi Tiền Ít Đồng Nhất')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /hỏi gia sư ai/i }));
+    await user.click(screen.getByRole('button', { name: /cho một gợi ý/i }));
+
+    const tutorAlert = await screen.findByRole('alert');
+    expect(tutorAlert).toHaveTextContent(/dịch vụ ai tạm thời không khả dụng/i);
+    expect(tutorAlert).not.toHaveTextContent(/temporarily unavailable/i);
+  });
+
+  it('presents localized verified-matching metadata in Vietnamese without leaking English compatibility checks', async () => {
+    await i18n.changeLanguage('vi');
+    const verifiedViResponse: AnalyzeResponseDto = {
+      ...VI_ANALYZE_RESPONSE,
+      verified_match: {
+        status: 'verified',
+        matched_problem_id: 'two-sum',
+        matched_problem_title: 'Two Sum',
+        studio_path: '/studio/two-sum',
+        reason: 'Matches AlgoMiri verified Two Sum engine.',
+        compatibility_checks: ['Distinct 0-based indices confirmed.'],
+        user_input_note: 'Opening Studio loads curated samples first.',
+      },
+    };
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => verifiedViResponse,
+    } as Response);
+
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      screen.getByLabelText(/dán một đề bài/i),
+      'Two Sum: Given an array of integers nums and target, find two distinct indices summing to target.',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /phân tích bài toán \(ai\)/i }),
+    );
+    expect(await screen.findByText('Đổi Tiền Ít Đồng Nhất')).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('tab', { name: /ràng buộc & trường hợp biên/i }),
+    );
+    expect(
+      screen.getByText(/đối chiếu studio đã kiểm chứng/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/đã khớp với studio tất định đã kiểm chứng cho two sum/i),
+    ).toBeInTheDocument();
+    // English-only backend compatibility checks are NOT leaked in Vietnamese UI
+    expect(
+      screen.queryByText(/distinct 0-based indices confirmed/i),
+    ).not.toBeInTheDocument();
+
+    // Switching to English shows the English compatibility checks cleanly
+    await user.selectOptions(screen.getAllByLabelText(/ngôn ngữ|language/i)[0], 'en');
+    await user.click(
+      screen.getByRole('tab', { name: /constraints & edge cases/i }),
+    );
+    expect(
+      screen.getByText(/distinct 0-based indices confirmed/i),
+    ).toBeInTheDocument();
+  });
 });

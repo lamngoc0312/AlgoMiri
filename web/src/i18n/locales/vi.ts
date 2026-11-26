@@ -66,9 +66,23 @@ export const vi = {
     localeMismatchDescription: 'Bạn vẫn có thể đọc nội dung cũ hoặc chủ động tạo lại bằng {{selectedLanguage}}. Chỉ khi bạn chọn tạo lại mới sử dụng hạn mức API.',
     regenerateLanguage: 'Tạo lại bằng {{language}}',
     recognitionLimitation: 'Việc nhận diện Studio đã kiểm chứng hiện dựa trên mẫu tiếng Anh. Đề bài tiếng Việt có thể chỉ được phân tích khái niệm hoặc đánh dấu chưa rõ ràng; các lớp bảo vệ kiểm chứng không bị nới lỏng.',
+    matchingSummaryTitle: 'Đối chiếu Studio đã kiểm chứng',
+    matchingStatusSummary: {
+      verified: 'Đã khớp với Studio tất định đã kiểm chứng cho {{title}}. Mở Studio sẽ tải ví dụ tuyển chọn trước; văn bản bạn dán không bao giờ được thực thi.',
+      ambiguous: 'Đề bài này có thể gần với {{title}}, nhưng các ràng buộc bắt buộc chưa thể kiểm chứng tự động. Hãy tiếp tục phân tích khái niệm hoặc chỉ mở Studio tuyển chọn nếu ràng buộc khớp.',
+      conceptual_only: 'Chưa có Studio tất định đã kiểm chứng khớp với đề bài này. Chỉ hiển thị hướng dẫn khái niệm từ AI; không có trace thực thi nào được tạo.',
+    },
+    matchingChecksLabel: 'Kiểm tra tương thích',
     errors: {
       network: 'Không thể kết nối tới máy chủ AlgoMiri API (mặc định tại http://localhost:8000). Hãy khởi động máy chủ FastAPI hoặc sử dụng Studio học tập đã kiểm chứng có sẵn.',
       timeout: 'Yêu cầu đã hết thời gian chờ phản hồi từ AlgoMiri API. Vui lòng thử lại.',
+      gatewayTimeout: 'Yêu cầu AI đã hết thời gian chờ trên máy chủ. Vui lòng thử lại sau giây lát.',
+      rateLimit: 'Đã vượt quá giới hạn tần suất yêu cầu. Vui lòng đợi một lát trước khi gửi yêu cầu tiếp theo.',
+      payloadTooLarge: 'Nội dung gửi lên vượt quá giới hạn dung lượng của máy chủ. Hãy rút gọn văn bản hoặc giảm tệp đính kèm rồi thử lại.',
+      validation: 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại nội dung đề bài và thử lại.',
+      serviceUnavailable: 'Dịch vụ AI tạm thời không khả dụng. Các Studio đã kiểm chứng tích hợp sẵn vẫn hoạt động bình thường.',
+      badGateway: 'Nhà cung cấp AI phía sau chưa thể hoàn tất yêu cầu. Vui lòng thử lại.',
+      server: 'Máy chủ gặp lỗi ngoài dự kiến. Vui lòng thử lại sau.',
     },
   },
   shell: {
