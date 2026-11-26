@@ -122,6 +122,73 @@ describe('Frontend AI Problem Analyzer & Beginner Tutor', () => {
       screen.getByText(/does not verify code execution/i),
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({
+      locale: 'en',
+    });
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toMatchObject({
+      locale: 'en',
+    });
+  });
+
+  it('keeps an English analysis visible after switching to Vietnamese and regenerates only on explicit action', async () => {
+    const vietnameseResponse: AnalyzeResponseDto = {
+      ...MOCK_ANALYZE_RESPONSE,
+      analysis: {
+        ...MOCK_ANALYZE_RESPONSE.analysis,
+        title: 'Đổi tiền ít đồng nhất',
+        plain_language_summary: 'Tìm số đồng xu ít nhất để tạo thành số tiền mục tiêu.',
+      },
+    };
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => MOCK_ANALYZE_RESPONSE } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => vietnameseResponse } as Response);
+
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={['/']}><AppRoutes /></MemoryRouter>);
+    await user.type(
+      screen.getByLabelText(/paste a problem statement/i),
+      'Given coin denominations and a target amount, find the minimum coins needed.',
+    );
+    await user.click(screen.getByRole('button', { name: /analyze problem \(ai\)/i }));
+    expect(await screen.findByText('Minimum Coin Change')).toBeInTheDocument();
+
+    await user.selectOptions(screen.getAllByLabelText(/language/i)[0], 'vi');
+    expect(screen.getByText('Minimum Coin Change')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/phân tích này được tạo bằng/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /tạo lại bằng tiếng việt/i }));
+    expect(await screen.findByText('Đổi tiền ít đồng nhất')).toBeInTheDocument();
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toMatchObject({ locale: 'vi' });
+  });
+
+  it('sends the selected locale to Tutor and preserves replies from both languages', async () => {
+    const vietnameseTutor: TutorResponseDto = {
+      ...MOCK_TUTOR_RESPONSE,
+      reply: 'Hãy bắt đầu từ một ví dụ nhỏ.',
+      guiding_question: 'Công việc nào đang được lặp lại?',
+      progressive_hint: 'Thử ghi nhớ kết quả trước đó.',
+      mastery_disclaimer: 'Gia sư AI không xác minh việc thực thi mã.',
+    };
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => MOCK_ANALYZE_RESPONSE } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => MOCK_TUTOR_RESPONSE } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => vietnameseTutor } as Response);
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={['/']}><AppRoutes /></MemoryRouter>);
+    await user.type(screen.getByLabelText(/paste a problem statement/i), 'Given coins and an amount, return the minimum number of coins required.');
+    await user.click(screen.getByRole('button', { name: /analyze problem \(ai\)/i }));
+    await screen.findByText('Minimum Coin Change');
+    await user.click(screen.getByRole('tab', { name: /ask ai tutor/i }));
+    await user.click(screen.getByRole('button', { name: /give a hint/i }));
+    expect(await screen.findByText(/greedy picks the largest coin/i)).toBeInTheDocument();
+
+    await user.selectOptions(screen.getAllByLabelText(/language/i)[0], 'vi');
+    await user.click(screen.getByRole('button', { name: /cho một gợi ý/i }));
+    expect(await screen.findByText('Hãy bắt đầu từ một ví dụ nhỏ.')).toBeInTheDocument();
+    expect(screen.getByText(/greedy picks the largest coin/i)).toBeInTheDocument();
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toMatchObject({ locale: 'en' });
+    expect(JSON.parse(String(fetchMock.mock.calls[2][1]?.body))).toMatchObject({ locale: 'vi' });
   });
 
   it('handles timeout/error gracefully and supports retry', async () => {

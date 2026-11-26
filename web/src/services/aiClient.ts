@@ -1,4 +1,14 @@
 import type { AnyProblemModule } from '../domain/problems/registry';
+import {
+  DEFAULT_LANGUAGE,
+  isSupportedLanguage,
+  type SupportedLanguage,
+} from '../i18n';
+
+export interface AnalyzeRequestDto {
+  problem_statement: string;
+  locale: SupportedLanguage;
+}
 
 export interface WorkedExampleDto {
   input_summary: string;
@@ -75,6 +85,7 @@ export type TutorActionType =
 export interface TutorRequestDto {
   problem_analysis: ProblemAnalysisDto;
   action: TutorActionType;
+  locale: SupportedLanguage;
   selected_strategy?: string | null;
   learning_stage?: string | null;
   execution_context?: string | null;
@@ -159,6 +170,7 @@ export class AiClientError extends Error {
 export interface RequestOptions {
   timeoutMs?: number;
   signal?: AbortSignal;
+  locale?: unknown;
 }
 
 const DEFAULT_API_BASE_URL = 'http://localhost:8000';
@@ -270,9 +282,12 @@ export async function analyzeProblem(
   problemStatement: string,
   options?: RequestOptions,
 ): Promise<AnalyzeResponseDto> {
+  const locale = isSupportedLanguage(options?.locale)
+    ? options.locale
+    : DEFAULT_LANGUAGE;
   return postJson<AnalyzeResponseDto>(
     '/api/analyze',
-    { problem_statement: problemStatement },
+    { problem_statement: problemStatement, locale } satisfies AnalyzeRequestDto,
     options,
   );
 }
@@ -281,7 +296,14 @@ export async function askTutor(
   request: TutorRequestDto,
   options?: RequestOptions,
 ): Promise<TutorResponseDto> {
-  return postJson<TutorResponseDto>('/api/tutor', request, options);
+  const locale = isSupportedLanguage(request.locale)
+    ? request.locale
+    : DEFAULT_LANGUAGE;
+  return postJson<TutorResponseDto>(
+    '/api/tutor',
+    { ...request, locale },
+    options,
+  );
 }
 
 export async function inspectProblemUrl(

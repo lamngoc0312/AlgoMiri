@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -44,6 +45,7 @@ export function ProblemAnalysisView({
   onSelectStrategy,
   onOpenTutor,
 }: ProblemAnalysisViewProps) {
+  const { t } = useTranslation();
   const { analysis, verified_match: match, mode } = result;
   const isOffline = mode === 'offline-demo';
   const verifiedStudios = getVerifiedLibraryItems();
@@ -117,14 +119,14 @@ export function ProblemAnalysisView({
   const guidingQuestion =
     analysis.clarifications_or_ambiguities[0] ??
     (activeStrategy
-      ? `Before coding, why does ${activeStrategy.name} fit this problem's constraints?`
-      : 'Before coding, what small example best tests the core rule of this problem?');
+      ? t('aiAnalysis.strategyQuestion', { name: activeStrategy.name })
+      : t('aiAnalysis.fallbackQuestion'));
 
   // Compact, honest Offline AI state — never render a fake generic analysis page
   if (isOffline) {
     return (
       <div
-        aria-label="Offline AI status"
+        aria-label={t('aiAnalysis.offlineLabel')}
         className={`space-y-4 transition-opacity ${isStale ? 'opacity-85' : ''}`}
       >
         {isStale && (
@@ -135,13 +137,13 @@ export function ProblemAnalysisView({
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="font-semibold">
-                Outdated Analysis — Problem Statement Changed
+                {t('aiAnalysis.staleTitle')}
               </span>
             </div>
             {onReanalyze && (
               <Button variant="primary" size="sm" onClick={onReanalyze}>
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                Re-analyze Updated Text
+                {t('aiAnalysis.reanalyze')}
               </Button>
             )}
           </div>
@@ -152,44 +154,46 @@ export function ProblemAnalysisView({
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="demo">
                 <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />
-                Live AI Unavailable (Offline Mode)
+                {t('aiAnalysis.offlineBadge')}
               </Badge>
               {match.status === 'verified' && (
                 <Badge variant="mint">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  Verified Deterministic Studio Available
+                  {t('aiAnalysis.verifiedBadge')}
                 </Badge>
               )}
             </div>
             <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[var(--text-primary)]">
-              Live AI analysis is not enabled on this server
+              {t('aiAnalysis.offlineTitle')}
             </h3>
             <p className="text-base leading-relaxed text-[var(--text-secondary)]">
-              Your pasted problem was not analyzed by an AI model because no live
-              LLM key is configured. Your statement stays intact above — or you can
-              practice right now in a verified interactive studio below.
+              {t('aiAnalysis.offlineDescription')}
             </p>
           </div>
 
           {match.studio_path ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--accent-teal-border)] bg-[var(--accent-teal-soft)]/60 px-5 py-4">
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                {match.reason}
+                {match.status === 'verified'
+                  ? t('aiAnalysis.verifiedBadge')
+                  : match.status === 'ambiguous'
+                    ? t('aiAnalysis.ambiguousBadge')
+                    : t('aiAnalysis.conceptualBadge')}
               </p>
               <Link
                 to={match.studio_path}
                 className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[var(--accent-teal-solid)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-teal-hover)]"
               >
                 {match.status === 'verified'
-                  ? `Open Verified ${match.matched_problem_title} Studio`
-                  : `Inspect Curated ${match.matched_problem_title} Studio`}
+                  ? t('aiAnalysis.openVerified', { title: match.matched_problem_title ?? '' })
+                  : t('aiAnalysis.inspectCurated', { title: match.matched_problem_title ?? '' })}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           ) : (
             <div className="space-y-3 border-t border-[var(--border-subtle)] pt-5">
               <p className="text-sm font-semibold text-[var(--text-primary)]">
-                Try a verified interactive lesson instead:
+                {t('aiAnalysis.tryVerified')}
               </p>
               <div className="flex flex-wrap gap-2.5">
                 {verifiedStudios.map((studio) => (
@@ -213,7 +217,7 @@ export function ProblemAnalysisView({
   // Interactive-First Pin-UI Reader Card with 3-Tab Progressive Disclosure
   return (
     <div
-      aria-label="Structured AI problem analysis"
+      aria-label={t('aiAnalysis.structuredLabel')}
       className={`space-y-5 transition-opacity ${isStale ? 'opacity-85' : ''}`}
     >
       {/* Stale Analysis Alert */}
@@ -229,17 +233,17 @@ export function ProblemAnalysisView({
             />
             <div>
               <p className="font-bold">
-                Outdated Analysis — Problem Statement Changed
+                {t('aiAnalysis.staleTitle')}
               </p>
               <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
-                Re-analyze to refresh this walkthrough and reset the AI Tutor.
+                {t('aiAnalysis.staleDescription')}
               </p>
             </div>
           </div>
           {onReanalyze && (
             <Button variant="primary" size="sm" onClick={onReanalyze}>
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              Re-analyze Updated Text
+              {t('aiAnalysis.reanalyze')}
             </Button>
           )}
         </div>
@@ -255,7 +259,7 @@ export function ProblemAnalysisView({
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-blue-text)]">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                AI-Generated · Conceptual (Not Verified)
+                {t('aiAnalysis.generatedBadge')}
               </span>
               <span className="text-[#C5CBE3]" aria-hidden="true">
                 ·
@@ -263,18 +267,18 @@ export function ProblemAnalysisView({
               {match.status === 'verified' && (
                 <span className="inline-flex items-center gap-1 font-semibold text-[var(--accent-teal-text)]">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  Verified Deterministic Studio Available
+                  {t('aiAnalysis.verifiedBadge')}
                 </span>
               )}
               {match.status === 'ambiguous' && (
                 <span className="inline-flex items-center gap-1 font-semibold text-[var(--accent-amber-text)]">
                   <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                  Ambiguous Match — Please Choose
+                  {t('aiAnalysis.ambiguousBadge')}
                 </span>
               )}
               {match.status === 'conceptual_only' && (
                 <span className="font-medium text-[var(--text-secondary)]">
-                  Conceptual Analysis Only
+                  {t('aiAnalysis.conceptualBadge')}
                 </span>
               )}
             </div>
@@ -295,7 +299,7 @@ export function ProblemAnalysisView({
           {/* Pin-UI-Inspired Segmented Reader Tabs with WAI-ARIA roving keyboard nav */}
           <div
             role="tablist"
-            aria-label="Analysis sections"
+            aria-label={t('aiAnalysis.sections')}
             className="flex flex-wrap sm:inline-flex w-full sm:w-auto gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1"
           >
             <button
@@ -320,7 +324,7 @@ export function ProblemAnalysisView({
                 className={`h-4 w-4 ${readerTab === 'walkthrough' ? 'text-[var(--accent-blue-link)]' : ''}`}
                 aria-hidden="true"
               />
-              Walkthrough
+              {t('aiAnalysis.walkthrough')}
             </button>
             <button
               ref={(el) => {
@@ -344,7 +348,7 @@ export function ProblemAnalysisView({
                 className={`h-4 w-4 ${readerTab === 'approaches' ? 'text-[var(--accent-teal-text)]' : ''}`}
                 aria-hidden="true"
               />
-              Approaches ({analysis.candidate_strategies.length})
+              {t('aiAnalysis.approaches', { count: analysis.candidate_strategies.length })}
             </button>
             <button
               ref={(el) => {
@@ -368,7 +372,7 @@ export function ProblemAnalysisView({
                 className={`h-4 w-4 ${readerTab === 'details' ? 'text-[var(--accent-amber-text)]' : ''}`}
                 aria-hidden="true"
               />
-              Constraints &amp; Edge Cases
+              {t('aiAnalysis.details')}
             </button>
           </div>
         </div>
@@ -385,13 +389,13 @@ export function ProblemAnalysisView({
             <div className="rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-subtle)] p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Worked Example (Conceptual Illustration)
+                  {t('aiAnalysis.workedExample')}
                 </span>
                 {walkthroughBeats.length > 1 && (
                   <div className="inline-flex items-center gap-1.5">
                     <button
                       type="button"
-                      aria-label="Previous example beat"
+                      aria-label={t('aiAnalysis.previousExample')}
                       disabled={activeBeatIdx === 0}
                       onClick={() =>
                         setActiveBeatIdx((idx) => Math.max(0, idx - 1))
@@ -405,7 +409,7 @@ export function ProblemAnalysisView({
                     </span>
                     <button
                       type="button"
-                      aria-label="Next example beat"
+                      aria-label={t('aiAnalysis.nextExample')}
                       disabled={activeBeatIdx >= walkthroughBeats.length - 1}
                       onClick={() =>
                         setActiveBeatIdx((idx) =>
@@ -423,7 +427,7 @@ export function ProblemAnalysisView({
               <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
                 <div className="rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-3">
                   <span className="block text-xs font-semibold text-[var(--text-secondary)]">
-                    Input
+                    {t('aiAnalysis.input')}
                   </span>
                   <p className="mt-1 font-mono text-sm font-semibold text-[var(--text-primary)] break-words">
                     {analysis.worked_example.input_summary}
@@ -435,7 +439,7 @@ export function ProblemAnalysisView({
                 />
                 <div className="rounded-xl bg-[var(--accent-teal-soft)]/60 border border-[var(--accent-teal-border)] px-4 py-3">
                   <span className="block text-xs font-semibold text-[var(--accent-teal-text)]">
-                    Output
+                    {t('aiAnalysis.output')}
                   </span>
                   <p className="mt-1 font-mono text-sm font-bold text-[var(--accent-teal-deep)] break-words">
                     {analysis.worked_example.output_summary}
@@ -456,23 +460,22 @@ export function ProblemAnalysisView({
             {/* One-Step-At-A-Time Conceptual Reasoning Stepper */}
             {activeStep && (
               <div
-                aria-label="Interactive conceptual steps"
+                aria-label={t('aiAnalysis.reasoningSteps')}
                 className="space-y-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h4 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
-                      Walk Through the Logic
+                      {t('aiAnalysis.logic')}
                     </h4>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Step {activeStep.stepNumber} of {conceptualSteps.length} ·
-                      Conceptual guide (not an executed trace)
+                      {t('aiAnalysis.stepProgress', { current: activeStep.stepNumber, total: conceptualSteps.length })}
                     </p>
                   </div>
 
                   <div
                     role="tablist"
-                    aria-label="Conceptual reasoning steps"
+                    aria-label={t('aiAnalysis.reasoningSteps')}
                     className="inline-flex flex-wrap items-center gap-1.5"
                   >
                     {conceptualSteps.map((step, idx) => {
@@ -523,7 +526,7 @@ export function ProblemAnalysisView({
                     </span>
                     {activeStep.dependsOn.length > 0 && (
                       <span className="text-xs font-medium text-[var(--accent-blue-text)]">
-                        Builds on {activeStep.dependsOn.join(', ')}
+                        {t('aiAnalysis.buildsOn', { dependencies: activeStep.dependsOn.join(', ') })}
                       </span>
                     )}
                   </div>
@@ -542,7 +545,7 @@ export function ProblemAnalysisView({
                     onClick={() => setActiveStepIdx((i) => Math.max(0, i - 1))}
                   >
                     <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                    Previous Step
+                    {t('aiAnalysis.previous')}
                   </Button>
 
                   <div className="flex flex-wrap items-center gap-2.5">
@@ -556,8 +559,8 @@ export function ProblemAnalysisView({
                         }`}
                       >
                         {match.status === 'verified'
-                          ? `Open Verified ${match.matched_problem_title} Studio`
-                          : `Inspect Curated ${match.matched_problem_title} Studio`}
+                          ? t('aiAnalysis.openVerified', { title: match.matched_problem_title ?? '' })
+                          : t('aiAnalysis.inspectCurated', { title: match.matched_problem_title ?? '' })}
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     )}
@@ -573,7 +576,7 @@ export function ProblemAnalysisView({
                           )
                         }
                       >
-                        Next Step
+                        {t('aiAnalysis.next')}
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     ) : !match.studio_path && onOpenTutor ? (
@@ -584,7 +587,7 @@ export function ProblemAnalysisView({
                         onClick={onOpenTutor}
                       >
                         <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                        Ask AI Tutor
+                        {t('aiAnalysis.askTutor')}
                       </Button>
                     ) : null}
                   </div>
@@ -604,11 +607,11 @@ export function ProblemAnalysisView({
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-[var(--text-secondary)]">
-                Select an approach to compare tradeoffs and focus the AI Tutor.
+                {t('aiAnalysis.selectApproach')}
               </p>
               <div
                 role="group"
-                aria-label="Selectable strategies"
+                aria-label={t('aiAnalysis.selectableStrategies')}
                 className="flex flex-wrap gap-2"
               >
                 {analysis.candidate_strategies.map((strat) => {
@@ -643,14 +646,14 @@ export function ProblemAnalysisView({
                       className="h-3.5 w-3.5 text-[var(--accent-blue-link)]"
                       aria-hidden="true"
                     />
-                    Time: {activeStrategy.time_complexity}
+                    {t('aiAnalysis.time', { value: activeStrategy.time_complexity })}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-card)] px-2.5 py-1 text-[var(--text-primary)] border border-[var(--border-subtle)]">
                     <Database
                       className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"
                       aria-hidden="true"
                     />
-                    Space: {activeStrategy.space_complexity}
+                    {t('aiAnalysis.space', { value: activeStrategy.space_complexity })}
                   </span>
                 </div>
               </div>
@@ -665,7 +668,7 @@ export function ProblemAnalysisView({
               <div className="grid gap-3 border-t border-[var(--border-subtle)] pt-4 text-sm sm:grid-cols-2">
                 <div>
                   <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Assumptions
+                    {t('aiAnalysis.assumptions')}
                   </span>
                   <p className="mt-1 text-[var(--text-primary)]">
                     {activeStrategy.complexity_assumptions}
@@ -673,7 +676,7 @@ export function ProblemAnalysisView({
                 </div>
                 <div>
                   <span className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                    Limitations
+                    {t('aiAnalysis.limitations')}
                   </span>
                   <p className="mt-1 text-[var(--text-secondary)]">
                     {activeStrategy.limitations}
@@ -686,7 +689,7 @@ export function ProblemAnalysisView({
               <div className="flex justify-end">
                 <Button variant="primary" size="md" onClick={onOpenTutor}>
                   <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                  Discuss {activeStrategy.name} with AI Tutor
+                  {t('aiAnalysis.discuss', { name: activeStrategy.name })}
                 </Button>
               </div>
             )}
@@ -704,7 +707,7 @@ export function ProblemAnalysisView({
             <div className="rounded-xl border-l-4 border-[#397BDB] bg-[var(--surface-subtle)] px-5 py-4 space-y-1">
               <p className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue-text)]">
                 <HelpCircle className="h-4 w-4" aria-hidden="true" />
-                Check Your Intuition
+                {t('aiAnalysis.checkIntuition')}
               </p>
               <p className="text-base leading-relaxed text-[var(--text-primary)]">
                 {guidingQuestion}
@@ -714,7 +717,7 @@ export function ProblemAnalysisView({
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Inputs
+                  {t('aiAnalysis.inputs')}
                 </h4>
                 <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.inputs.map((inp) => (
@@ -724,7 +727,7 @@ export function ProblemAnalysisView({
               </div>
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Outputs
+                  {t('aiAnalysis.outputs')}
                 </h4>
                 <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.outputs.map((out) => (
@@ -737,7 +740,7 @@ export function ProblemAnalysisView({
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Constraints &amp; Assumptions
+                  {t('aiAnalysis.constraints')}
                 </h4>
                 <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.constraints_and_assumptions.map((c) => (
@@ -747,7 +750,7 @@ export function ProblemAnalysisView({
               </div>
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Important Edge Cases
+                  {t('aiAnalysis.edgeCases')}
                 </h4>
                 <ul className="space-y-1.5 text-sm text-[var(--text-primary)]">
                   {analysis.edge_cases.map((e) => (
@@ -760,7 +763,7 @@ export function ProblemAnalysisView({
             {analysis.prerequisite_concepts.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-4">
                 <span className="text-xs font-bold text-[var(--text-secondary)]">
-                  Prerequisites:
+                  {t('aiAnalysis.prerequisites')}
                 </span>
                 {analysis.prerequisite_concepts.map((concept) => (
                   <Badge key={concept} variant="neutral">
@@ -771,7 +774,15 @@ export function ProblemAnalysisView({
             )}
 
             <p className="text-xs text-[var(--text-secondary)] border-t border-[var(--border-subtle)] pt-4">
-              {analysis.confidence_notes} {match.user_input_note}
+              {analysis.confidence_notes}{' '}
+              {match.status === 'verified'
+                ? t('aiAnalysis.verifiedBadge')
+                : match.status === 'ambiguous'
+                  ? t('aiAnalysis.ambiguousBadge')
+                  : t('aiAnalysis.conceptualBadge')}
+            </p>
+            <p className="text-xs text-[var(--text-secondary)]">
+              {t('aiAnalysis.recognitionLimitation')}
             </p>
           </div>
         )}

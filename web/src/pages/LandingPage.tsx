@@ -22,6 +22,7 @@ import { getTopicVisualStyle } from '../styles/topicColors';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { DEFAULT_LANGUAGE, isSupportedLanguage, type SupportedLanguage } from '../i18n';
 
 /**
  * Strict curated shortcut matcher for the secondary "Open Curated Studio" action.
@@ -83,7 +84,10 @@ function matchCuratedStudioRoute(text: string): string | null {
 }
 
 export function LandingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language: SupportedLanguage = isSupportedLanguage(i18n.resolvedLanguage)
+    ? i18n.resolvedLanguage
+    : DEFAULT_LANGUAGE;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const prefillId = searchParams.get('prefill');
@@ -103,6 +107,7 @@ export function LandingPage() {
   const [analyzedStatement, setAnalyzedStatement] = useState<string | null>(
     null,
   );
+  const [analysisLocale, setAnalysisLocale] = useState<SupportedLanguage | null>(null);
   const [analysisRevision, setAnalysisRevision] = useState(0);
   const [selectedStrategyName, setSelectedStrategyName] = useState<
     string | null
@@ -114,6 +119,7 @@ export function LandingPage() {
   const analyzeSeqRef = useRef(0);
   const analyzeAbortRef = useRef<AbortController | null>(null);
   const workspaceTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const previousLanguageRef = useRef(language);
 
   const handleWorkspaceTabKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -146,10 +152,22 @@ export function LandingPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (previousLanguageRef.current === language) return;
+    previousLanguageRef.current = language;
+    analyzeSeqRef.current += 1;
+    analyzeAbortRef.current?.abort();
+    analyzeAbortRef.current = null;
+    setAnalyzing(false);
+  }, [language]);
+
   const isAnalysisStale = Boolean(
     analysisResult &&
       analyzedStatement !== null &&
       problemInput.trim() !== analyzedStatement,
+  );
+  const isAnalysisLocaleMismatch = Boolean(
+    analysisResult && analysisLocale && analysisLocale !== language,
   );
 
   const runAiAnalysis = async (overrideText?: string) => {
@@ -167,6 +185,7 @@ export function LandingPage() {
     analyzeAbortRef.current = controller;
     const requestSeq = analyzeSeqRef.current + 1;
     analyzeSeqRef.current = requestSeq;
+    const requestLocale = language;
 
     setAnalyzing(true);
     setFeedback(null);
@@ -174,6 +193,7 @@ export function LandingPage() {
     try {
       const response = await analyzeProblem(trimmed, {
         signal: controller.signal,
+        locale: requestLocale,
       });
 
       if (analyzeSeqRef.current !== requestSeq) {
@@ -182,6 +202,7 @@ export function LandingPage() {
 
       setAnalysisResult(response);
       setAnalyzedStatement(trimmed);
+      setAnalysisLocale(requestLocale);
       setAnalysisRevision((rev) => rev + 1);
       setActiveWorkspaceTab('analysis');
       setSelectedStrategyName(
@@ -194,14 +215,18 @@ export function LandingPage() {
       if (err instanceof AiClientError && err.kind === 'aborted') {
         return;
       }
-      const message =
+      const baseMessage =
         err instanceof AiClientError
-          ? `${err.message}${
-              err.retryAfterSeconds
-                ? ` (${t('landing.validation.suggestedWait', { seconds: err.retryAfterSeconds })})`
-                : ''
-            }`
+          ? err.kind === 'network'
+            ? t('aiAnalysis.errors.network')
+            : err.kind === 'timeout' && !err.status
+              ? t('aiAnalysis.errors.timeout')
+              : err.message
           : t('landing.validation.analysisFailed');
+      const message =
+        err instanceof AiClientError && err.retryAfterSeconds
+          ? `${baseMessage} (${t('landing.validation.suggestedWait', { seconds: err.retryAfterSeconds })})`
+          : baseMessage;
       setFeedback({
         type: 'error',
         message,
@@ -245,6 +270,7 @@ export function LandingPage() {
     if (nextText.trim() === '' && analysisResult) {
       setAnalysisResult(null);
       setAnalyzedStatement(null);
+      setAnalysisLocale(null);
       setSelectedStrategyName(null);
     }
   };
@@ -374,6 +400,7 @@ export function LandingPage() {
                 onClick={() => {
                   setAnalysisResult(null);
                   setAnalyzedStatement(null);
+                  setAnalysisLocale(null);
                   setSelectedStrategyName(null);
                   setActiveWorkspaceTab('analysis');
                 }}
@@ -398,6 +425,32 @@ export function LandingPage() {
                 : 'hidden'
             }
           >
+            {isAnalysisLocaleMismatch && (
+              <div role="alert" className="mb-4 rounded-2xl border border-[#F2B84B] bg-[var(--accent-amber-soft)] px-5 py-4 text-sm">
+                <p className="font-bold text-[var(--accent-amber-text)]">
+                  {t('aiAnalysis.localeMismatchTitle', {
+                    language: t(`common.${analysisLocale === 'vi' ? 'vietnamese' : 'english'}`),
+                  })}
+                </p>
+                <p className="mt-1 text-[var(--text-secondary)]">
+                  {t('aiAnalysis.localeMismatchDescription', {
+                    selectedLanguage: t(`common.${language === 'vi' ? 'vietnamese' : 'english'}`),
+                  })}
+                </p>
+                <Button
+                  className="mt-3"
+                  variant="primary"
+                  size="sm"
+                  disabled={analyzing}
+                  onClick={() => void runAiAnalysis(analyzedStatement ?? problemInput)}
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  {t('aiAnalysis.regenerateLanguage', {
+                    language: t(`common.${language === 'vi' ? 'vietnamese' : 'english'}`),
+                  })}
+                </Button>
+              </div>
+            )}
             <ProblemAnalysisView
               result={analysisResult}
               selectedStrategyName={selectedStrategyName}

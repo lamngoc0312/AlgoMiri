@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   ChevronDown,
@@ -20,6 +21,7 @@ import {
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { DEFAULT_LANGUAGE, isSupportedLanguage, type SupportedLanguage } from '../../i18n';
 
 interface AiTutorPanelProps {
   contextKey: string;
@@ -29,16 +31,10 @@ interface AiTutorPanelProps {
   executionContext?: string | null;
 }
 
-const ESSENTIAL_TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
-  { id: 'simplify', label: 'Explain simply' },
-  { id: 'hint', label: 'Give a hint' },
-];
+const ESSENTIAL_TUTOR_ACTIONS: TutorActionType[] = ['simplify', 'hint'];
 
-const ADVANCED_TUTOR_ACTIONS: { id: TutorActionType; label: string }[] = [
-  { id: 'why_technique', label: 'Why might this technique work?' },
-  { id: 'compare_strategies', label: 'Compare two approaches' },
-  { id: 'explain_prerequisite', label: 'Explain a prerequisite' },
-  { id: 'check_assumption', label: 'Check my assumption' },
+const ADVANCED_TUTOR_ACTIONS: TutorActionType[] = [
+  'why_technique', 'compare_strategies', 'explain_prerequisite', 'check_assumption',
 ];
 
 export function AiTutorPanel({
@@ -48,9 +44,15 @@ export function AiTutorPanel({
   learningStage = null,
   executionContext = null,
 }: AiTutorPanelProps) {
+  const { t, i18n } = useTranslation();
+  const language: SupportedLanguage = isSupportedLanguage(i18n.resolvedLanguage)
+    ? i18n.resolvedLanguage
+    : DEFAULT_LANGUAGE;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<TutorResponseDto | null>(null);
+  const [responses, setResponses] = useState<
+    Array<{ response: TutorResponseDto; locale: SupportedLanguage }>
+  >([]);
   const [customMessage, setCustomMessage] = useState('');
   const [requestFullSolution, setRequestFullSolution] = useState(false);
   const [lastAction, setLastAction] = useState<TutorActionType | null>(null);
@@ -65,7 +67,7 @@ export function AiTutorPanel({
     abortRef.current = null;
     setLoading(false);
     setError(null);
-    setResponse(null);
+    setResponses([]);
     setCustomMessage('');
     setRequestFullSolution(false);
     setLastAction(null);
@@ -90,12 +92,14 @@ export function AiTutorPanel({
     setLoading(true);
     setError(null);
     setLastAction(action);
+    const requestLocale = language;
 
     try {
       const res = await askTutor(
         {
           problem_analysis: problemAnalysis,
           action,
+          locale: requestLocale,
           selected_strategy: selectedStrategy,
           learning_stage: learningStage,
           execution_context: executionContext,
@@ -108,19 +112,25 @@ export function AiTutorPanel({
       if (seqRef.current !== requestSeq) {
         return;
       }
-      setResponse(res);
+      setResponses((current) => [...current, { response: res, locale: requestLocale }]);
     } catch (err) {
       if (seqRef.current !== requestSeq) {
         return;
       }
       if (err instanceof AiClientError) {
         if (err.kind === 'aborted') return;
+        const baseMessage =
+          err.kind === 'network'
+            ? t('aiAnalysis.errors.network')
+            : err.kind === 'timeout' && !err.status
+              ? t('aiAnalysis.errors.timeout')
+              : err.message;
         const retryHint = err.retryAfterSeconds
-          ? ` (Suggested wait: ~${err.retryAfterSeconds}s)`
+          ? ` (${t('aiTutor.suggestedWait', { seconds: err.retryAfterSeconds })})`
           : '';
-        setError(`${err.message}${retryHint}`);
+        setError(`${baseMessage}${retryHint}`);
       } else {
-        setError('Could not reach the AI Tutor. Please retry.');
+        setError(t('aiTutor.error'));
       }
     } finally {
       if (seqRef.current === requestSeq) {
@@ -143,10 +153,10 @@ export function AiTutorPanel({
             className="h-5 w-5 text-[var(--accent-blue-link)]"
             aria-hidden="true"
           />
-          <CardTitle className="text-xl">AI Tutor</CardTitle>
+          <CardTitle className="text-xl">{t('aiTutor.title')}</CardTitle>
         </div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          Get a simpler explanation, a gentle hint, or ask a specific question without spoiling the full solution.
+          {t('aiTutor.description')}
         </p>
       </CardHeader>
 
@@ -154,19 +164,19 @@ export function AiTutorPanel({
         {/* Essential Actions Only: Explain simply, Give a hint */}
         <div
           role="group"
-          aria-label="Tutor quick actions"
+          aria-label={t('aiTutor.quickActions')}
           className="flex flex-wrap gap-2.5"
         >
-          {ESSENTIAL_TUTOR_ACTIONS.map((item) => (
+          {ESSENTIAL_TUTOR_ACTIONS.map((action) => (
             <Button
-              key={item.id}
+              key={action}
               type="button"
               variant="secondary"
               size="md"
               disabled={loading}
-              onClick={() => void runTutorAction(item.id)}
+              onClick={() => void runTutorAction(action)}
             >
-              {item.label}
+              {t(`aiTutor.actions.${action}`)}
             </Button>
           ))}
         </div>
@@ -175,14 +185,14 @@ export function AiTutorPanel({
         <form onSubmit={handleCustomSubmit} className="space-y-3">
           <div className="flex gap-2">
             <label htmlFor="tutor-question-input" className="sr-only">
-              Ask a question
+              {t('aiTutor.askLabel')}
             </label>
             <input
               id="tutor-question-input"
               type="text"
               value={customMessage}
               onChange={(e) => setCustomMessage(e.target.value)}
-              placeholder="Ask a question about this problem..."
+              placeholder={t('aiTutor.placeholder')}
               className="h-11 flex-1 rounded-xl border border-[var(--border-control)] bg-[var(--surface-card)] px-4 text-base text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:border-[#397BDB] focus:outline-none"
             />
             <Button
@@ -196,7 +206,7 @@ export function AiTutorPanel({
               ) : (
                 <Send className="h-4 w-4" aria-hidden="true" />
               )}
-              Ask
+              {t('aiTutor.ask')}
             </Button>
           </div>
         </form>
@@ -204,7 +214,7 @@ export function AiTutorPanel({
         {/* Expandable Advanced Tutor Actions */}
         <details className="group rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
-            <span>More tutor options</span>
+            <span>{t('aiTutor.moreOptions')}</span>
             <ChevronDown
               className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
               aria-hidden="true"
@@ -212,15 +222,15 @@ export function AiTutorPanel({
           </summary>
           <div className="border-t border-[var(--border-subtle)] px-4 py-3.5 space-y-3">
             <div className="flex flex-wrap gap-2">
-              {ADVANCED_TUTOR_ACTIONS.map((item) => (
+              {ADVANCED_TUTOR_ACTIONS.map((action) => (
                 <button
-                  key={item.id}
+                  key={action}
                   type="button"
                   disabled={loading}
-                  onClick={() => void runTutorAction(item.id)}
+                  onClick={() => void runTutorAction(action)}
                   className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:border-[#397BDB] hover:text-[var(--accent-blue-text)] cursor-pointer disabled:opacity-50"
                 >
-                  {item.label}
+                  {t(`aiTutor.actions.${action}`)}
                 </button>
               ))}
             </div>
@@ -231,7 +241,7 @@ export function AiTutorPanel({
                 onChange={(e) => setRequestFullSolution(e.target.checked)}
                 className="rounded border-[var(--border-control)] accent-[#397BDB]"
               />
-              Explicitly request a fuller solution outline
+              {t('aiTutor.fullSolution')}
             </label>
           </div>
         </details>
@@ -243,7 +253,7 @@ export function AiTutorPanel({
             className="flex items-center gap-2.5 rounded-xl bg-[var(--accent-blue-soft)]/60 px-4 py-3 text-sm text-[var(--accent-blue-text)]"
           >
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Thinking through a beginner-friendly hint...
+            {t('aiTutor.loading')}
           </div>
         )}
 
@@ -267,26 +277,28 @@ export function AiTutorPanel({
                 onClick={() => void runTutorAction(lastAction, customMessage)}
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                Retry
+                {t('common.retry')}
               </Button>
             )}
           </div>
         )}
 
         {/* Structured Tutor Reply */}
-        {response && !loading && (
+        {responses.length > 0 && (
           <div
-            aria-label="AI Tutor response"
+            aria-label={t('aiTutor.responseLabel')}
             className="space-y-4 border-t border-[var(--border-subtle)] pt-5"
           >
+            {responses.map(({ response, locale }, index) => (
+            <div key={`${locale}-${index}`} className="space-y-4 rounded-xl border border-[var(--border-subtle)] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <Badge variant={response.mode === 'offline-demo' ? 'demo' : 'indigo'}>
                 {response.mode === 'offline-demo'
-                  ? 'Offline Demo Tutor'
-                  : 'AI Tutor Reply'}
+                  ? t('aiTutor.offlineBadge')
+                  : t('aiTutor.replyBadge')}
               </Badge>
               <span className="text-xs text-[var(--text-secondary)]">
-                Conceptual guidance
+                {t('aiTutor.conceptualGuidance')} · {locale.toUpperCase()}
               </span>
             </div>
 
@@ -297,7 +309,7 @@ export function AiTutorPanel({
             <div className="rounded-xl border-l-4 border-[#397BDB] bg-[var(--surface-subtle)] px-4 py-3.5 text-sm space-y-1">
               <p className="flex items-center gap-1.5 font-bold text-[var(--accent-blue-text)]">
                 <HelpCircle className="h-4 w-4" aria-hidden="true" />
-                Guiding Question
+                {t('aiTutor.guidingQuestion')}
               </p>
               <p className="text-base text-[var(--text-primary)] leading-relaxed">
                 {response.guiding_question}
@@ -308,7 +320,7 @@ export function AiTutorPanel({
               <div className="rounded-xl border-l-4 border-[#F2B84B] bg-[var(--accent-amber-soft)]/60 px-4 py-3.5 text-sm space-y-1">
                 <p className="flex items-center gap-1.5 font-bold text-[var(--accent-amber-text)]">
                   <Lightbulb className="h-4 w-4" aria-hidden="true" />
-                  Progressive Hint
+                  {t('aiTutor.progressiveHint')}
                 </p>
                 <p className="text-base text-[var(--text-primary)] leading-relaxed">
                   {response.progressive_hint}
@@ -320,6 +332,8 @@ export function AiTutorPanel({
               <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{response.mastery_disclaimer}</span>
             </p>
+            </div>
+            ))}
           </div>
         )}
       </CardContent>
