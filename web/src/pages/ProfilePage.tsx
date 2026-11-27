@@ -35,6 +35,7 @@ import {
 } from '../services/profileRepository';
 import { ActivityHeatmap } from '../features/progress/ActivityHeatmap';
 import { useLocalDateKey } from '../features/progress/useLocalDateKey';
+import { MiriIslandsShowcase } from '../features/islands/MiriIslandsShowcase';
 import { localizePracticeSuggestion } from '../i18n/learningLocalization';
 import { getTopicVisualStyle } from '../styles/topicColors';
 import { Badge } from '../components/ui/Badge';
@@ -656,6 +657,9 @@ export function ProfilePage() {
           </Card>
         </div>
       </div>
+
+      {/* Phase 7A: Miri Islands Prototype Showcase (extensible foundation for Phase 7B map) */}
+      <MiriIslandsShowcase sessions={sessions} />
     </div>
   );
 }
