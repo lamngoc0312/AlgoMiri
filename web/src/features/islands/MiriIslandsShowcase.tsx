@@ -12,20 +12,20 @@ interface MiriIslandsShowcaseProps {
 }
 
 /**
- * Reusable Phase 7A Miri Islands preview showcase.
- * Displays the 3 prototype-ready islands prominently and the remaining 5 planned/discovery
- * islands below, driven strictly by verified Studio evidence. Designed to evolve into the
- * Phase 7B interactive world map without rewriting evidence logic.
+ * Reusable Miri Islands showcase displaying all 8 cohesive 2.5D pastel islands,
+ * separated honestly into Verified Studio Islands (driven strictly by verified
+ * topic-specific practice evidence) and Discovery Preview Islands (AI-guided).
+ * Designed to evolve into the Phase 7B.2 interactive world map without rewriting evidence logic.
  */
 export function MiriIslandsShowcase({ sessions }: MiriIslandsShowcaseProps) {
   const { t } = useTranslation();
   const snapshot = useMemo(() => buildMiriIslandsSnapshot(sessions), [sessions]);
 
-  const prototypeIslands = snapshot.islands.filter(
-    (entry) => entry.island.artwork.status === 'prototype-ready',
+  const verifiedIslands = snapshot.islands.filter(
+    (entry) => entry.hasVerifiedStudio,
   );
-  const upcomingIslands = snapshot.islands.filter(
-    (entry) => entry.island.artwork.status === 'planned',
+  const previewIslands = snapshot.islands.filter(
+    (entry) => !entry.hasVerifiedStudio,
   );
 
   return (
@@ -53,20 +53,20 @@ export function MiriIslandsShowcase({ sessions }: MiriIslandsShowcaseProps) {
       </CardHeader>
 
       <CardContent className="space-y-5">
-        {/* 3 Original 2.5D Pastel Prototype Islands */}
-        <div className="grid gap-4 md:grid-cols-3">
-          {prototypeIslands.map((entry) => (
+        {/* 4 Verified Studio Islands */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {verifiedIslands.map((entry) => (
             <MiriIslandCard key={entry.island.id} entry={entry} />
           ))}
         </div>
 
-        {/* 5 Remaining Islands (Honest Discovery Previews & Multi-Topic Greedy Cove) */}
+        {/* 4 Discovery Preview Islands (AI-Guided) */}
         <div className="space-y-3 border-t border-[var(--border-subtle)] pt-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
             {t('islands.upcomingTitle')}
           </h3>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {upcomingIslands.map((entry) => (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {previewIslands.map((entry) => (
               <MiriIslandCard key={entry.island.id} entry={entry} compact />
             ))}
           </div>

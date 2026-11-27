@@ -10,7 +10,7 @@ export type MiriIslandId =
   | 'mosaic-meadow'
   | 'compass-cove';
 
-export type IslandArtworkStatus = 'prototype-ready' | 'planned';
+export type IslandArtworkStatus = 'ready' | 'planned';
 
 export type IslandDestinationKind = 'verified-studio' | 'ai-guided-preview';
 
@@ -23,9 +23,12 @@ export interface MiriIslandPalette {
 
 export interface MiriIslandArtworkMeta {
   status: IslandArtworkStatus;
-  /** Public asset URL when prototype artwork exists; null for planned Phase 7B slots. */
+  /** Optimized 800x600 (4:3) alpha-transparent WebP asset for cards and future map canvas. */
   assetPath: string | null;
+  /** Original 1024x1024 source artwork preserved for archival and high-res reference. */
+  originalAssetPath: string | null;
   aspectRatio: '4:3';
+  dimensions: { width: number; height: number };
   /** Short design note for future art/asset pipeline parity. */
   silhouetteSummary: string;
 }
@@ -49,7 +52,12 @@ export interface MiriIslandDefinition {
   };
   /** Verified deterministic Studio problem IDs that contribute evidence to this island. */
   verifiedProblemIds: readonly string[];
-  /** Verified skill IDs associated with this island's topic. */
+  /**
+   * Distinguishing topic-specific SkillIds required for a multi-topic Studio session
+   * (e.g. Split Array Largest Sum) to advance this specific island's practice stage.
+   */
+  primarySkillIds: readonly SkillId[];
+  /** Verified skill IDs associated with this island's topic (including shared composition skills). */
   relatedSkillIds: readonly SkillId[];
   /** Extensible slots for future Phase 7B+ cosmetic decorations (not rendered yet). */
   decorationSlots: readonly string[];
@@ -70,9 +78,11 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-blue-soft)]/50',
     },
     artwork: {
-      status: 'prototype-ready',
-      assetPath: '/assets/islands/storage-harbor.jpg',
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/storage-harbor.webp',
+      originalAssetPath: '/assets/islands/storage-harbor.jpg',
       aspectRatio: '4:3',
+      dimensions: { width: 800, height: 600 },
       silhouetteSummary: 'Harbor dock with indexed pastel storage crates, crane, and cove.',
     },
     destination: {
@@ -80,6 +90,7 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       kind: 'verified-studio',
     },
     verifiedProblemIds: ['two-sum'],
+    primarySkillIds: ['array-indexing', 'hash-map-lookup', 'brute-force'],
     relatedSkillIds: ['array-indexing', 'hash-map-lookup', 'brute-force'],
     decorationSlots: ['harbor-lantern', 'crate-banner', 'sailboat-flag'],
   },
@@ -97,9 +108,11 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-teal-soft)]/50',
     },
     artwork: {
-      status: 'prototype-ready',
-      assetPath: '/assets/islands/stack-spire.jpg',
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/stack-spire.webp',
+      originalAssetPath: '/assets/islands/stack-spire.jpg',
       aspectRatio: '4:3',
+      dimensions: { width: 800, height: 600 },
       silhouetteSummary: 'Tiered pastel-teal stacked ring spire with spiral steps and top lantern.',
     },
     destination: {
@@ -107,6 +120,7 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       kind: 'verified-studio',
     },
     verifiedProblemIds: ['valid-parentheses'],
+    primarySkillIds: ['stack-lifo'],
     relatedSkillIds: ['stack-lifo'],
     decorationSlots: ['spire-beacon', 'balcony-planter', 'arch-crest'],
   },
@@ -124,16 +138,19 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-sky-soft)]/55',
     },
     artwork: {
-      status: 'planned',
-      assetPath: null,
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/twin-beacon-bay.webp',
+      originalAssetPath: '/assets/islands/twin-beacon-bay.jpg',
       aspectRatio: '4:3',
-      silhouetteSummary: 'Twin coastal signal beacons on opposite sides of a crescent bay.',
+      dimensions: { width: 800, height: 600 },
+      silhouetteSummary: 'Twin coastal signal beacons on opposite sides of a crescent bay with arch bridge.',
     },
     destination: {
       path: '/?prefill=sorted-pair-sum',
       kind: 'ai-guided-preview',
     },
     verifiedProblemIds: [],
+    primarySkillIds: [],
     relatedSkillIds: [],
     decorationSlots: ['west-beacon', 'east-beacon'],
   },
@@ -151,9 +168,11 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-green-soft)]/55',
     },
     artwork: {
-      status: 'planned',
-      assetPath: null,
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/window-wharf.webp',
+      originalAssetPath: '/assets/islands/window-wharf.jpg',
       aspectRatio: '4:3',
+      dimensions: { width: 800, height: 600 },
       silhouetteSummary: 'Boardwalk wharf with a sliding glass greenhouse pavilion on wooden rails.',
     },
     destination: {
@@ -161,6 +180,7 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       kind: 'ai-guided-preview',
     },
     verifiedProblemIds: [],
+    primarySkillIds: [],
     relatedSkillIds: [],
     decorationSlots: ['rail-frame', 'garden-beds'],
   },
@@ -178,9 +198,11 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-amber-soft)]/55',
     },
     artwork: {
-      status: 'prototype-ready',
-      assetPath: '/assets/islands/halfway-lighthouse.jpg',
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/halfway-lighthouse.webp',
+      originalAssetPath: '/assets/islands/halfway-lighthouse.jpg',
       aspectRatio: '4:3',
+      dimensions: { width: 800, height: 600 },
       silhouetteSummary: 'Striped amber-and-cream lighthouse centered on a midpoint stepping-stone path.',
     },
     destination: {
@@ -188,6 +210,7 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       kind: 'verified-studio',
     },
     verifiedProblemIds: ['split-array-largest-sum'],
+    primarySkillIds: ['binary-search-answer'],
     relatedSkillIds: ['binary-search-answer', 'algorithm-composition'],
     decorationSlots: ['lighthouse-lens', 'midpoint-stones', 'cottage-garden'],
   },
@@ -205,16 +228,19 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-blue-soft)]/50',
     },
     artwork: {
-      status: 'planned',
-      assetPath: null,
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/bridge-archipelago.webp',
+      originalAssetPath: '/assets/islands/bridge-archipelago.jpg',
       aspectRatio: '4:3',
-      silhouetteSummary: 'Cluster of tiny islets linked by concentric rounded arch bridges.',
+      dimensions: { width: 800, height: 600 },
+      silhouetteSummary: 'Central lantern plaza linked to surrounding lagoon islets by pastel arch bridges.',
     },
     destination: {
       path: '/?prefill=shortest-grid-path',
       kind: 'ai-guided-preview',
     },
     verifiedProblemIds: [],
+    primarySkillIds: [],
     relatedSkillIds: [],
     decorationSlots: ['central-plaza', 'outer-bridges'],
   },
@@ -232,9 +258,11 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-coral-soft)]/50',
     },
     artwork: {
-      status: 'planned',
-      assetPath: null,
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/mosaic-meadow.webp',
+      originalAssetPath: '/assets/islands/mosaic-meadow.jpg',
       aspectRatio: '4:3',
+      dimensions: { width: 800, height: 600 },
       silhouetteSummary: 'Terraced pastel mosaic tile hillside rising to a sunlit pavilion.',
     },
     destination: {
@@ -242,6 +270,7 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       kind: 'ai-guided-preview',
     },
     verifiedProblemIds: [],
+    primarySkillIds: [],
     relatedSkillIds: [],
     decorationSlots: ['foundation-tiles', 'summit-pavilion'],
   },
@@ -259,16 +288,19 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       softSurfaceClass: 'bg-[var(--accent-amber-soft)]/55',
     },
     artwork: {
-      status: 'planned',
-      assetPath: null,
+      status: 'ready',
+      assetPath: '/assets/islands/transparent/compass-cove.webp',
+      originalAssetPath: '/assets/islands/compass-cove.jpg',
       aspectRatio: '4:3',
-      silhouetteSummary: 'Sunlit coastal cliff with clay compass rose plaza and supply trails.',
+      dimensions: { width: 800, height: 600 },
+      silhouetteSummary: 'Sunlit coastal cliff with clay compass rose plaza, supply carts, and lookout trail.',
     },
     destination: {
       path: '/studio/split-array-largest-sum',
       kind: 'verified-studio',
     },
     verifiedProblemIds: ['split-array-largest-sum'],
+    primarySkillIds: ['greedy-feasibility'],
     relatedSkillIds: ['greedy-feasibility', 'algorithm-composition'],
     decorationSlots: ['compass-plaza', 'trail-markers'],
   },

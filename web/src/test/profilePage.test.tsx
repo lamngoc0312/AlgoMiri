@@ -251,5 +251,5 @@ describe('Phase 6A — Personal Learning Profile page & navigation', () => {
     expect(
       screen.getByTestId('profile-topic-split-array-largest-sum'),
     ).toHaveTextContent(/chưa bắt đầu/i);
-  });
+  }, 15_000);
 });

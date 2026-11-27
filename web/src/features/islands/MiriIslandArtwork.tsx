@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Compass, Layers, MapPin, Sparkles } from 'lucide-react';
+import { Compass, Layers, MapPin } from 'lucide-react';
 import type { MiriIslandDefinition } from '../../domain/islands/islandRegistry';
 
 interface MiriIslandArtworkProps {
@@ -12,24 +13,37 @@ export function MiriIslandArtwork({
   compact = false,
 }: MiriIslandArtworkProps) {
   const { t } = useTranslation();
+  const [imageFailed, setImageFailed] = useState(false);
 
-  if (island.artwork.status === 'prototype-ready' && island.artwork.assetPath) {
+  const canRenderAsset =
+    island.artwork.status === 'ready' &&
+    Boolean(island.artwork.assetPath) &&
+    !imageFailed;
+
+  if (canRenderAsset && island.artwork.assetPath) {
     return (
       <div
-        className={`relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[#F7F9FC] ${
-          compact ? 'aspect-[4/3]' : 'aspect-[4/3]'
+        className={`relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] ${
+          compact ? 'p-1.5' : 'p-2'
         }`}
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background: `radial-gradient(circle at 50% 42%, ${island.palette.accentHex}22 0%, transparent 72%)`,
+          }}
+        />
         <img
           src={island.artwork.assetPath}
           alt={t(island.altKey)}
+          width={island.artwork.dimensions.width}
+          height={island.artwork.dimensions.height}
           loading="lazy"
-          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+          className="relative z-10 h-full w-full object-contain drop-shadow-[0_10px_14px_rgba(15,23,42,0.16)] transition-transform duration-300 group-hover:scale-[1.03] dark:drop-shadow-[0_12px_18px_rgba(0,0,0,0.48)]"
         />
-        <span className="pointer-events-none absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-[#202B3B] shadow-xs backdrop-blur-xs">
-          <Sparkles className="h-3 w-3 text-[#2B6CC9]" aria-hidden="true" />
-          {t('islands.prototypeBadge')}
-        </span>
       </div>
     );
   }
