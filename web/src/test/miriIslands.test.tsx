@@ -7,6 +7,7 @@ import {
   MIRI_ISLANDS_REGISTRY,
   getIslandById,
 } from '../domain/islands/islandRegistry';
+import { MAP_TRAVERSAL_ORDER } from '../domain/islands/islandMapLayout';
 import { buildMiriIslandsSnapshot } from '../domain/islands/islandProgress';
 import { buildLearningSession } from '../domain/learning/analytics';
 import { LocalStorageLearningRepository } from '../services/learningRepository';
@@ -445,5 +446,79 @@ describe('Phase 7B.2 — Profile Teaser & Interactive Miri Islands World Map (/i
     );
 
     fetchSpy.mockRestore();
+  }, 15_000);
+
+  it('keeps mobile carousel and quick-jump pills in MAP_TRAVERSAL_ORDER, restores focus on Escape/close, announces selections, and honors prefers-reduced-motion scrollIntoView', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    // 1. Verify mobile carousel and quick-jump pills strictly match MAP_TRAVERSAL_ORDER
+    const carousel = screen.getByTestId('miri-islands-mobile-carousel');
+    const carouselIds = Array.from(carousel.querySelectorAll('button')).map(
+      (btn) => btn.getAttribute('data-testid')?.replace('world-island-mobile-', ''),
+    );
+    expect(carouselIds).toEqual([...MAP_TRAVERSAL_ORDER]);
+
+    const quickJump = screen.getByTestId('miri-islands-mobile-quickjump');
+    const pillIds = Array.from(quickJump.querySelectorAll('button')).map((btn) =>
+      btn.getAttribute('data-testid')?.replace('world-island-pill-', ''),
+    );
+    expect(pillIds).toEqual([...MAP_TRAVERSAL_ORDER]);
+
+    // 2. Keyboard Enter selects island, announces to screen readers, and Escape restores focus to the trigger button
+    const stackBtn = screen.getByTestId('world-island-stack-spire');
+    stackBtn.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByTestId('miri-island-inspector')).toHaveTextContent(
+      /stack spire/i,
+    );
+    expect(screen.getByTestId('miri-islands-live-region')).toHaveTextContent(
+      /selected stack spire/i,
+    );
+
+    // Move focus inside inspector (e.g. close button) then press Escape -> focus returns to stackBtn
+    const closeBtn = screen.getByRole('button', { name: /close island details/i });
+    closeBtn.focus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByTestId('miri-island-inspector')).not.toBeInTheDocument();
+    expect(stackBtn).toHaveFocus();
+    expect(screen.getByTestId('miri-islands-live-region')).toHaveTextContent(
+      /closed island details/i,
+    );
+
+    // 3. Clicking close button also restores focus to triggering button
+    await user.click(stackBtn);
+    await user.click(
+      screen.getByRole('button', { name: /close island details/i }),
+    );
+    expect(stackBtn).toHaveFocus();
+
+    // 4. Reduced-motion preference uses behavior: 'auto' instead of 'smooth' on mobile quick-jump scrollIntoView
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+    const mobileCompassNode = screen.getByTestId(
+      'world-island-mobile-compass-cove',
+    );
+    const scrollSpy = vi.fn();
+    mobileCompassNode.scrollIntoView = scrollSpy;
+
+    await user.click(screen.getByTestId('world-island-pill-compass-cove'));
+    expect(scrollSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ behavior: 'auto' }),
+    );
+    window.matchMedia = originalMatchMedia;
   }, 15_000);
 });

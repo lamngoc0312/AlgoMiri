@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Compass } from 'lucide-react';
@@ -20,13 +20,62 @@ export function MiriIslandsPage() {
   const [selectedIslandId, setSelectedIslandId] = useState<MiriIslandId | null>(
     null,
   );
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const selectedEntry = selectedIslandId
     ? snapshot.islandsById[selectedIslandId]
     : null;
 
+  const handleSelectIsland = useCallback(
+    (id: MiriIslandId, triggerEl: HTMLButtonElement | null) => {
+      if (triggerEl) {
+        lastTriggerRef.current = triggerEl;
+      }
+      setSelectedIslandId((prev) => {
+        if (prev === id) {
+          setLiveAnnouncement(t('islands.map.closedAnnouncement'));
+          return null;
+        }
+        const nextEntry = snapshot.islandsById[id];
+        if (nextEntry) {
+          setLiveAnnouncement(
+            t('islands.map.selectedAnnouncement', {
+              name: t(nextEntry.island.nameKey),
+              topic: t(nextEntry.island.topicKey),
+              stage: t(`islands.stages.${nextEntry.stage}`),
+            }),
+          );
+        }
+        return id;
+      });
+    },
+    [snapshot.islandsById, t],
+  );
+
+  const handleCloseInspector = useCallback(() => {
+    setSelectedIslandId(null);
+    setLiveAnnouncement(t('islands.map.closedAnnouncement'));
+    // Restore focus to the exact island button or mobile quick-jump pill that opened the details
+    const trigger = lastTriggerRef.current;
+    if (trigger && trigger.isConnected) {
+      trigger.focus();
+    }
+  }, [t]);
+
   return (
-    <div className="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
+      {/* Screen-reader live region announcing selected island details & dismissal */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="miri-islands-live-region"
+        className="sr-only"
+      >
+        {liveAnnouncement}
+      </div>
+
       {/* Compact World Map Header */}
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1.5">
@@ -65,21 +114,19 @@ export function MiriIslandsPage() {
         </div>
       </header>
 
-      {/* Main Cohesive Floating-Island World Canvas */}
-      <MiriIslandsWorldMap
-        islands={snapshot.islands}
-        islandsById={snapshot.islandsById}
-        selectedIslandId={selectedIslandId}
-        onSelectIsland={(id) =>
-          setSelectedIslandId((prev) => (prev === id ? null : id))
-        }
-      />
+      {/* Responsive Side-by-Side World Canvas + Anchored Inspector (Desktop) / Bottom Sheet (Tablet & Mobile) */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_316px] xl:grid-cols-[minmax(0,1fr)_356px]">
+        <MiriIslandsWorldMap
+          islandsById={snapshot.islandsById}
+          selectedIslandId={selectedIslandId}
+          onSelectIsland={handleSelectIsland}
+        />
 
-      {/* Interactive Island Inspector Panel (Escape dismissible) */}
-      <MiriIslandInspector
-        entry={selectedEntry}
-        onClose={() => setSelectedIslandId(null)}
-      />
+        <MiriIslandInspector
+          entry={selectedEntry}
+          onClose={handleCloseInspector}
+        />
+      </div>
     </div>
   );
 }

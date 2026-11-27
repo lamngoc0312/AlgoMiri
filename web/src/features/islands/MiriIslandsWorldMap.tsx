@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Compass, Sparkles } from 'lucide-react';
 import type {
@@ -12,10 +12,12 @@ import {
 } from '../../domain/islands/islandMapLayout';
 
 interface MiriIslandsWorldMapProps {
-  islands: MiriIslandProgress[];
   islandsById: Record<MiriIslandId, MiriIslandProgress>;
   selectedIslandId: MiriIslandId | null;
-  onSelectIsland: (id: MiriIslandId) => void;
+  onSelectIsland: (
+    id: MiriIslandId,
+    triggerEl: HTMLButtonElement | null,
+  ) => void;
 }
 
 function stageDotClass(stage: IslandGrowthStage): string {
@@ -50,10 +52,18 @@ function stageRingStyle(
   return undefined;
 }
 
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 interface IslandNodeButtonProps {
   entry: MiriIslandProgress;
+  scale: number;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (triggerEl: HTMLButtonElement | null) => void;
   onKeyDown: (e: KeyboardEvent<HTMLButtonElement>) => void;
   buttonRef?: (el: HTMLButtonElement | null) => void;
   variant: 'desktop' | 'mobile';
@@ -61,6 +71,7 @@ interface IslandNodeButtonProps {
 
 function IslandNodeButton({
   entry,
+  scale,
   isSelected,
   onSelect,
   onKeyDown,
@@ -91,11 +102,11 @@ function IslandNodeButton({
       }
       aria-label={ariaLabel}
       aria-pressed={isSelected}
-      onClick={onSelect}
+      onClick={(e) => onSelect(e.currentTarget)}
       onKeyDown={onKeyDown}
       className={`group relative flex flex-col items-center text-center transition-transform duration-300 ease-out motion-reduce:transition-none motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-blue)] rounded-3xl ${
         variant === 'desktop'
-          ? 'w-[172px] lg:w-[205px] xl:w-[230px]'
+          ? 'w-[148px] lg:w-[146px] xl:w-[184px]'
           : 'w-[228px] shrink-0 snap-center py-2'
       } ${
         isSelected
@@ -106,7 +117,7 @@ function IslandNodeButton({
       {/* Tasteful subtle atmospheric halo beneath flourishing or selected islands */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute left-1/2 top-[44%] -z-10 h-20 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-opacity duration-300 ${
+        className={`pointer-events-none absolute left-1/2 top-[44%] -z-10 h-20 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-opacity duration-300 motion-reduce:transition-none ${
           isSelected
             ? 'opacity-80'
             : isFlourishing
@@ -116,8 +127,13 @@ function IslandNodeButton({
         style={{ backgroundColor: `${island.palette.accentHex}55` }}
       />
 
-      {/* Transparent 2.5D island artwork */}
+      {/* Transparent 2.5D island artwork with layout scale applied */}
       <div
+        style={
+          variant === 'desktop' && scale !== 1
+            ? { transform: `scale(${scale})` }
+            : undefined
+        }
         className={`relative flex aspect-[4/3] w-full items-center justify-center ${
           isPreview && !isSelected ? 'opacity-95' : 'opacity-100'
         }`}
@@ -180,7 +196,7 @@ function IslandNodeButton({
               : 'var(--miri-plaque-preview-border)',
           boxShadow: stageRingStyle(stage, island.palette.accentHex, isSelected),
         }}
-        className={`mt-1 max-w-[204px] lg:max-w-[238px] rounded-2xl border px-3 py-1.5 backdrop-blur-md transition-colors text-[var(--text-primary)] ${
+        className={`mt-1.5 w-full max-w-[154px] xl:max-w-[196px] rounded-2xl border px-2.5 py-1.5 backdrop-blur-md transition-colors text-[var(--text-primary)] ${
           !hasVerifiedStudio && !isSelected ? 'border-dashed' : ''
         }`}
       >
@@ -189,7 +205,7 @@ function IslandNodeButton({
             aria-hidden="true"
             className={`h-2 w-2 shrink-0 rounded-full ${stageDotClass(stage)}`}
           />
-          <span className="truncate text-xs font-extrabold leading-snug tracking-tight text-[var(--text-primary)]">
+          <span className="truncate text-[11px] xl:text-xs font-extrabold leading-snug tracking-tight text-[var(--text-primary)]">
             {t(island.nameKey)}
           </span>
         </div>
@@ -202,7 +218,6 @@ function IslandNodeButton({
 }
 
 export function MiriIslandsWorldMap({
-  islands,
   islandsById,
   selectedIslandId,
   onSelectIsland,
@@ -210,6 +225,15 @@ export function MiriIslandsWorldMap({
   const { t } = useTranslation();
   const desktopRefs = useRef<Partial<Record<MiriIslandId, HTMLButtonElement | null>>>({});
   const mobileRefs = useRef<Partial<Record<MiriIslandId, HTMLButtonElement | null>>>({});
+
+  // Single unified order across desktop archipelago, mobile carousel, and mobile quick-jump pills
+  const orderedIslands = useMemo(
+    () =>
+      MAP_TRAVERSAL_ORDER.map((id) => islandsById[id]).filter(
+        (entry): entry is MiriIslandProgress => Boolean(entry),
+      ),
+    [islandsById],
+  );
 
   const handleKeyDown = (
     currentId: MiriIslandId,
@@ -234,6 +258,13 @@ export function MiriIslandsWorldMap({
           ? desktopRefs.current[nextId]
           : mobileRefs.current[nextId];
       targetRef?.focus();
+      if (variant === 'mobile' && targetRef && typeof targetRef.scrollIntoView === 'function') {
+        targetRef.scrollIntoView({
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+          inline: 'center',
+          block: 'nearest',
+        });
+      }
     }
   };
 
@@ -324,25 +355,26 @@ export function MiriIslandsWorldMap({
       </svg>
 
       {/* DESKTOP & TABLET (>= 768px): Spacious Organic Floating-Island Archipelago */}
-      <div className="relative hidden md:block min-h-[580px] lg:min-h-[640px] xl:min-h-[670px] w-full">
-        {MAP_TRAVERSAL_ORDER.map((id) => {
-          const entry = islandsById[id];
+      <div className="relative hidden md:block min-h-[540px] lg:min-h-[560px] xl:min-h-[600px] w-full">
+        {orderedIslands.map((entry) => {
+          const id = entry.island.id;
           const layout = MIRI_ISLANDS_MAP_LAYOUT[id];
-          if (!entry || !layout) return null;
+          if (!layout) return null;
           return (
             <div
               key={id}
               style={{
                 left: `${layout.xPct}%`,
                 top: `${layout.yPct}%`,
-                zIndex: selectedIslandId === id ? 30 : layout.zIndex,
+                zIndex: selectedIslandId === id ? 25 : layout.zIndex,
               }}
               className="absolute -translate-x-1/2 -translate-y-1/2"
             >
               <IslandNodeButton
                 entry={entry}
+                scale={layout.scale}
                 isSelected={selectedIslandId === id}
-                onSelect={() => onSelectIsland(id)}
+                onSelect={(triggerEl) => onSelectIsland(id, triggerEl)}
                 onKeyDown={(e) => handleKeyDown(id, 'desktop', e)}
                 buttonRef={(el) => {
                   desktopRefs.current[id] = el;
@@ -354,7 +386,7 @@ export function MiriIslandsWorldMap({
         })}
       </div>
 
-      {/* MOBILE (< 768px): Touch-Friendly Panoramic Horizontal Sky Explorer (zero page overflow) */}
+      {/* MOBILE (< 768px): Touch-Friendly Panoramic Horizontal Sky Explorer (unified traversal order) */}
       <div className="relative md:hidden">
         <div className="px-4 pt-4 pb-1">
           <p className="text-xs font-semibold text-[var(--text-secondary)]">
@@ -363,43 +395,56 @@ export function MiriIslandsWorldMap({
         </div>
 
         <div
+          data-testid="miri-islands-mobile-carousel"
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 py-5"
           tabIndex={0}
           aria-label={t('islands.map.mobileScrollerAria')}
         >
-          {islands.map((entry) => (
-            <IslandNodeButton
-              key={entry.island.id}
-              entry={entry}
-              isSelected={selectedIslandId === entry.island.id}
-              onSelect={() => onSelectIsland(entry.island.id)}
-              onKeyDown={(e) => handleKeyDown(entry.island.id, 'mobile', e)}
-              buttonRef={(el) => {
-                mobileRefs.current[entry.island.id] = el;
-              }}
-              variant="mobile"
-            />
-          ))}
+          {orderedIslands.map((entry) => {
+            const id = entry.island.id;
+            const layout = MIRI_ISLANDS_MAP_LAYOUT[id];
+            return (
+              <IslandNodeButton
+                key={id}
+                entry={entry}
+                scale={layout?.scale ?? 1}
+                isSelected={selectedIslandId === id}
+                onSelect={(triggerEl) => onSelectIsland(id, triggerEl)}
+                onKeyDown={(e) => handleKeyDown(id, 'mobile', e)}
+                buttonRef={(el) => {
+                  mobileRefs.current[id] = el;
+                }}
+                variant="mobile"
+              />
+            );
+          })}
         </div>
 
-        {/* Compact touch-friendly quick-jump pills for mobile accessibility */}
+        {/* Compact touch-friendly quick-jump pills matching the exact carousel order */}
         <div
+          data-testid="miri-islands-mobile-quickjump"
           style={{ backgroundColor: 'var(--miri-mobile-bar-bg)' }}
           className="flex flex-wrap items-center justify-center gap-1.5 border-t border-[var(--border-subtle)] px-3 py-3 backdrop-blur-xs"
         >
-          {islands.map((entry) => {
-            const active = selectedIslandId === entry.island.id;
+          {orderedIslands.map((entry) => {
+            const id = entry.island.id;
+            const active = selectedIslandId === id;
             return (
               <button
-                key={entry.island.id}
+                key={id}
                 type="button"
-                onClick={() => {
-                  onSelectIsland(entry.island.id);
-                  mobileRefs.current[entry.island.id]?.scrollIntoView({
-                    behavior: 'smooth',
-                    inline: 'center',
-                    block: 'nearest',
-                  });
+                data-testid={`world-island-pill-${id}`}
+                aria-pressed={active}
+                onClick={(e) => {
+                  onSelectIsland(id, e.currentTarget);
+                  const target = mobileRefs.current[id];
+                  if (target && typeof target.scrollIntoView === 'function') {
+                    target.scrollIntoView({
+                      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+                      inline: 'center',
+                      block: 'nearest',
+                    });
+                  }
                 }}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-blue)] ${
                   active

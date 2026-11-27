@@ -381,6 +381,8 @@ export const vi = {
       keyboardHint: 'Mẹo: Dùng phím Tab hoặc mũi tên để chuyển đảo, Enter để chọn, Escape để đóng.',
       inspectorAria: 'Chi tiết đảo {{name}}',
       closeInspector: 'Đóng chi tiết đảo',
+      selectedAnnouncement: 'Đã chọn {{name}} — {{topic}}, trạng thái: {{stage}}.',
+      closedAnnouncement: 'Đã đóng chi tiết đảo.',
       verifiedAvailability: 'Studio xác thực',
       previewAvailability: 'Xem trước AI hướng dẫn',
       skillEvidenceCount_one: '{{count}} lượt kiểm tra kỹ năng xác thực',

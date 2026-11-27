@@ -381,6 +381,8 @@ export const en = {
       keyboardHint: 'Tip: Use Tab or Arrow keys to move between islands, Enter to select, Escape to close.',
       inspectorAria: 'Details for {{name}}',
       closeInspector: 'Close island details',
+      selectedAnnouncement: 'Selected {{name}} — {{topic}}, status: {{stage}}.',
+      closedAnnouncement: 'Closed island details.',
       verifiedAvailability: 'Verified Studio',
       previewAvailability: 'AI-Guided Preview',
       skillEvidenceCount_one: '{{count}} verified skill check',
