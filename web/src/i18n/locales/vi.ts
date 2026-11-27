@@ -358,7 +358,38 @@ export const vi = {
     evidenceSessions_other: '{{count}} phiên luyện tập hợp lệ',
     openStudio: 'Mở Studio',
     explorePreview: 'Thử AI hướng dẫn',
+    exploreWorldCta: 'Khám phá Quần đảo Miri',
+    teaserSubtitle:
+      'Bước vào bản đồ quần đảo nổi của AlgoMiri. Bốn hòn đảo chủ đề xác thực phát triển từ quá trình luyện tập thực tế trên ba Studio độc lập, cùng bốn đảo xem trước có AI hướng dẫn.',
+    teaserPreviewCount:
+      'Cùng {{count}} hòn đảo Xem trước AI hướng dẫn sẵn sàng khám phá trên bản đồ thế giới.',
     upcomingTitle: 'Các đảo Xem trước Khám phá (AI hướng dẫn)',
+    map: {
+      badge: 'Bản đồ Thế giới Tương tác',
+      title: 'Bản đồ Thế giới Quần đảo Miri',
+      subtitle:
+        'Khám phá cả tám hòn đảo thuật toán lơ lửng. Chọn bất kỳ hòn đảo nào để xem chủ đề, tiến độ luyện tập thực tế và điểm đến.',
+      backToProfile: 'Quay lại Hồ sơ',
+      studioHonestyNote: '3 Studio xác thực độc lập · 4 Bản xem trước AI',
+      canvasAria: 'Bản đồ thế giới tương tác Quần đảo Miri',
+      islandNodeAria: '{{name}} — {{topic}} ({{stage}})',
+      mobileSwipeHint: 'Vuốt ngang qua quần đảo hoặc chạm vào tên đảo bên dưới để xem chi tiết.',
+      mobileScrollerAria: 'Thanh cuộn ngang Quần đảo Miri',
+      selectPromptTitle: 'Chọn một hòn đảo trên bản đồ',
+      selectPromptBody:
+        'Xem chủ đề thuật toán, tóm tắt luyện tập xác thực và đường dẫn tới Studio hoặc bản xem trước AI.',
+      keyboardHint: 'Mẹo: Dùng phím Tab hoặc mũi tên để chuyển đảo, Enter để chọn, Escape để đóng.',
+      inspectorAria: 'Chi tiết đảo {{name}}',
+      closeInspector: 'Đóng chi tiết đảo',
+      verifiedAvailability: 'Studio xác thực',
+      previewAvailability: 'Xem trước AI hướng dẫn',
+      skillEvidenceCount_one: '{{count}} lượt kiểm tra kỹ năng xác thực',
+      skillEvidenceCount_other: '{{count}} lượt kiểm tra kỹ năng xác thực',
+      openStudioCta: 'Mở Studio',
+      explorePreviewCta: 'Khám phá bản xem trước AI',
+      previewDisclaimer:
+        'Chỉ là bản xem trước AI hướng dẫn — chưa phải Studio tất định đã kiểm chứng và có thể chạy ở chế độ Demo ngoại tuyến khi AI trực tiếp không khả dụng. Chọn đảo không tự động gửi yêu cầu AI.',
+    },
     stages: {
       preview: 'Xem trước · AI hướng dẫn',
       undiscovered: 'Chưa ghé thăm',

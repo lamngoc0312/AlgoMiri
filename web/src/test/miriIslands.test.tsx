@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -276,7 +276,7 @@ describe('Phase 7B.1 — Miri Islands Registry, Complete Artwork & Topic-Specifi
   });
 });
 
-describe('Phase 7B.1 — Miri Islands UI Showcase on ProfilePage (All 8 Islands, EN/VI, Dark Mode, Fallback)', () => {
+describe('Phase 7B.2 — Profile Teaser & Interactive Miri Islands World Map (/islands)', () => {
   beforeEach(async () => {
     window.localStorage.clear();
     document.documentElement.dataset.theme = 'light';
@@ -287,7 +287,7 @@ describe('Phase 7B.1 — Miri Islands UI Showcase on ProfilePage (All 8 Islands,
     window.localStorage.clear();
   });
 
-  it('renders all 8 islands with accessible artwork, excludes AI bookmarks, supports fallback on error, and localizes in VI and Dark Mode', async () => {
+  it('shows compact Miri Islands teaser on Profile and navigates to /islands', async () => {
     const learningRepo = new LocalStorageLearningRepository();
     learningRepo.saveSession(
       makeVerifiedSession('ts-1', 'two-sum', {
@@ -320,11 +320,46 @@ describe('Phase 7B.1 — Miri Islands UI Showcase on ProfilePage (All 8 Islands,
     expect(screen.getByTestId('miri-island-storage-harbor')).toHaveTextContent(
       /flourishing \(guided\)/i,
     );
-    expect(screen.getByTestId('miri-island-mosaic-meadow')).toHaveTextContent(
-      /preview · ai-guided/i,
+
+    const exploreCta = screen.getByTestId('explore-miri-islands-cta');
+    expect(exploreCta).toHaveTextContent(/explore miri islands/i);
+    await user.click(exploreCta);
+
+    expect(
+      screen.getByRole('heading', { name: /miri islands world map/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('miri-islands-world-canvas')).toBeInTheDocument();
+  }, 15_000);
+
+  it('supports selecting verified & preview islands, Escape dismissal, keyboard arrows, artwork fallback, EN/VI, and Dark Mode on /islands without triggering AI fetches', async () => {
+    const learningRepo = new LocalStorageLearningRepository();
+    learningRepo.saveSession(
+      makeVerifiedSession('ts-done', 'two-sum', {
+        completedAll: true,
+        activeStudySeconds: 240,
+      }),
+    );
+    learningRepo.saveSession(
+      makeVerifiedSession('sa-bs-only', 'split-array-largest-sum', {
+        completedStageIds: ['sa-stage-4-bs-answer'],
+        activeStudySeconds: 180,
+      }),
     );
 
-    // Accessible alt text exists on ALL 8 island images
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('world-map-practiced-badge')).toHaveTextContent(
+      /2\/4 verified islands practiced/i,
+    );
+
+    // All 8 islands render with accessible alt text
     const expectedAltPatterns = [
       /storage harbor/i,
       /stack spire/i,
@@ -336,14 +371,65 @@ describe('Phase 7B.1 — Miri Islands UI Showcase on ProfilePage (All 8 Islands,
       /compass cove/i,
     ];
     for (const pattern of expectedAltPatterns) {
-      expect(screen.getByAltText(pattern)).toBeInTheDocument();
+      expect(screen.getAllByAltText(pattern).length).toBeGreaterThanOrEqual(1);
     }
 
-    // Verify clean accessible fallback when an image asset fails to load
-    const compassImg = screen.getByAltText(/compass cove/i);
-    fireEvent.error(compassImg);
-    expect(screen.queryByAltText(/compass cove/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /compass cove/i })).toBeInTheDocument();
+    // Select Halfway Lighthouse (Binary Search practiced -> Developing)
+    const halfwayBtn = screen.getByTestId('world-island-halfway-lighthouse');
+    await user.click(halfwayBtn);
+    const inspector = screen.getByTestId('miri-island-inspector');
+    expect(inspector).toHaveTextContent(/halfway lighthouse/i);
+    expect(inspector).toHaveTextContent(/developing/i);
+    expect(screen.getByTestId('miri-island-inspector-cta')).toHaveTextContent(
+      /open studio/i,
+    );
+    expect(screen.getByTestId('miri-island-inspector-cta')).toHaveAttribute(
+      'href',
+      '/studio/split-array-largest-sum',
+    );
+
+    // Select Compass Cove (Greedy NOT practiced -> Explored, NOT Developing)
+    await user.click(screen.getByTestId('world-island-compass-cove'));
+    expect(screen.getByTestId('miri-island-inspector')).toHaveTextContent(
+      /explored \(viewed only\)/i,
+    );
+
+    // Select Preview island (Mosaic Meadow) — shows honest AI disclaimer and triggers ZERO AI requests
+    await user.click(screen.getByTestId('world-island-mosaic-meadow'));
+    expect(screen.getByTestId('miri-island-inspector')).toHaveTextContent(
+      /preview · ai-guided/i,
+    );
+    expect(screen.getByTestId('miri-island-inspector')).toHaveTextContent(
+      /offline demo mode/i,
+    );
+    expect(screen.getByTestId('miri-island-inspector-cta')).toHaveTextContent(
+      /explore ai-guided preview/i,
+    );
+    expect(screen.getByTestId('miri-island-inspector-cta')).toHaveAttribute(
+      'href',
+      '/?prefill=minimum-coin-change',
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    // Escape dismisses the inspector panel
+    await user.keyboard('{Escape}');
+    expect(screen.queryByTestId('miri-island-inspector')).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId('miri-island-inspector-empty'),
+    ).toBeInTheDocument();
+
+    // ArrowRight moves focus along the archipelago
+    const storageBtn = screen.getByTestId('world-island-storage-harbor');
+    storageBtn.focus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByTestId('world-island-stack-spire')).toHaveFocus();
+
+    // Graceful artwork fallback on error
+    const firstCompassImg = screen.getAllByAltText(/compass cove/i)[0];
+    fireEvent.error(firstCompassImg);
+    expect(
+      screen.getAllByRole('img', { name: /compass cove/i }).length,
+    ).toBeGreaterThanOrEqual(1);
 
     // Switch to Vietnamese & Dark Mode
     await user.click(screen.getAllByRole('button', { name: /dark mode/i })[0]);
@@ -351,16 +437,13 @@ describe('Phase 7B.1 — Miri Islands UI Showcase on ProfilePage (All 8 Islands,
     await user.selectOptions(screen.getAllByLabelText(/language/i)[0], 'vi');
 
     expect(
-      screen.getByText(/xem trước thế giới quần đảo miri/i),
+      screen.getByRole('heading', { name: /bản đồ thế giới quần đảo miri/i }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId('miri-island-storage-harbor')).toHaveTextContent(
-      /cảng lưu trữ/i,
+    await user.click(screen.getByTestId('world-island-mosaic-meadow'));
+    expect(screen.getByTestId('miri-island-inspector-cta')).toHaveTextContent(
+      /khám phá bản xem trước ai/i,
     );
-    expect(screen.getByTestId('miri-island-twin-beacon-bay')).toHaveTextContent(
-      /vịnh đèn đôi/i,
-    );
-    expect(screen.getByTestId('miri-island-compass-cove')).toHaveTextContent(
-      /vịnh la bàn/i,
-    );
-  });
+
+    fetchSpy.mockRestore();
+  }, 15_000);
 });

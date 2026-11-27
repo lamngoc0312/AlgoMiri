@@ -11,6 +11,7 @@ const ALL_ROUTES = [
   '/roadmap',
   '/history',
   '/profile',
+  '/islands',
 ] as const;
 
 const VIEWPORTS = [

@@ -358,7 +358,38 @@ export const en = {
     evidenceSessions_other: '{{count}} eligible practice sessions',
     openStudio: 'Visit Studio',
     explorePreview: 'Try AI Preview',
+    exploreWorldCta: 'Explore Miri Islands',
+    teaserSubtitle:
+      'Step into AlgoMiri’s floating-island world map. Four verified topic islands grow from your real practice across three unique Verified Studios, alongside four AI-guided preview islands.',
+    teaserPreviewCount:
+      'Plus {{count}} AI-Guided Preview islands ready to explore on the world map.',
     upcomingTitle: 'Discovery Preview Islands (AI-Guided)',
+    map: {
+      badge: 'Interactive World Map',
+      title: 'Miri Islands World Map',
+      subtitle:
+        'Explore all eight floating algorithm islands. Select any island to inspect its topic, honest practice status, and destination.',
+      backToProfile: 'Back to Profile',
+      studioHonestyNote: '3 unique Verified Studios · 4 AI-Guided Previews',
+      canvasAria: 'Interactive Miri Islands floating archipelago world map',
+      islandNodeAria: '{{name}} — {{topic}} ({{stage}})',
+      mobileSwipeHint: 'Swipe across the archipelago or tap an island below to inspect it.',
+      mobileScrollerAria: 'Scrollable Miri Islands archipelago',
+      selectPromptTitle: 'Select any island on the map',
+      selectPromptBody:
+        'Inspect its algorithm topic, verified practice summary, and Studio or AI-guided preview destination.',
+      keyboardHint: 'Tip: Use Tab or Arrow keys to move between islands, Enter to select, Escape to close.',
+      inspectorAria: 'Details for {{name}}',
+      closeInspector: 'Close island details',
+      verifiedAvailability: 'Verified Studio',
+      previewAvailability: 'AI-Guided Preview',
+      skillEvidenceCount_one: '{{count}} verified skill check',
+      skillEvidenceCount_other: '{{count}} verified skill checks',
+      openStudioCta: 'Open Studio',
+      explorePreviewCta: 'Explore AI-Guided Preview',
+      previewDisclaimer:
+        'AI-Guided Preview only — not a deterministic Verified Studio yet, and may operate in Offline Demo Mode when live AI is unavailable. Selecting an island never triggers an AI request.',
+    },
     stages: {
       preview: 'Preview · AI-Guided',
       undiscovered: 'Not yet visited',
