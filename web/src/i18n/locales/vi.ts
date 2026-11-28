@@ -391,6 +391,34 @@ export const vi = {
       explorePreviewCta: 'Khám phá bản xem trước AI',
       previewDisclaimer:
         'Chỉ là bản xem trước AI hướng dẫn — chưa phải Studio tất định đã kiểm chứng và có thể chạy ở chế độ Demo ngoại tuyến khi AI trực tiếp không khả dụng. Chọn đảo không tự động gửi yêu cầu AI.',
+      stageReasons: {
+        undiscovered:
+          'Chưa có phiên Studio xác thực nào được ghi nhận cho hòn đảo này. Hãy mở Studio để bắt đầu luyện tập.',
+        explored_one:
+          'Đã ghé thăm trong {{count}} phiên nhưng chưa có lượt kiểm tra thực hành chủ động — chỉ xem không làm đảo phát triển.',
+        explored_other:
+          'Đã ghé thăm trong {{count}} phiên nhưng chưa có lượt kiểm tra thực hành chủ động — chỉ xem không làm đảo phát triển.',
+        exploredMultiTopic_one:
+          'Đã ghé Studio dùng chung ({{count}} phiên) nhưng chưa có bằng chứng luyện tập xác thực cho riêng chủ đề này.',
+        exploredMultiTopic_other:
+          'Đã ghé Studio dùng chung ({{count}} phiên) nhưng chưa có bằng chứng luyện tập xác thực cho riêng chủ đề này.',
+        developing_one:
+          'Đang phát triển từ {{count}} phiên luyện tập xác thực hợp lệ có câu hỏi kiểm tra hoặc dự đoán thực sự.',
+        developing_other:
+          'Đang phát triển từ {{count}} phiên luyện tập xác thực hợp lệ có câu hỏi kiểm tra hoặc dự đoán thực sự.',
+        flourishing_one:
+          'Rực rỡ từ một phiên học có hướng dẫn đã hoàn thành với bằng chứng luyện tập xác thực (bằng chứng có hướng dẫn, chưa phải thành thạo độc lập).',
+        flourishing_other:
+          'Rực rỡ từ {{count}} phiên luyện tập xác thực hợp lệ với bằng chứng có hướng dẫn bền vững.',
+      },
+      growthPreview: {
+        title: 'Xem trước Tiến hóa Trực quan (Demo)',
+        demoBadge: 'Xem trước Demo',
+        currentTag: 'Giai đoạn hiện tại',
+        resetActual: 'Về giai đoạn của tôi',
+        disclaimer:
+          'Chỉ là bản xem trước minh họa — chuyển giai đoạn tại đây chỉ hiển thị cách Cảng Lưu Trữ phát triển trực quan và không bao giờ thay đổi dữ liệu học tập đã lưu.',
+      },
     },
     stages: {
       preview: 'Xem trước · AI hướng dẫn',

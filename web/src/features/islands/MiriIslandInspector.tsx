@@ -6,6 +6,7 @@ import {
   BookOpenCheck,
   Clock,
   Compass,
+  Eye,
   Info,
   Sparkles,
   X,
@@ -14,6 +15,11 @@ import type {
   IslandGrowthStage,
   MiriIslandProgress,
 } from '../../domain/islands/islandProgress';
+import {
+  hasVisualGrowthStages,
+  resolveIslandArtworkPath,
+  type IslandVisualGrowthStage,
+} from '../../domain/islands/islandRegistry';
 import { formatStudyDuration } from '../../domain/learning/studyTimer';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -22,6 +28,13 @@ interface MiriIslandInspectorProps {
   entry: MiriIslandProgress | null;
   onClose: () => void;
 }
+
+const DEMO_GROWTH_STAGES: readonly IslandVisualGrowthStage[] = [
+  'undiscovered',
+  'explored',
+  'developing',
+  'flourishing',
+];
 
 function stageBadgeVariant(
   stage: IslandGrowthStage,
@@ -43,11 +56,15 @@ export function MiriIslandInspector({
   onClose,
 }: MiriIslandInspectorProps) {
   const { t } = useTranslation();
-  const [imgFailed, setImgFailed] = useState(false);
+  const [failedSrcs, setFailedSrcs] = useState<Record<string, boolean>>({});
+  const [demoStage, setDemoStage] = useState<IslandVisualGrowthStage | null>(
+    null,
+  );
 
   const activeIslandId = entry?.island.id ?? null;
   useEffect(() => {
-    setImgFailed(false);
+    setFailedSrcs({});
+    setDemoStage(null);
   }, [activeIslandId]);
 
   // Dismiss panel on Escape
@@ -97,11 +114,48 @@ export function MiriIslandInspector({
     island,
     stage,
     hasVerifiedStudio,
+    relevantSessionsCount,
     eligiblePracticeSessionsCount,
     verifiedSkillEvidenceCount,
     relevantActiveStudySeconds,
     sharesMultiTopicStudio,
   } = entry;
+
+  const supportsVisualGrowth = hasVisualGrowthStages(island);
+  const displayedStage: IslandGrowthStage =
+    supportsVisualGrowth && demoStage ? demoStage : stage;
+  const preferredSrc = resolveIslandArtworkPath(island, displayedStage);
+  const activeSrc =
+    preferredSrc && !failedSrcs[preferredSrc]
+      ? preferredSrc
+      : island.artwork.assetPath && !failedSrcs[island.artwork.assetPath]
+        ? island.artwork.assetPath
+        : null;
+
+  const stageReasonText = (() => {
+    switch (stage) {
+      case 'undiscovered':
+        return t('islands.map.stageReasons.undiscovered');
+      case 'explored':
+        return sharesMultiTopicStudio
+          ? t('islands.map.stageReasons.exploredMultiTopic', {
+              count: relevantSessionsCount,
+            })
+          : t('islands.map.stageReasons.explored', {
+              count: relevantSessionsCount,
+            });
+      case 'developing':
+        return t('islands.map.stageReasons.developing', {
+          count: eligiblePracticeSessionsCount,
+        });
+      case 'flourishing':
+        return t('islands.map.stageReasons.flourishing', {
+          count: eligiblePracticeSessionsCount,
+        });
+      default:
+        return '';
+    }
+  })();
 
   return (
     <>
@@ -117,7 +171,7 @@ export function MiriIslandInspector({
       <aside
         aria-label={t('islands.map.inspectorAria', { name: t(island.nameKey) })}
         data-testid="miri-island-inspector"
-        className="fixed inset-x-0 bottom-0 z-40 max-h-[78vh] overflow-y-auto rounded-t-3xl border-t border-x border-[var(--accent-blue-border)]/80 bg-[var(--surface-card)] shadow-2xl lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:overflow-hidden lg:rounded-2xl lg:border lg:shadow-md lg:sticky lg:top-20"
+        className="fixed inset-x-0 bottom-0 z-40 max-h-[82vh] overflow-y-auto rounded-t-3xl border-t border-x border-[var(--accent-blue-border)]/80 bg-[var(--surface-card)] shadow-2xl lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:overflow-hidden lg:rounded-2xl lg:border lg:shadow-md lg:sticky lg:top-20"
       >
         <div
           className={`h-1.5 w-full ${island.palette.accentBarClass}`}
@@ -159,8 +213,8 @@ export function MiriIslandInspector({
             </Button>
           </div>
 
-          {/* Island miniature artwork preview */}
-          <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-2 sm:h-36">
+          {/* Island miniature artwork preview (reflects real growth stage, or clearly-labeled demo preview) */}
+          <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-2">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-70"
@@ -168,13 +222,25 @@ export function MiriIslandInspector({
                 background: `radial-gradient(circle at 50% 45%, ${island.palette.accentHex}28 0%, transparent 72%)`,
               }}
             />
-            {island.artwork.assetPath && !imgFailed ? (
+            {demoStage && (
+              <span
+                data-testid="growth-demo-active-pill"
+                className="pointer-events-none absolute left-2.5 top-2 z-20 inline-flex items-center gap-1 rounded-full bg-[var(--surface-card)]/90 px-2 py-0.5 text-[10px] font-bold text-[var(--accent-blue-text)] shadow-2xs border border-[var(--accent-blue-border)]"
+              >
+                <Eye className="h-3 w-3" aria-hidden="true" />
+                {t('islands.map.growthPreview.demoBadge')}
+              </span>
+            )}
+            {activeSrc ? (
               <img
-                src={island.artwork.assetPath}
+                src={activeSrc}
                 alt={t(island.altKey)}
+                data-testid="miri-inspector-artwork-img"
                 width={island.artwork.dimensions.width}
                 height={island.artwork.dimensions.height}
-                onError={() => setImgFailed(true)}
+                onError={() =>
+                  setFailedSrcs((prev) => ({ ...prev, [activeSrc]: true }))
+                }
                 style={{ filter: 'var(--miri-island-shadow)' }}
                 className="relative z-10 h-full w-full object-contain"
               />
@@ -196,8 +262,67 @@ export function MiriIslandInspector({
             )}
           </div>
 
+          {/* Optional Demo Growth Sequence Preview (Storage Harbor pilot — never alters real progress) */}
+          {supportsVisualGrowth && (
+            <div
+              data-testid="growth-demo-preview"
+              className="space-y-2 rounded-xl border border-dashed border-[var(--border-control)] bg-[var(--surface-subtle)]/80 p-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-[var(--text-primary)]">
+                  {t('islands.map.growthPreview.title')}
+                </span>
+                {demoStage && (
+                  <button
+                    type="button"
+                    onClick={() => setDemoStage(null)}
+                    className="text-[11px] font-semibold text-[var(--accent-blue-link)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-blue)] rounded"
+                  >
+                    {t('islands.map.growthPreview.resetActual')}
+                  </button>
+                )}
+              </div>
+              <div
+                role="group"
+                aria-label={t('islands.map.growthPreview.title')}
+                className="grid grid-cols-2 gap-1.5"
+              >
+                {DEMO_GROWTH_STAGES.map((st) => {
+                  const isPreviewing = displayedStage === st;
+                  const isActual = stage === st;
+                  return (
+                    <button
+                      key={st}
+                      type="button"
+                      data-testid={`growth-demo-btn-${st}`}
+                      aria-pressed={isPreviewing}
+                      onClick={() => setDemoStage(st === stage ? null : st)}
+                      className={`rounded-lg border px-2 py-1 text-left text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--accent-blue)] ${
+                        isPreviewing
+                          ? 'border-[var(--accent-blue)] bg-[var(--accent-blue-soft)] text-[var(--accent-blue-text)]'
+                          : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      <span className="block truncate">
+                        {t(`islands.stages.${st}`)}
+                      </span>
+                      {isActual && (
+                        <span className="block text-[9px] font-bold uppercase tracking-wide opacity-80">
+                          {t('islands.map.growthPreview.currentTag')}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] leading-snug text-[var(--text-secondary)]">
+                {t('islands.map.growthPreview.disclaimer')}
+              </p>
+            </div>
+          )}
+
           {/* Description & Availability */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-1.5">
               <Badge variant={hasVerifiedStudio ? 'teal' : 'neutral'}>
                 {hasVerifiedStudio
@@ -210,10 +335,16 @@ export function MiriIslandInspector({
             </p>
           </div>
 
-          {/* Honest practice summary or AI preview disclaimer */}
+          {/* Honest practice summary + stage explanation or AI preview disclaimer */}
           {hasVerifiedStudio ? (
             <div className="space-y-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-3">
-              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-xs text-[var(--text-secondary)]">
+              <p
+                data-testid="miri-inspector-stage-reason"
+                className="text-xs leading-relaxed text-[var(--text-primary)]"
+              >
+                {stageReasonText}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 border-t border-[var(--border-subtle)] pt-2 text-xs text-[var(--text-secondary)]">
                 <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
                   <BookOpenCheck
                     className="h-3.5 w-3.5 text-[var(--accent-teal-text)]"

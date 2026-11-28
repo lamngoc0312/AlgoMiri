@@ -12,6 +12,12 @@ export type MiriIslandId =
 
 export type IslandArtworkStatus = 'ready' | 'planned';
 
+export type IslandVisualGrowthStage =
+  | 'undiscovered'
+  | 'explored'
+  | 'developing'
+  | 'flourishing';
+
 export type IslandDestinationKind = 'verified-studio' | 'ai-guided-preview';
 
 export interface MiriIslandPalette {
@@ -29,6 +35,8 @@ export interface MiriIslandArtworkMeta {
   originalAssetPath: string | null;
   /** Preserved Phase 7B.1 v1 transparent WebP asset for reversible comparison. */
   legacyAssetPath: string | null;
+  /** Optional stage-specific transparent WebP assets for islands with Visual Island Growth. */
+  stageAssets?: Partial<Record<IslandVisualGrowthStage, string>>;
   aspectRatio: '4:3';
   dimensions: { width: number; height: number };
   /** Short design note for future art/asset pipeline parity. */
@@ -84,6 +92,12 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       assetPath: '/assets/islands/v2/transparent/storage-harbor.webp',
       originalAssetPath: '/assets/islands/v2/storage-harbor.jpg',
       legacyAssetPath: '/assets/islands/transparent/storage-harbor.webp',
+      stageAssets: {
+        undiscovered: '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
+        explored: '/assets/islands/v2/growth/storage-harbor/explored.webp',
+        developing: '/assets/islands/v2/growth/storage-harbor/developing.webp',
+        flourishing: '/assets/islands/v2/growth/storage-harbor/flourishing.webp',
+      },
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
       silhouetteSummary:
@@ -326,4 +340,27 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
 
 export function getIslandById(id: MiriIslandId): MiriIslandDefinition | undefined {
   return MIRI_ISLANDS_REGISTRY.find((island) => island.id === id);
+}
+
+/**
+ * Resolves the appropriate transparent artwork path for a given island and growth stage.
+ * Islands without stage-specific artwork cleanly fall back to their base `assetPath`.
+ */
+export function resolveIslandArtworkPath(
+  island: MiriIslandDefinition,
+  stage: string,
+): string | null {
+  const stageMap = island.artwork.stageAssets;
+  if (stageMap && stage in stageMap) {
+    const stageAsset = stageMap[stage as IslandVisualGrowthStage];
+    if (stageAsset) {
+      return stageAsset;
+    }
+  }
+  return island.artwork.assetPath;
+}
+
+export function hasVisualGrowthStages(island: MiriIslandDefinition): boolean {
+  const stageMap = island.artwork.stageAssets;
+  return Boolean(stageMap && Object.keys(stageMap).length > 1);
 }

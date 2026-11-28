@@ -5,7 +5,10 @@ import type {
   IslandGrowthStage,
   MiriIslandProgress,
 } from '../../domain/islands/islandProgress';
-import type { MiriIslandId } from '../../domain/islands/islandRegistry';
+import {
+  resolveIslandArtworkPath,
+  type MiriIslandId,
+} from '../../domain/islands/islandRegistry';
 import {
   MAP_TRAVERSAL_ORDER,
   MIRI_ISLANDS_MAP_LAYOUT,
@@ -79,8 +82,16 @@ function IslandNodeButton({
   variant,
 }: IslandNodeButtonProps) {
   const { t } = useTranslation();
-  const [imgFailed, setImgFailed] = useState(false);
   const { island, stage, hasVerifiedStudio } = entry;
+  const preferredSrc = resolveIslandArtworkPath(island, stage);
+  const [failedSrcs, setFailedSrcs] = useState<Record<string, boolean>>({});
+
+  const activeSrc =
+    preferredSrc && !failedSrcs[preferredSrc]
+      ? preferredSrc
+      : island.artwork.assetPath && !failedSrcs[island.artwork.assetPath]
+        ? island.artwork.assetPath
+        : null;
 
   const ariaLabel = t('islands.map.islandNodeAria', {
     name: t(island.nameKey),
@@ -138,14 +149,16 @@ function IslandNodeButton({
           isPreview && !isSelected ? 'opacity-95' : 'opacity-100'
         }`}
       >
-        {island.artwork.assetPath && !imgFailed ? (
+        {activeSrc ? (
           <img
-            src={island.artwork.assetPath}
+            src={activeSrc}
             alt={t(island.altKey)}
             width={island.artwork.dimensions.width}
             height={island.artwork.dimensions.height}
             decoding="async"
-            onError={() => setImgFailed(true)}
+            onError={() =>
+              setFailedSrcs((prev) => ({ ...prev, [activeSrc]: true }))
+            }
             style={{
               filter: isSelected
                 ? 'var(--miri-island-shadow-selected)'

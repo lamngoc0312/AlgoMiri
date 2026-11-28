@@ -391,6 +391,34 @@ export const en = {
       explorePreviewCta: 'Explore AI-Guided Preview',
       previewDisclaimer:
         'AI-Guided Preview only — not a deterministic Verified Studio yet, and may operate in Offline Demo Mode when live AI is unavailable. Selecting an island never triggers an AI request.',
+      stageReasons: {
+        undiscovered:
+          'No verified Studio sessions recorded for this island yet. Open the Studio to begin practicing.',
+        explored_one:
+          'Visited in {{count}} session without active practice checks yet — viewing alone does not develop the island.',
+        explored_other:
+          'Visited in {{count}} sessions without active practice checks yet — viewing alone does not develop the island.',
+        exploredMultiTopic_one:
+          'Visited the shared Studio ({{count}} session), but no genuine practice evidence for this specific topic yet.',
+        exploredMultiTopic_other:
+          'Visited the shared Studio ({{count}} sessions), but no genuine practice evidence for this specific topic yet.',
+        developing_one:
+          'Developing from {{count}} eligible verified practice session with genuine stage checks or predictions.',
+        developing_other:
+          'Developing from {{count}} eligible verified practice sessions with genuine stage checks or predictions.',
+        flourishing_one:
+          'Flourishing from a completed guided session with verified practice evidence (guided evidence, not independent mastery).',
+        flourishing_other:
+          'Flourishing from {{count}} eligible verified practice sessions with sustained guided evidence.',
+      },
+      growthPreview: {
+        title: 'Visual Growth Preview (Demo)',
+        demoBadge: 'Demo Preview',
+        currentTag: 'Your stage',
+        resetActual: 'Back to my stage',
+        disclaimer:
+          'Demonstration preview only — switching stages here shows how Storage Harbor evolves visually and never alters your saved learning records.',
+      },
     },
     stages: {
       preview: 'Preview · AI-Guided',
@@ -404,49 +432,49 @@ export const en = {
         name: 'Storage Harbor',
         topic: 'Arrays & Hashing',
         tagline: 'Indexed pastel docks and O(1) hash-bucket lockers.',
-        alt: 'Pastel 2.5D isometric floating island of Storage Harbor featuring a cozy dock, indexed colorful storage crates, tiny crane, and turquoise cove.',
+        alt: 'Pastel 2.5D isometric crescent floating island of Storage Harbor wrapping around a turquoise cove with a wooden pier, sailboat, cargo crane, and colorful storage cubbies.',
       },
       'stack-spire': {
         name: 'Stack Spire',
         topic: 'Stack (LIFO)',
         tagline: 'Nested clay rings rising in strict Last-In-First-Out order.',
-        alt: 'Pastel 2.5D isometric floating island of Stack Spire featuring a tiered teal-and-cream tower of stacked rings and a glowing top lantern.',
+        alt: 'Pastel 2.5D isometric narrow floating rocky pinnacle of Stack Spire with stacked teal-and-cream clay rings, lavender spiral steps, and a glowing crown lantern.',
       },
       'twin-beacon-bay': {
         name: 'Twin Beacon Bay',
         topic: 'Two Pointers',
         tagline: 'Opposite coastal beacons converging across a sorted bay.',
-        alt: 'Pastel 2.5D isometric floating island of Twin Beacon Bay featuring two matching sky-blue and coral coastal signal towers connected by a wooden arch bridge over a turquoise bay.',
+        alt: 'Pastel 2.5D isometric pair of separate floating rocky headland islets of Twin Beacon Bay with matching coral-roofed signal towers joined by a curved wooden arch bridge.',
       },
       'window-wharf': {
         name: 'Window Wharf',
         topic: 'Sliding Window',
         tagline: 'A movable glass pavilion gliding smoothly along wooden rails.',
-        alt: 'Pastel 2.5D isometric floating island of Window Wharf featuring a wooden boardwalk, raised pastel garden beds, and a movable glass greenhouse pavilion on wooden rails.',
+        alt: 'Pastel 2.5D isometric elongated diagonal peninsula of Window Wharf with a wooden boardwalk, sequence of garden beds, and a movable translucent glass greenhouse on wheels.',
       },
       'halfway-lighthouse': {
         name: 'Halfway Lighthouse',
         topic: 'Binary Search',
         tagline: 'A midpoint beacon halving the search horizon step by step.',
-        alt: 'Pastel 2.5D isometric floating island of Halfway Lighthouse featuring a striped amber-and-cream lighthouse centered on a stepping-stone bridge.',
+        alt: 'Pastel 2.5D isometric asymmetric twin-cliff floating island of Halfway Lighthouse with a central striped lighthouse dividing a sunlit meadow terrace from a pine headland.',
       },
       'bridge-archipelago': {
         name: 'Bridge Archipelago',
         topic: 'Graphs & BFS',
         tagline: 'Stepping-stone islets connected by concentric arch bridges.',
-        alt: 'Pastel 2.5D isometric floating island of Bridge Archipelago featuring a central lantern gazebo linked to four lagoon islets by pastel-blue arch bridges.',
+        alt: 'Pastel 2.5D isometric cluster of six separate floating islets of Bridge Archipelago connected across open air by arched footbridges radiating from a central lantern gazebo.',
       },
       'mosaic-meadow': {
         name: 'Mosaic Meadow',
         topic: 'Dynamic Programming',
         tagline: 'Interlocking subproblem tiles terraced up to a sunlit pavilion.',
-        alt: 'Pastel 2.5D isometric floating island of Mosaic Meadow featuring stepped pastel ceramic mosaic terraces rising to a sunlit coral-and-cream pavilion.',
+        alt: 'Pastel 2.5D isometric curved terraced hillside amphitheater of Mosaic Meadow with interlocking pastel ceramic mosaic tiles rising to a sunlit coral-and-cream pavilion.',
       },
       'compass-cove': {
         name: 'Compass Cove',
         topic: 'Greedy',
         tagline: 'A sunlit compass plaza charting locally feasible steps.',
-        alt: 'Pastel 2.5D isometric floating island of Compass Cove featuring an inlaid gold-and-teal compass plaza, packed supply carts, and a stepping-stone trail to a lantern overlook.',
+        alt: 'Pastel 2.5D isometric windswept coastal cliff of Compass Cove curving over a turquoise cove with a gold-and-teal compass plaza, supply carts, and a cliffside lantern lookout.',
       },
     },
   },

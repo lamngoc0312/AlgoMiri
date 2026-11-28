@@ -6,6 +6,8 @@ import i18n from '../i18n';
 import {
   MIRI_ISLANDS_REGISTRY,
   getIslandById,
+  hasVisualGrowthStages,
+  resolveIslandArtworkPath,
 } from '../domain/islands/islandRegistry';
 import { MAP_TRAVERSAL_ORDER } from '../domain/islands/islandMapLayout';
 import { buildMiriIslandsSnapshot } from '../domain/islands/islandProgress';
@@ -531,5 +533,158 @@ describe('Phase 7B.2 — Profile Teaser & Interactive Miri Islands World Map (/i
       expect.objectContaining({ behavior: 'auto' }),
     );
     window.matchMedia = originalMatchMedia;
+  }, 15_000);
+});
+
+describe('Phase 7C.1 — Storage Harbor Visual Island Growth Pilot', () => {
+  beforeEach(async () => {
+    window.localStorage.clear();
+    document.documentElement.dataset.theme = 'light';
+    await i18n.changeLanguage('en');
+  });
+
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('resolves all four growth stage assets for Storage Harbor only and preserves base artwork for the other seven islands', () => {
+    const harbor = getIslandById('storage-harbor')!;
+    expect(hasVisualGrowthStages(harbor)).toBe(true);
+    expect(resolveIslandArtworkPath(harbor, 'undiscovered')).toBe(
+      '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
+    );
+    expect(resolveIslandArtworkPath(harbor, 'explored')).toBe(
+      '/assets/islands/v2/growth/storage-harbor/explored.webp',
+    );
+    expect(resolveIslandArtworkPath(harbor, 'developing')).toBe(
+      '/assets/islands/v2/growth/storage-harbor/developing.webp',
+    );
+    expect(resolveIslandArtworkPath(harbor, 'flourishing')).toBe(
+      '/assets/islands/v2/growth/storage-harbor/flourishing.webp',
+    );
+
+    for (const island of MIRI_ISLANDS_REGISTRY) {
+      if (island.id === 'storage-harbor') continue;
+      expect(hasVisualGrowthStages(island)).toBe(false);
+      expect(resolveIslandArtworkPath(island, 'flourishing')).toBe(
+        island.artwork.assetPath,
+      );
+    }
+  });
+
+  it('renders Storage Harbor artwork matching real learning evidence across undiscovered, explored, developing, and flourishing stages, supports demo preview without mutating records, and falls back gracefully on missing assets', async () => {
+    const user = userEvent.setup();
+
+    // 1. Empty history -> undiscovered
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    const mapImgUndiscovered = screen
+      .getByTestId('world-island-storage-harbor')
+      .querySelector('img');
+    expect(mapImgUndiscovered).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
+    );
+
+    await user.click(screen.getByTestId('world-island-storage-harbor'));
+    expect(screen.getByTestId('miri-inspector-stage-reason')).toHaveTextContent(
+      /no verified studio sessions recorded/i,
+    );
+    expect(screen.getByTestId('miri-inspector-artwork-img')).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
+    );
+
+    // Demo preview switches ONLY inspector preview, never map or saved storage
+    await user.click(screen.getByTestId('growth-demo-btn-flourishing'));
+    expect(screen.getByTestId('growth-demo-active-pill')).toBeInTheDocument();
+    expect(screen.getByTestId('miri-inspector-artwork-img')).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/flourishing.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-storage-harbor').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
+    );
+    expect(new LocalStorageLearningRepository().loadSessions().sessions).toHaveLength(
+      0,
+    );
+
+    // Two-tier missing-asset fallback: stage asset error -> base v2 asset -> accessible icon fallback
+    fireEvent.error(screen.getByTestId('miri-inspector-artwork-img'));
+    expect(screen.getByTestId('miri-inspector-artwork-img')).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/transparent/storage-harbor.webp',
+    );
+    fireEvent.error(screen.getByTestId('miri-inspector-artwork-img'));
+    expect(
+      screen.queryByTestId('miri-inspector-artwork-img'),
+    ).not.toBeInTheDocument();
+    unmount();
+
+    // 2. Viewed-only session -> explored
+    const repo = new LocalStorageLearningRepository();
+    repo.saveSession(
+      makeVerifiedSession('ts-view-only', 'two-sum', { viewedOnly: true }),
+    );
+    const viewRender = render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-storage-harbor').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/explored.webp',
+    );
+    viewRender.unmount();
+
+    // 3. Partial genuine attempt (including legacy stage IDs) -> developing
+    window.localStorage.clear();
+    repo.saveSession(
+      makeVerifiedSession('ts-dev-legacy', 'two-sum', {
+        customStageIds: ['legacy-stage-1', 'legacy-stage-2'],
+        completedStageIds: ['legacy-stage-1'],
+      }),
+    );
+    const devRender = render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-storage-harbor').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/developing.webp',
+    );
+    devRender.unmount();
+
+    // 4. Completed guided session -> flourishing
+    window.localStorage.clear();
+    repo.saveSession(
+      makeVerifiedSession('ts-complete', 'two-sum', { completedAll: true }),
+    );
+    render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-storage-harbor').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/storage-harbor/flourishing.webp',
+    );
+    await user.click(screen.getByTestId('world-island-storage-harbor'));
+    expect(screen.getByTestId('miri-inspector-stage-reason')).toHaveTextContent(
+      /flourishing from a completed guided session/i,
+    );
   }, 15_000);
 });

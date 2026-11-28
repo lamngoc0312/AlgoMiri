@@ -7,6 +7,7 @@ import {
   buildMiriIslandsSnapshot,
   type IslandGrowthStage,
 } from '../../domain/islands/islandProgress';
+import { resolveIslandArtworkPath } from '../../domain/islands/islandRegistry';
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 
@@ -110,35 +111,40 @@ export function MiriIslandsShowcase({ sessions }: MiriIslandsShowcaseProps) {
               }}
               className="grid grid-cols-4 gap-2 rounded-2xl border p-2.5 backdrop-blur-xs"
             >
-              {verifiedIslands.map((entry) => (
-                <div
-                  key={entry.island.id}
-                  className="flex h-14 w-16 items-center justify-center sm:h-16 sm:w-20"
-                >
-                  {entry.island.artwork.assetPath &&
-                  !failedIds[entry.island.id] ? (
-                    <img
-                      src={entry.island.artwork.assetPath}
-                      alt=""
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      onError={() =>
-                        setFailedIds((prev) => ({
-                          ...prev,
-                          [entry.island.id]: true,
-                        }))
-                      }
-                      className="h-full w-full object-contain drop-shadow-[0_6px_8px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_8px_10px_rgba(0,0,0,0.45)]"
-                    />
-                  ) : (
-                    <Compass
-                      className="h-5 w-5"
-                      style={{ color: entry.island.palette.accentHex }}
-                    />
-                  )}
-                </div>
-              ))}
+              {verifiedIslands.map((entry) => {
+                const resolvedSrc = resolveIslandArtworkPath(
+                  entry.island,
+                  entry.stage,
+                );
+                return (
+                  <div
+                    key={entry.island.id}
+                    className="flex h-14 w-16 items-center justify-center sm:h-16 sm:w-20"
+                  >
+                    {resolvedSrc && !failedIds[entry.island.id] ? (
+                      <img
+                        src={resolvedSrc}
+                        alt=""
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        onError={() =>
+                          setFailedIds((prev) => ({
+                            ...prev,
+                            [entry.island.id]: true,
+                          }))
+                        }
+                        className="h-full w-full object-contain drop-shadow-[0_6px_8px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_8px_10px_rgba(0,0,0,0.45)]"
+                      />
+                    ) : (
+                      <Compass
+                        className="h-5 w-5"
+                        style={{ color: entry.island.palette.accentHex }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <Link
