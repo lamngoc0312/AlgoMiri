@@ -616,6 +616,20 @@ export const vi = {
       hashingFrequency: 'Hashing & tần suất',
     },
   },
+  gamification: {
+    levelLabel: 'Cấp {{level}}',
+    totalXpValue: '{{xp}} XP',
+    compactLevelPill: 'Cấp {{level}} · {{xp}} XP',
+    localBadge: 'Lưu trên trình duyệt này',
+    xpCard: {
+      title: 'Cấp độ & Điểm kinh nghiệm (XP)',
+      progressRatio: '{{current}} / {{target}} XP',
+      toNextLevel: 'Còn {{remaining}} XP tới Cấp {{nextLevel}}',
+      progressAria: 'Tiến độ từ Cấp {{level}} lên Cấp {{nextLevel}}',
+      howItWorks:
+        'Chỉ cộng từ nỗ lực thật ở các bước dẫn dắt, dự đoán trace và hoàn thành Studio đã xác minh (có giới hạn hợp lý mỗi ngày). Xem thụ động, chat AI và xem trước đảo không cộng XP. Chỉ lưu cục bộ trên trình duyệt này.',
+    },
+  },
   ...learningVi,
   ...lessonsVi,
   ...tracesVi,

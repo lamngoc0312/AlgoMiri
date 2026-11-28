@@ -28,6 +28,7 @@ import {
 import { formatStudyDuration } from '../domain/learning/studyTimer';
 import { buildProfileTopicSummaries } from '../domain/profile/profileSummary';
 import { defaultLearningRepository } from '../services/learningRepository';
+import { defaultXpLedgerRepository } from '../services/xpLedgerRepository';
 import { defaultAiProblemHistoryRepository } from '../services/aiProblemHistoryRepository';
 import {
   MAX_DISPLAY_NAME_LENGTH,
@@ -35,6 +36,7 @@ import {
 } from '../services/profileRepository';
 import { ActivityHeatmap } from '../features/progress/ActivityHeatmap';
 import { useLocalDateKey } from '../features/progress/useLocalDateKey';
+import { XpLevelCard } from '../features/gamification/XpLevelCard';
 import { MiriIslandsShowcase } from '../features/islands/MiriIslandsShowcase';
 import { localizePracticeSuggestion } from '../i18n/learningLocalization';
 import { getTopicVisualStyle } from '../styles/topicColors';
@@ -63,6 +65,10 @@ export function ProfilePage() {
   const learningLoad = useMemo(() => defaultLearningRepository.loadSessions(), []);
   const aiHistoryLoad = useMemo(() => defaultAiProblemHistoryRepository.load(), []);
   const sessions = learningLoad.sessions;
+  const xpSnapshot = useMemo(
+    () => defaultXpLedgerRepository.syncSessions(sessions),
+    [sessions],
+  );
 
   const progressSummary = useMemo(
     () => aggregateLearningProgress(sessions),
@@ -322,6 +328,12 @@ export function ProfilePage() {
           </div>
         </Card>
       )}
+
+      {/* Evidence-based XP & Level summary card (durable browser-local ledger) */}
+      <XpLevelCard
+        levelProgress={xpSnapshot.levelProgress}
+        warningMessage={xpSnapshot.warningMessage}
+      />
 
       {/* Learning Journey Summary: Current Streak Spotlight + 3 Pastel KPI Cards */}
       <section aria-label={t('profile.summaryAria')}>

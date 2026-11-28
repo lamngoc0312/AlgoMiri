@@ -5,6 +5,10 @@ import type {
   LearningSession,
   SessionOutcome,
 } from '../domain/learning/types';
+import {
+  defaultXpLedgerRepository,
+  type XpLedgerRepository,
+} from './xpLedgerRepository';
 
 export const LEARNING_STORAGE_KEY = 'algomiri.learning.history';
 export const LEARNING_SCHEMA_VERSION = 2;
@@ -322,10 +326,12 @@ function deduplicateBySessionId(
 export class LocalStorageLearningRepository implements LearningRepository {
   private readonly storageKey: string;
   private readonly getStorage: () => Storage | null;
+  private readonly xpLedger: XpLedgerRepository | null;
 
   constructor(
     storageKey = LEARNING_STORAGE_KEY,
     customStorage?: Storage | null,
+    xpLedger?: XpLedgerRepository | null,
   ) {
     this.storageKey = storageKey;
     this.getStorage = () => {
@@ -336,6 +342,12 @@ export class LocalStorageLearningRepository implements LearningRepository {
         return null;
       }
     };
+    this.xpLedger =
+      xpLedger !== undefined
+        ? xpLedger
+        : storageKey === LEARNING_STORAGE_KEY && customStorage === undefined
+          ? defaultXpLedgerRepository
+          : null;
   }
 
   private writeEnvelope(sessions: LearningSession[]): boolean {
@@ -503,6 +515,11 @@ export class LocalStorageLearningRepository implements LearningRepository {
             'Local browser storage is unavailable; session was not persisted.',
         };
       }
+      try {
+        this.xpLedger?.recordSession(cleanSession);
+      } catch {
+        // Non-fatal: session persistence must not fail if XP ledger throws
+      }
       return {
         saved: true,
         wasDuplicateUpdate: existingIndex >= 0,
@@ -532,6 +549,7 @@ export class LocalStorageLearningRepository implements LearningRepository {
     }
     try {
       storage.removeItem(this.storageKey);
+      this.xpLedger?.reset();
       return { cleared: true, warningMessage: null };
     } catch {
       return {

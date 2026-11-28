@@ -618,6 +618,20 @@ export const en = {
       hashingFrequency: 'Hashing & Frequency',
     },
   },
+  gamification: {
+    levelLabel: 'Level {{level}}',
+    totalXpValue: '{{xp}} XP',
+    compactLevelPill: 'Lv. {{level}} · {{xp}} XP',
+    localBadge: 'Stored in this browser',
+    xpCard: {
+      title: 'Learning Level & XP',
+      progressRatio: '{{current}} / {{target}} XP',
+      toNextLevel: '{{remaining}} XP to Level {{nextLevel}}',
+      progressAria: 'Progress from Level {{level}} to Level {{nextLevel}}',
+      howItWorks:
+        'Earned only from genuine guided-stage attempts, trace predictions, and verified Studio completions (with fair daily caps). Passive viewing, AI chat, and island previews never add XP. Saved in this browser only.',
+    },
+  },
   ...learningEn,
   ...lessonsEn,
   ...tracesEn,

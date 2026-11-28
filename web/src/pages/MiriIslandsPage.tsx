@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Compass } from 'lucide-react';
+import { ArrowLeft, Award, Compass } from 'lucide-react';
 import { defaultLearningRepository } from '../services/learningRepository';
+import { defaultXpLedgerRepository } from '../services/xpLedgerRepository';
 import { buildMiriIslandsSnapshot } from '../domain/islands/islandProgress';
 import type { MiriIslandId } from '../domain/islands/islandRegistry';
 import { MiriIslandsWorldMap } from '../features/islands/MiriIslandsWorldMap';
@@ -12,6 +13,10 @@ import { Badge } from '../components/ui/Badge';
 export function MiriIslandsPage() {
   const { t } = useTranslation();
   const learningLoad = useMemo(() => defaultLearningRepository.loadSessions(), []);
+  const xpSnapshot = useMemo(
+    () => defaultXpLedgerRepository.syncSessions(learningLoad.sessions),
+    [learningLoad.sessions],
+  );
   const snapshot = useMemo(
     () => buildMiriIslandsSnapshot(learningLoad.sessions),
     [learningLoad.sessions],
@@ -102,6 +107,13 @@ export function MiriIslandsPage() {
 
         {/* Honest Summary & Stage Legend */}
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <Badge variant="amber" data-testid="world-map-level-badge">
+            <Award className="h-3 w-3" aria-hidden="true" />
+            {t('gamification.compactLevelPill', {
+              level: xpSnapshot.levelProgress.level,
+              xp: xpSnapshot.levelProgress.totalXp,
+            })}
+          </Badge>
           <Badge variant="mint" data-testid="world-map-practiced-badge">
             {t('islands.verifiedCount', {
               practiced: snapshot.globalTotals.practicedIslandsCount,
