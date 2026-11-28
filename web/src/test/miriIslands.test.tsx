@@ -109,10 +109,13 @@ describe('Phase 7B.1 — Miri Islands Registry, Complete Artwork & Topic-Specifi
     for (const island of MIRI_ISLANDS_REGISTRY) {
       expect(island.artwork.status).toBe('ready');
       expect(island.artwork.assetPath).toBe(
-        `/assets/islands/transparent/${island.id}.webp`,
+        `/assets/islands/v2/transparent/${island.id}.webp`,
       );
       expect(island.artwork.originalAssetPath).toBe(
-        `/assets/islands/${island.id}.jpg`,
+        `/assets/islands/v2/${island.id}.jpg`,
+      );
+      expect(island.artwork.legacyAssetPath).toBe(
+        `/assets/islands/transparent/${island.id}.webp`,
       );
       expect(island.artwork.dimensions).toEqual({ width: 800, height: 600 });
     }
@@ -444,6 +447,14 @@ describe('Phase 7B.2 — Profile Teaser & Interactive Miri Islands World Map (/i
     expect(screen.getByTestId('miri-island-inspector-cta')).toHaveTextContent(
       /khám phá bản xem trước ai/i,
     );
+
+    // Phase 7B.4: Vietnamese island labels must be Vietnamese-only (no English parentheticals) and unclipped (no truncate)
+    for (const island of MIRI_ISLANDS_REGISTRY) {
+      const labelEl = screen.getAllByTestId(`world-island-label-${island.id}`)[0];
+      expect(labelEl.textContent?.trim()).toBeTruthy();
+      expect(labelEl.textContent).not.toMatch(/\(/);
+      expect(labelEl.innerHTML).not.toContain('truncate');
+    }
 
     fetchSpy.mockRestore();
   }, 15_000);

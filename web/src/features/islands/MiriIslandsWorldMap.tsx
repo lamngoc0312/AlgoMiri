@@ -106,8 +106,8 @@ function IslandNodeButton({
       onKeyDown={onKeyDown}
       className={`group relative flex flex-col items-center text-center transition-transform duration-300 ease-out motion-reduce:transition-none motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-blue)] rounded-3xl ${
         variant === 'desktop'
-          ? 'w-[148px] lg:w-[146px] xl:w-[184px]'
-          : 'w-[228px] shrink-0 snap-center py-2'
+          ? 'w-[154px] lg:w-[156px] xl:w-[196px]'
+          : 'w-[236px] shrink-0 snap-center py-2'
       } ${
         isSelected
           ? '-translate-y-1.5 scale-[1.04]'
@@ -181,8 +181,9 @@ function IslandNodeButton({
         )}
       </div>
 
-      {/* Crisp floating name plaque directly under the island */}
+      {/* Compact, visually secondary single-line name pill (zero ellipsis; full topic in Inspector) */}
       <div
+        data-testid={`world-island-label-${island.id}`}
         style={{
           backgroundColor: isSelected
             ? 'var(--surface-card)'
@@ -196,22 +197,17 @@ function IslandNodeButton({
               : 'var(--miri-plaque-preview-border)',
           boxShadow: stageRingStyle(stage, island.palette.accentHex, isSelected),
         }}
-        className={`mt-1.5 w-full max-w-[154px] xl:max-w-[196px] rounded-2xl border px-2.5 py-1.5 backdrop-blur-md transition-colors text-[var(--text-primary)] ${
+        className={`mt-1 inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-md transition-colors text-[var(--text-primary)] ${
           !hasVerifiedStudio && !isSelected ? 'border-dashed' : ''
         }`}
       >
-        <div className="flex items-center justify-center gap-1.5">
-          <span
-            aria-hidden="true"
-            className={`h-2 w-2 shrink-0 rounded-full ${stageDotClass(stage)}`}
-          />
-          <span className="truncate text-[11px] xl:text-xs font-extrabold leading-snug tracking-tight text-[var(--text-primary)]">
-            {t(island.nameKey)}
-          </span>
-        </div>
-        <p className="mt-0.5 truncate text-[10px] font-semibold text-[var(--text-secondary)]">
-          {t(island.topicKey)}
-        </p>
+        <span
+          aria-hidden="true"
+          className={`h-2 w-2 shrink-0 rounded-full ${stageDotClass(stage)}`}
+        />
+        <span className="whitespace-nowrap text-[11px] xl:text-xs font-bold leading-none tracking-tight text-[var(--text-primary)]">
+          {t(island.nameKey)}
+        </span>
       </div>
     </button>
   );
@@ -354,8 +350,8 @@ export function MiriIslandsWorldMap({
         </g>
       </svg>
 
-      {/* DESKTOP & TABLET (>= 768px): Spacious Organic Floating-Island Archipelago */}
-      <div className="relative hidden md:block min-h-[540px] lg:min-h-[560px] xl:min-h-[600px] w-full">
+      {/* DESKTOP & TABLET (>= 768px): Organic Floating-Island Constellation */}
+      <div className="relative hidden md:block min-h-[560px] lg:min-h-[590px] xl:min-h-[630px] w-full">
         {orderedIslands.map((entry) => {
           const id = entry.island.id;
           const layout = MIRI_ISLANDS_MAP_LAYOUT[id];

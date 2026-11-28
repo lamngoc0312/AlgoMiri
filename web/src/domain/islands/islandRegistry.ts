@@ -23,10 +23,12 @@ export interface MiriIslandPalette {
 
 export interface MiriIslandArtworkMeta {
   status: IslandArtworkStatus;
-  /** Optimized 800x600 (4:3) alpha-transparent WebP asset for cards and future map canvas. */
+  /** Production Cozy Fantasy v2 800x600 (4:3) alpha-transparent WebP asset for map & inspector. */
   assetPath: string | null;
-  /** Original 1024x1024 source artwork preserved for archival and high-res reference. */
+  /** High-resolution Cozy Fantasy v2 1024x1024 source master preserved for archival reference. */
   originalAssetPath: string | null;
+  /** Preserved Phase 7B.1 v1 transparent WebP asset for reversible comparison. */
+  legacyAssetPath: string | null;
   aspectRatio: '4:3';
   dimensions: { width: number; height: number };
   /** Short design note for future art/asset pipeline parity. */
@@ -59,7 +61,7 @@ export interface MiriIslandDefinition {
   primarySkillIds: readonly SkillId[];
   /** Verified skill IDs associated with this island's topic (including shared composition skills). */
   relatedSkillIds: readonly SkillId[];
-  /** Extensible slots for future Phase 7B+ cosmetic decorations (not rendered yet). */
+  /** Extensible slots for future Phase 7C+ cosmetic decorations (not rendered yet). */
   decorationSlots: readonly string[];
 }
 
@@ -79,11 +81,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/storage-harbor.webp',
-      originalAssetPath: '/assets/islands/storage-harbor.jpg',
+      assetPath: '/assets/islands/v2/transparent/storage-harbor.webp',
+      originalAssetPath: '/assets/islands/v2/storage-harbor.jpg',
+      legacyAssetPath: '/assets/islands/transparent/storage-harbor.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Harbor dock with indexed pastel storage crates, crane, and cove.',
+      silhouetteSummary:
+        'Organic crescent trading harbor curving around a turquoise bay with dock, sailboat, crane, and indexed pastel cubbies.',
     },
     destination: {
       path: '/studio/two-sum',
@@ -109,11 +113,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/stack-spire.webp',
-      originalAssetPath: '/assets/islands/stack-spire.jpg',
+      assetPath: '/assets/islands/v2/transparent/stack-spire.webp',
+      originalAssetPath: '/assets/islands/v2/stack-spire.jpg',
+      legacyAssetPath: '/assets/islands/transparent/stack-spire.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Tiered pastel-teal stacked ring spire with spiral steps and top lantern.',
+      silhouetteSummary:
+        'Tall, narrow vertically tapered floating rocky pinnacle with stacked teal-and-cream clay rings and lavender spiral steps.',
     },
     destination: {
       path: '/studio/valid-parentheses',
@@ -139,11 +145,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/twin-beacon-bay.webp',
-      originalAssetPath: '/assets/islands/twin-beacon-bay.jpg',
+      assetPath: '/assets/islands/v2/transparent/twin-beacon-bay.webp',
+      originalAssetPath: '/assets/islands/v2/twin-beacon-bay.jpg',
+      legacyAssetPath: '/assets/islands/transparent/twin-beacon-bay.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Twin coastal signal beacons on opposite sides of a crescent bay with arch bridge.',
+      silhouetteSummary:
+        'Two separate rocky headland islets with matching coral-roofed signal towers linked across open sky by a curved arch bridge.',
     },
     destination: {
       path: '/?prefill=sorted-pair-sum',
@@ -169,11 +177,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/window-wharf.webp',
-      originalAssetPath: '/assets/islands/window-wharf.jpg',
+      assetPath: '/assets/islands/v2/transparent/window-wharf.webp',
+      originalAssetPath: '/assets/islands/v2/window-wharf.jpg',
+      legacyAssetPath: '/assets/islands/transparent/window-wharf.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Boardwalk wharf with a sliding glass greenhouse pavilion on wooden rails.',
+      silhouetteSummary:
+        'Elongated diagonal peninsula wharf with boardwalk, garden bed sequence, and movable translucent glass greenhouse on wheels.',
     },
     destination: {
       path: '/?prefill=longest-subarray-under-budget',
@@ -199,11 +209,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/halfway-lighthouse.webp',
-      originalAssetPath: '/assets/islands/halfway-lighthouse.jpg',
+      assetPath: '/assets/islands/v2/transparent/halfway-lighthouse.webp',
+      originalAssetPath: '/assets/islands/v2/halfway-lighthouse.jpg',
+      legacyAssetPath: '/assets/islands/transparent/halfway-lighthouse.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Striped amber-and-cream lighthouse centered on a midpoint stepping-stone path.',
+      silhouetteSummary:
+        'Asymmetric twin-cliff coastal island with central midpoint lighthouse dividing a sunlit meadow terrace from a pine headland.',
     },
     destination: {
       path: '/studio/split-array-largest-sum',
@@ -229,11 +241,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/bridge-archipelago.webp',
-      originalAssetPath: '/assets/islands/bridge-archipelago.jpg',
+      assetPath: '/assets/islands/v2/transparent/bridge-archipelago.webp',
+      originalAssetPath: '/assets/islands/v2/bridge-archipelago.jpg',
+      legacyAssetPath: '/assets/islands/transparent/bridge-archipelago.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Central lantern plaza linked to surrounding lagoon islets by pastel arch bridges.',
+      silhouetteSummary:
+        'Six separate floating rocky islets linked across open air by arched bridges radiating in BFS layers from a central gazebo hub.',
     },
     destination: {
       path: '/?prefill=shortest-grid-path',
@@ -259,11 +273,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/mosaic-meadow.webp',
-      originalAssetPath: '/assets/islands/mosaic-meadow.jpg',
+      assetPath: '/assets/islands/v2/transparent/mosaic-meadow.webp',
+      originalAssetPath: '/assets/islands/v2/mosaic-meadow.jpg',
+      legacyAssetPath: '/assets/islands/transparent/mosaic-meadow.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Terraced pastel mosaic tile hillside rising to a sunlit pavilion.',
+      silhouetteSummary:
+        'Curved organically terraced hillside amphitheater of interlocking pastel mosaic tiles climbing to a sunlit hilltop pavilion.',
     },
     destination: {
       path: '/?prefill=minimum-coin-change',
@@ -289,11 +305,13 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
     },
     artwork: {
       status: 'ready',
-      assetPath: '/assets/islands/transparent/compass-cove.webp',
-      originalAssetPath: '/assets/islands/compass-cove.jpg',
+      assetPath: '/assets/islands/v2/transparent/compass-cove.webp',
+      originalAssetPath: '/assets/islands/v2/compass-cove.jpg',
+      legacyAssetPath: '/assets/islands/transparent/compass-cove.webp',
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
-      silhouetteSummary: 'Sunlit coastal cliff with clay compass rose plaza, supply carts, and lookout trail.',
+      silhouetteSummary:
+        'Irregular windswept coastal cliff jutting over a turquoise cove with gold-and-teal compass plaza, supply carts, and lookout trail.',
     },
     destination: {
       path: '/studio/split-array-largest-sum',
