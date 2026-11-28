@@ -417,7 +417,7 @@ export const en = {
         currentTag: 'Your stage',
         resetActual: 'Back to my stage',
         disclaimer:
-          'Demonstration preview only — switching stages here shows how Storage Harbor evolves visually and never alters your saved learning records.',
+          'Demonstration preview only — switching stages here shows how this island evolves visually and never alters your saved learning records.',
       },
     },
     stages: {

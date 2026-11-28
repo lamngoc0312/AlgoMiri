@@ -417,7 +417,7 @@ export const vi = {
         currentTag: 'Giai đoạn hiện tại',
         resetActual: 'Về giai đoạn của tôi',
         disclaimer:
-          'Chỉ là bản xem trước minh họa — chuyển giai đoạn tại đây chỉ hiển thị cách Cảng Lưu Trữ phát triển trực quan và không bao giờ thay đổi dữ liệu học tập đã lưu.',
+          'Chỉ là bản xem trước minh họa — chuyển giai đoạn tại đây chỉ hiển thị cách hòn đảo này phát triển trực quan và không bao giờ thay đổi dữ liệu học tập đã lưu.',
       },
     },
     stages: {

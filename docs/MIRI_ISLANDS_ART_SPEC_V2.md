@@ -38,3 +38,14 @@
 ## 3. Organic Archipelago Constellation & Labels (Implemented in Phase 7B.4)
 - **Organic Constellation (`islandMapLayout.ts`):** Replaced the parallel 4×2 grid with varied elevation pockets (`yPct` spanning `17%–77%`), balanced scale multipliers (`1.02–1.08`), open sky breathing channels, and decorative clouds/breeze trails that never imply unsupported prerequisites.
 - **Single-Language Unclipped Labels:** Vietnamese mode shows Vietnamese names only (`Cảng Lưu Trữ`, `Tháp Ngăn Xếp`, `Vịnh Đèn Đôi`, `Bến Cửa Sổ`, `Hải Đăng Trung Điểm`, `Quần Đảo Cầu Vòm`, `Thảo Nguyên Khảm`, `Vịnh La Bàn`); English mode shows English names only — rendered as compact single-line floating pills with zero ellipsis (`...`) so the 2.5D island artwork stays visually primary while full topic and evidence details appear in the sticky Side Inspector (desktop) or accessible Bottom Sheet (tablet/mobile).
+
+---
+
+## 4. Visual Island Growth (Phase 7C.1 & 7C.2 — All Four Verified Islands)
+All four Verified-topic islands now feature pixel-registered 4-stage transparent WebP sets (`undiscovered`, `explored`, `developing`, `flourishing`) exported using a shared union bounding box per island under `web/public/assets/islands/v2/growth/<id>/`:
+- **Storage Harbor (`storage-harbor`):** Quiet empty harbor → lantern & rowboat visit → active cubbies, crane & sailboat → watchtower pavilion, bunting, flower beds & golden lanterns.
+- **Stack Spire (`stack-spire`):** Unlit sleeping spire → lit base doorway lantern & crate → glowing vertical spire with wall lanterns → balconies, spiral bunting, trailing ivy & flower planters.
+- **Halfway Lighthouse (`halfway-lighthouse`):** Unlit quiet twin-cliff lighthouse → lit cottage & central plaza lantern → glowing midpoint beacon, bench & pine lookout → observation gazebo, bunting & dual-half trail lanterns.
+- **Compass Cove (`compass-cove`):** Quiet natural compass headland → signpost, crate & trail lantern → packed supply carts & lit cliff lookout → expedition tent, cove pier/skiff, pennant flags & trail lanterns.
+
+Each island also ships `growth-4stage-light.png` and `growth-4stage-dark.png` comparison sheets. The four AI-Guided Preview islands (`twin-beacon-bay`, `window-wharf`, `bridge-archipelago`, `mosaic-meadow`) remain unchanged preview islands.

@@ -536,7 +536,7 @@ describe('Phase 7B.2 — Profile Teaser & Interactive Miri Islands World Map (/i
   }, 15_000);
 });
 
-describe('Phase 7C.1 — Storage Harbor Visual Island Growth Pilot', () => {
+describe('Phase 7C.1 & 7C.2 — Visual Island Growth Across All Four Verified Islands', () => {
   beforeEach(async () => {
     window.localStorage.clear();
     document.documentElement.dataset.theme = 'light';
@@ -547,30 +547,159 @@ describe('Phase 7C.1 — Storage Harbor Visual Island Growth Pilot', () => {
     window.localStorage.clear();
   });
 
-  it('resolves all four growth stage assets for Storage Harbor only and preserves base artwork for the other seven islands', () => {
-    const harbor = getIslandById('storage-harbor')!;
-    expect(hasVisualGrowthStages(harbor)).toBe(true);
-    expect(resolveIslandArtworkPath(harbor, 'undiscovered')).toBe(
-      '/assets/islands/v2/growth/storage-harbor/undiscovered.webp',
-    );
-    expect(resolveIslandArtworkPath(harbor, 'explored')).toBe(
-      '/assets/islands/v2/growth/storage-harbor/explored.webp',
-    );
-    expect(resolveIslandArtworkPath(harbor, 'developing')).toBe(
-      '/assets/islands/v2/growth/storage-harbor/developing.webp',
-    );
-    expect(resolveIslandArtworkPath(harbor, 'flourishing')).toBe(
-      '/assets/islands/v2/growth/storage-harbor/flourishing.webp',
-    );
+  it('resolves all four growth stage assets for all four verified islands and preserves base artwork for the four AI preview islands', () => {
+    const verifiedIds = [
+      'storage-harbor',
+      'stack-spire',
+      'halfway-lighthouse',
+      'compass-cove',
+    ] as const;
 
-    for (const island of MIRI_ISLANDS_REGISTRY) {
-      if (island.id === 'storage-harbor') continue;
+    for (const id of verifiedIds) {
+      const island = getIslandById(id)!;
+      expect(hasVisualGrowthStages(island)).toBe(true);
+      expect(resolveIslandArtworkPath(island, 'undiscovered')).toBe(
+        `/assets/islands/v2/growth/${id}/undiscovered.webp`,
+      );
+      expect(resolveIslandArtworkPath(island, 'explored')).toBe(
+        `/assets/islands/v2/growth/${id}/explored.webp`,
+      );
+      expect(resolveIslandArtworkPath(island, 'developing')).toBe(
+        `/assets/islands/v2/growth/${id}/developing.webp`,
+      );
+      expect(resolveIslandArtworkPath(island, 'flourishing')).toBe(
+        `/assets/islands/v2/growth/${id}/flourishing.webp`,
+      );
+    }
+
+    const previewIds = [
+      'twin-beacon-bay',
+      'window-wharf',
+      'bridge-archipelago',
+      'mosaic-meadow',
+    ] as const;
+    for (const id of previewIds) {
+      const island = getIslandById(id)!;
       expect(hasVisualGrowthStages(island)).toBe(false);
       expect(resolveIslandArtworkPath(island, 'flourishing')).toBe(
         island.artwork.assetPath,
       );
     }
   });
+
+  it('keeps Halfway Lighthouse and Compass Cove visual growth strictly independent on multi-topic Split Array sessions', async () => {
+    const user = userEvent.setup();
+    const repo = new LocalStorageLearningRepository();
+
+    // 1. Binary Search ONLY -> Halfway Lighthouse = developing.webp, Compass Cove = explored.webp (NOT developing!)
+    repo.saveSession(
+      makeVerifiedSession('sa-bs-only-7c2', 'split-array-largest-sum', {
+        completedStageIds: ['sa-stage-4-bs-answer'],
+        activeStudySeconds: 180,
+      }),
+    );
+
+    const bsRender = render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-halfway-lighthouse').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/halfway-lighthouse/developing.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-compass-cove').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/compass-cove/explored.webp',
+    );
+
+    // Demo preview on Compass Cove must not mutate saved records or world map image
+    await user.click(screen.getByTestId('world-island-compass-cove'));
+    await user.click(screen.getByTestId('growth-demo-btn-flourishing'));
+    expect(screen.getByTestId('miri-inspector-artwork-img')).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/compass-cove/flourishing.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-compass-cove').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/compass-cove/explored.webp',
+    );
+    bsRender.unmount();
+
+    // 2. Greedy ONLY -> Compass Cove = developing.webp, Halfway Lighthouse = explored.webp (NOT developing!)
+    window.localStorage.clear();
+    repo.saveSession(
+      makeVerifiedSession('sa-greedy-only-7c2', 'split-array-largest-sum', {
+        completedStageIds: ['sa-stage-3-greedy'],
+        activeStudySeconds: 150,
+      }),
+    );
+
+    const greedyRender = render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-compass-cove').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/compass-cove/developing.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-halfway-lighthouse').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/halfway-lighthouse/explored.webp',
+    );
+    greedyRender.unmount();
+
+    // 3. Stack Spire completed -> flourishing.webp, legacy Split Array -> both explored.webp
+    window.localStorage.clear();
+    repo.saveSession(
+      makeVerifiedSession('vp-full-7c2', 'valid-parentheses', {
+        completedAll: true,
+        activeStudySeconds: 200,
+      }),
+    );
+    repo.saveSession(
+      makeVerifiedSession('sa-legacy-7c2', 'split-array-largest-sum', {
+        customStageIds: ['old-stage-1'],
+        completedAll: true,
+        activeStudySeconds: 90,
+      }),
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/islands']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByTestId('world-island-stack-spire').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/stack-spire/flourishing.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-halfway-lighthouse').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/halfway-lighthouse/explored.webp',
+    );
+    expect(
+      screen.getByTestId('world-island-compass-cove').querySelector('img'),
+    ).toHaveAttribute(
+      'src',
+      '/assets/islands/v2/growth/compass-cove/explored.webp',
+    );
+  }, 15_000);
 
   it('renders Storage Harbor artwork matching real learning evidence across undiscovered, explored, developing, and flourishing stages, supports demo preview without mutating records, and falls back gracefully on missing assets', async () => {
     const user = userEvent.setup();

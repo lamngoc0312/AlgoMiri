@@ -130,6 +130,12 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       assetPath: '/assets/islands/v2/transparent/stack-spire.webp',
       originalAssetPath: '/assets/islands/v2/stack-spire.jpg',
       legacyAssetPath: '/assets/islands/transparent/stack-spire.webp',
+      stageAssets: {
+        undiscovered: '/assets/islands/v2/growth/stack-spire/undiscovered.webp',
+        explored: '/assets/islands/v2/growth/stack-spire/explored.webp',
+        developing: '/assets/islands/v2/growth/stack-spire/developing.webp',
+        flourishing: '/assets/islands/v2/growth/stack-spire/flourishing.webp',
+      },
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
       silhouetteSummary:
@@ -226,6 +232,15 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       assetPath: '/assets/islands/v2/transparent/halfway-lighthouse.webp',
       originalAssetPath: '/assets/islands/v2/halfway-lighthouse.jpg',
       legacyAssetPath: '/assets/islands/transparent/halfway-lighthouse.webp',
+      stageAssets: {
+        undiscovered:
+          '/assets/islands/v2/growth/halfway-lighthouse/undiscovered.webp',
+        explored: '/assets/islands/v2/growth/halfway-lighthouse/explored.webp',
+        developing:
+          '/assets/islands/v2/growth/halfway-lighthouse/developing.webp',
+        flourishing:
+          '/assets/islands/v2/growth/halfway-lighthouse/flourishing.webp',
+      },
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
       silhouetteSummary:
@@ -322,6 +337,12 @@ export const MIRI_ISLANDS_REGISTRY: readonly MiriIslandDefinition[] = [
       assetPath: '/assets/islands/v2/transparent/compass-cove.webp',
       originalAssetPath: '/assets/islands/v2/compass-cove.jpg',
       legacyAssetPath: '/assets/islands/transparent/compass-cove.webp',
+      stageAssets: {
+        undiscovered: '/assets/islands/v2/growth/compass-cove/undiscovered.webp',
+        explored: '/assets/islands/v2/growth/compass-cove/explored.webp',
+        developing: '/assets/islands/v2/growth/compass-cove/developing.webp',
+        flourishing: '/assets/islands/v2/growth/compass-cove/flourishing.webp',
+      },
       aspectRatio: '4:3',
       dimensions: { width: 800, height: 600 },
       silhouetteSummary:
